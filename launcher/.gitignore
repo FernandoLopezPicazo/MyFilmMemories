@@ -1,0 +1,6 @@
+node_modules/
+resources/app/
+resources/runtime/
+resources/icon.ico
+build/icon.ico
+dist-installer/

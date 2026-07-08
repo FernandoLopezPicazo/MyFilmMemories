@@ -1,0 +1,465 @@
+<div class="container">
+  <h1>🎬 Películas</h1>
+
+  <div class="error" *ngIf="error">{{ error }}</div>
+
+  <div class="barra-top">
+    <button class="btn-primary btn-nueva" (click)="mostrarFormulario = !mostrarFormulario">
+      {{ mostrarFormulario ? '✕ Cancelar' : '+ Añadir película' }}
+    </button>
+    <button class="btn-saga btn-nueva" (click)="mostrarFormularioSaga = !mostrarFormularioSaga">
+      {{ mostrarFormularioSaga ? '✕ Cancelar' : '🎞️ Añadir saga' }}
+    </button>
+    <div class="buscador">
+      <span class="buscador-icono">🔍</span>
+      <input type="text" [(ngModel)]="busqueda" placeholder="Buscar película..." class="buscador-input" />
+      <button *ngIf="busqueda" class="buscador-clear" (click)="busqueda = ''">✕</button>
+    </div>
+    <button class="btn-explorar" (click)="abrirExplorar()">🔭 Explorar</button>
+    <button class="btn-filtrar" [class.activo]="generosSeleccionados.length > 0"
+      (click)="mostrarFiltro = !mostrarFiltro">
+      🏷️ Filtrar{{ generosSeleccionados.length > 0 ? ' (' + generosSeleccionados.length + ')' : '' }}
+    </button>
+  </div>
+
+  <!-- Panel de filtro por géneros -->
+  <div class="filtro-panel" *ngIf="mostrarFiltro">
+    <div class="filtro-header">
+      <span class="filtro-label">Filtrar por género</span>
+      <button class="btn-limpiar-filtro" *ngIf="generosSeleccionados.length > 0"
+        (click)="generosSeleccionados = []">✕ Limpiar</button>
+    </div>
+    <div class="filtro-generos">
+      <span *ngFor="let g of GENEROS" class="filtro-chip"
+        [class.activo]="generosSeleccionados.includes(g)"
+        (click)="toggleFiltroGenero(g)">{{ g }}</span>
+    </div>
+  </div>
+
+  <!-- Formulario nueva saga -->
+  <div class="card formulario" *ngIf="mostrarFormularioSaga">
+    <h2>Nueva saga</h2>
+    <div class="campos-simple">
+      <input type="text" [(ngModel)]="tituloNuevaSaga" placeholder="Nombre de la saga *" (keyup.enter)="crearSaga()" autofocus />
+      <button class="btn-saga" (click)="crearSaga()">Crear saga</button>
+    </div>
+  </div>
+
+  <!-- ── SAGAS ───────────────────────────────────── -->
+  <div class="sagas-seccion" *ngIf="sagas.length > 0">
+    <div class="sagas-titulo-bar" (click)="seccionSagasAbierta = !seccionSagasAbierta">
+      <h2 class="sagas-titulo">🎞️ Sagas ({{ sagas.length }})</h2>
+      <span class="sagas-toggle">{{ seccionSagasAbierta ? '▲' : '▼' }}</span>
+    </div>
+    <ng-container *ngIf="seccionSagasAbierta">
+    <div class="saga-card" *ngFor="let saga of sagas">
+      <!-- Cabecera de la saga -->
+      <div class="saga-header" (click)="toggleSaga(saga.id!)">
+        <div class="saga-header-izq">
+          <span class="saga-nombre">{{ saga.titulo }}</span>
+          <span class="saga-badge" [class.badge-finalizada]="saga.estado === 'FINALIZADA'">
+            {{ saga.estado === 'FINALIZADA' ? '✅ Finalizada' : '🎬 En proceso' }}
+          </span>
+          <span class="saga-contador">{{ contarVistas(saga) }}/{{ saga.peliculas?.length ?? 0 }} vistas</span>
+        </div>
+        <div class="saga-header-der">
+          <span class="saga-toggle">{{ sagasExpandidas.has(saga.id!) ? '▲' : '▼' }}</span>
+          <button class="btn-danger btn-saga-del" (click)="$event.stopPropagation(); eliminarSaga(saga.id!)">✕</button>
+        </div>
+      </div>
+
+      <!-- Contenido expandible -->
+      <div class="saga-body" *ngIf="sagasExpandidas.has(saga.id!)">
+        <!-- Lista de películas -->
+        <div class="saga-peli-row" *ngFor="let peli of saga.peliculas" [class.peli-vista]="peli.estado === 'VISTA'">
+          <img *ngIf="peli.imagenUrl" [src]="imagenReal(peli.imagenUrl)" class="saga-peli-img" />
+          <div *ngIf="!peli.imagenUrl" class="saga-peli-img-ph">🎬</div>
+          <div class="saga-peli-info">
+            <span class="saga-peli-titulo">{{ peli.titulo }}</span>
+            <span *ngIf="peli.estado === 'VISTA' && peli.nota != null" class="saga-peli-nota">⭐ {{ peli.nota }}/10</span>
+          </div>
+          <div class="saga-peli-acc">
+            <button *ngIf="peli.estado === 'PENDIENTE'" class="btn-success btn-sm"
+              (click)="abrirVistaEnSaga(peli, saga.id!, $event)">✓ Vista</button>
+            <button *ngIf="peli.estado === 'VISTA'" class="btn-secondary btn-sm"
+              (click)="deshacerVistaSaga(peli.id!, $event)">↩ Pendiente</button>
+            <button class="btn-danger btn-sm" (click)="eliminarPeliDeSaga(peli.id!, $event)">✕</button>
+          </div>
+        </div>
+
+        <!-- Sin películas -->
+        <div class="saga-vacia" *ngIf="!saga.peliculas?.length">
+          Aún no hay películas en esta saga
+        </div>
+
+        <!-- Añadir película a la saga -->
+        <div class="saga-add-peli">
+          <input type="text" [(ngModel)]="tituloPeliEnSaga[saga.id!]"
+            placeholder="Título de la nueva película..."
+            (keyup.enter)="agregarPeliASaga(saga.id!)" />
+          <button class="btn-primary btn-sm" (click)="agregarPeliASaga(saga.id!)">+ Añadir</button>
+        </div>
+      </div>
+    </div>
+    </ng-container>
+  </div>
+
+  <!-- Formulario nueva película: solo título -->
+  <div class="card formulario" *ngIf="mostrarFormulario">
+    <h2>Nueva película</h2>
+    <div class="campos-simple">
+      <input type="text" [(ngModel)]="tituloNueva" placeholder="Título *" (keyup.enter)="crear()" autofocus />
+      <button class="btn-primary" (click)="crear()">Añadir a Pendientes</button>
+    </div>
+  </div>
+
+  <div class="columnas columnas-2">
+    <!-- Pendientes -->
+    <div class="seccion drop-zone" [class.drag-sobre]="dragSobrePendiente"
+      (dragover)="onDragOver($event, 'PENDIENTE')"
+      (dragleave)="onDragLeave($event, 'PENDIENTE')"
+      (drop)="onDrop($event, 'PENDIENTE')">
+      <h2>📋 Pendientes ({{ pendientesFiltradas.length }})</h2>
+      <div *ngIf="pendientesFiltradas.length === 0" class="drop-hint">{{ busqueda ? 'Sin resultados' : 'Arrastra aquí para marcar como pendiente' }}</div>
+      <div class="serie-card" *ngFor="let pelicula of pendientesFiltradas"
+        draggable="true"
+        (dragstart)="onDragStart(pelicula, $event)"
+        (click)="abrirDetalle(pelicula)">
+        <div class="serie-info">
+          <h3>{{ pelicula.titulo }}</h3>
+          <span class="hint-detalle">Arrastra o usa ✓ para marcar como vista · Clic para ver más</span>
+        </div>
+        <div class="serie-acciones">
+          <button class="btn-success" (click)="abrirModalVista(pelicula, $event)">✓ Vista</button>
+          <button class="btn-edit" (click)="abrirEdicion(pelicula, $event)">✎</button>
+          <button class="btn-danger" (click)="eliminar(pelicula.id!, $event)">✕</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vistas -->
+    <div class="seccion drop-zone" [class.drag-sobre]="dragSobreVista"
+      (dragover)="onDragOver($event, 'VISTA')"
+      (dragleave)="onDragLeave($event, 'VISTA')"
+      (drop)="onDrop($event, 'VISTA')">
+      <h2>✅ Vistas ({{ vistasFiltradas.length }})</h2>
+      <div *ngIf="vistasFiltradas.length === 0" class="drop-hint">{{ busqueda ? 'Sin resultados' : 'Arrastra aquí cuando termines una película' }}</div>
+      <div class="serie-card vista-card" *ngFor="let pelicula of vistasFiltradas"
+        draggable="true"
+        (dragstart)="onDragStart(pelicula, $event)"
+        (click)="abrirDetalle(pelicula)">
+        <img *ngIf="pelicula.imagenUrl" [src]="imagenReal(pelicula.imagenUrl)" alt="{{ pelicula.titulo }}" class="serie-img" />
+        <div *ngIf="!pelicula.imagenUrl" class="serie-img-placeholder">🎬</div>
+        <div class="serie-info">
+          <h3>{{ pelicula.titulo }}</h3>
+          <p *ngIf="pelicula.descripcion" class="descripcion">{{ pelicula.descripcion }}</p>
+          <div class="generos-tags" *ngIf="pelicula.generos?.length">
+            <span class="genero-chip" *ngFor="let g of pelicula.generos">{{ g }}</span>
+          </div>
+          <div class="notas-mini">
+            <span *ngIf="pelicula.duracionMinutos != null">⏱️ {{ pelicula.duracionMinutos }} min</span>
+          </div>
+          <div class="notas-mini">
+            <span *ngIf="pelicula.nota != null">⭐ {{ pelicula.nombrePersona1 || 'P1' }}: {{ pelicula.nota }}/10</span>
+            <span *ngIf="pelicula.nota2 != null" class="nota2">⭐ {{ pelicula.nombrePersona2 || 'P2' }}: {{ pelicula.nota2 }}/10</span>
+          </div>
+          <span class="hint-detalle">Haz clic para ver más</span>
+        </div>
+        <div class="serie-acciones">
+          <button class="btn-edit" (click)="abrirEdicion(pelicula, $event)">✎</button>
+          <button class="btn-danger" (click)="eliminar(pelicula.id!, $event)">✕</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL DETALLE ─────────────────────────────────────────────── -->
+<div class="modal-overlay" *ngIf="peliculaDetalle" (click)="peliculaDetalle = null">
+  <div class="modal modal-detalle" (click)="$event.stopPropagation()">
+
+    <button class="modal-cerrar" (click)="peliculaDetalle = null">✕</button>
+
+    <div class="detalle-header">
+      <img *ngIf="peliculaDetalle.imagenUrl" [src]="imagenReal(peliculaDetalle.imagenUrl)" class="detalle-img" />
+      <div *ngIf="!peliculaDetalle.imagenUrl" class="detalle-img-placeholder">🎬</div>
+      <div class="detalle-titulo-bloque">
+        <h2>{{ peliculaDetalle.titulo }}</h2>
+        <span class="badge" [class.badge-vista]="peliculaDetalle.estado === 'VISTA'">
+          {{ peliculaDetalle.estado }}
+        </span>
+        <div *ngIf="peliculaDetalle.duracionMinutos != null" class="detalle-progreso">
+          ⏱️ {{ peliculaDetalle.duracionMinutos }} minutos
+        </div>
+        <p *ngIf="peliculaDetalle.descripcion" class="detalle-descripcion">{{ peliculaDetalle.descripcion }}</p>
+        <div class="generos-tags" *ngIf="peliculaDetalle.generos?.length">
+          <span class="genero-chip" *ngFor="let g of peliculaDetalle.generos">{{ g }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Opiniones -->
+    <div class="opiniones" [class.una-opinion]="!tienePersona2(peliculaDetalle)">
+      <div class="opinion-bloque">
+        <h4>{{ peliculaDetalle.nombrePersona1 || 'Opinión 1' }}</h4>
+        <div class="opinion-fila" *ngIf="peliculaDetalle.personajeFavorito">
+          <span class="opinion-label">❤️ Favorito</span>
+          <span>{{ peliculaDetalle.personajeFavorito }}</span>
+        </div>
+        <div class="opinion-fila" *ngIf="peliculaDetalle.personajeOdiado">
+          <span class="opinion-label">😤 Odiado</span>
+          <span>{{ peliculaDetalle.personajeOdiado }}</span>
+        </div>
+        <div class="opinion-nota" *ngIf="peliculaDetalle.nota != null">
+          <span>Nota</span>
+          <span class="nota-valor">{{ peliculaDetalle.nota }}/10</span>
+        </div>
+        <div class="sin-datos" *ngIf="!peliculaDetalle.personajeFavorito && !peliculaDetalle.personajeOdiado && peliculaDetalle.nota == null">
+          Sin opinión todavía
+        </div>
+      </div>
+
+      <div class="opinion-bloque" *ngIf="tienePersona2(peliculaDetalle)">
+        <h4>{{ peliculaDetalle.nombrePersona2 || 'Opinión 2' }}</h4>
+        <div class="opinion-fila" *ngIf="peliculaDetalle.personajeFavorito2">
+          <span class="opinion-label">❤️ Favorito</span>
+          <span>{{ peliculaDetalle.personajeFavorito2 }}</span>
+        </div>
+        <div class="opinion-fila" *ngIf="peliculaDetalle.personajeOdiado2">
+          <span class="opinion-label">😤 Odiado</span>
+          <span>{{ peliculaDetalle.personajeOdiado2 }}</span>
+        </div>
+        <div class="opinion-nota" *ngIf="peliculaDetalle.nota2 != null">
+          <span>Nota</span>
+          <span class="nota-valor">{{ peliculaDetalle.nota2 }}/10</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detalle-acciones">
+      <button class="btn-edit" (click)="abrirEdicion(peliculaDetalle, $event)">✎ Editar</button>
+      <button class="btn-success" *ngIf="peliculaDetalle.estado === 'PENDIENTE'"
+        (click)="abrirModalVista(peliculaDetalle, $event)">✓ Marcar como vista</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL MARCAR COMO VISTA (formulario completo) ─────────────── -->
+<div class="modal-overlay" *ngIf="peliculaSeleccionada" (click)="peliculaSeleccionada = null">
+  <div class="modal modal-vista" (click)="$event.stopPropagation()">
+    <h3>✅ {{ peliculaSeleccionada.titulo }}</h3>
+    <p class="vista-subtitulo">Completa los detalles antes de marcarla como vista</p>
+
+    <!-- Imagen -->
+    <div class="form-con-imagen">
+      <div class="imagen-upload" (click)="fileVistaInput.click()">
+        <img *ngIf="imagenVistaPreview" [src]="imagenVistaPreview" alt="preview" />
+        <img *ngIf="!imagenVistaPreview && vistaForm.imagenUrl" [src]="imagenReal(vistaForm.imagenUrl!)" alt="actual" />
+        <div *ngIf="!imagenVistaPreview && !vistaForm.imagenUrl" class="imagen-placeholder">
+          <span>📷</span><small>Añadir imagen</small>
+        </div>
+        <input #fileVistaInput type="file" accept="image/*" (change)="onImagenVistaSeleccionada($event)" hidden />
+      </div>
+      <div class="campos">
+        <textarea [(ngModel)]="vistaForm.descripcion" placeholder="Descripción..." rows="4"></textarea>
+        <div class="nota-input">
+          <label>Duración (min):</label>
+          <input type="number" [(ngModel)]="vistaForm.duracionMinutos" min="1" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Géneros -->
+    <div class="generos-selector">
+      <button type="button" class="btn-secondary btn-generos-toggle"
+        (click)="mostrarGenerosVista = !mostrarGenerosVista">
+        🏷️ Géneros {{ vistaForm.generos?.length ? '(' + vistaForm.generos!.length + ')' : '' }}
+        {{ mostrarGenerosVista ? '▲' : '▼' }}
+      </button>
+      <div class="generos-lista" *ngIf="mostrarGenerosVista">
+        <span *ngFor="let g of GENEROS"
+          class="genero-tag"
+          [class.activo]="tieneGenero(vistaForm.generos, g)"
+          (click)="toggleGeneroVista(g)">{{ g }}</span>
+      </div>
+    </div>
+
+    <!-- Personas -->
+    <div class="personas-grid">
+      <div class="persona-bloque">
+        <h4>Persona 1</h4>
+        <input type="text" [(ngModel)]="vistaForm.nombrePersona1" placeholder="Tu nombre" />
+        <input type="text" [(ngModel)]="vistaForm.personajeFavorito" placeholder="Personaje favorito ❤️" />
+        <input type="text" [(ngModel)]="vistaForm.personajeOdiado" placeholder="Personaje odiado 😤" />
+        <div class="nota-input">
+          <label>Nota:</label>
+          <input type="number" [(ngModel)]="vistaForm.nota" min="0" max="10" />
+        </div>
+      </div>
+      <div class="persona-bloque">
+        <h4>Persona 2 (opcional)</h4>
+        <input type="text" [(ngModel)]="vistaForm.nombrePersona2" placeholder="Nombre" />
+        <input type="text" [(ngModel)]="vistaForm.personajeFavorito2" placeholder="Personaje favorito ❤️" />
+        <input type="text" [(ngModel)]="vistaForm.personajeOdiado2" placeholder="Personaje odiado 😤" />
+        <div class="nota-input">
+          <label>Nota:</label>
+          <input type="number" [(ngModel)]="vistaForm.nota2" min="0" max="10" />
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-primary" (click)="confirmarVista()">✅ Guardar y marcar como vista</button>
+      <button class="btn-secondary" (click)="peliculaSeleccionada = null">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL EDICIÓN ─────────────────────────────────────────────── -->
+<div class="modal-overlay" *ngIf="peliculaEditando" (click)="peliculaEditando = null">
+  <div class="modal modal-edit" (click)="$event.stopPropagation()">
+    <h3>Editar — {{ peliculaEditando.titulo }}</h3>
+
+    <!-- PENDIENTE: solo título -->
+    <ng-container *ngIf="peliculaEditando.estado === 'PENDIENTE'">
+      <input type="text" [(ngModel)]="peliculaEditando.titulo" placeholder="Título *" />
+    </ng-container>
+
+    <!-- VISTA: formulario completo -->
+    <ng-container *ngIf="peliculaEditando.estado === 'VISTA'">
+      <div class="form-con-imagen">
+        <div class="imagen-upload" (click)="fileEditInput.click()">
+          <img *ngIf="imagenEditPreview" [src]="imagenEditPreview" alt="preview" />
+          <img *ngIf="!imagenEditPreview && peliculaEditando.imagenUrl" [src]="imagenReal(peliculaEditando.imagenUrl!)" alt="actual" />
+          <div *ngIf="!imagenEditPreview && !peliculaEditando.imagenUrl" class="imagen-placeholder">
+            <span>📷</span><small>Cambiar imagen</small>
+          </div>
+          <input #fileEditInput type="file" accept="image/*" (change)="onImagenEditSeleccionada($event)" hidden />
+        </div>
+        <div class="campos">
+          <input type="text" [(ngModel)]="peliculaEditando.titulo" placeholder="Título *" />
+          <textarea [(ngModel)]="peliculaEditando.descripcion" placeholder="Descripción..." rows="3"></textarea>
+          <div class="nota-input">
+            <label>Duración (min):</label>
+            <input type="number" [(ngModel)]="peliculaEditando.duracionMinutos" min="1" />
+          </div>
+        </div>
+      </div>
+
+      <div class="generos-selector">
+        <button type="button" class="btn-secondary btn-generos-toggle"
+          (click)="mostrarGenerosEdit = !mostrarGenerosEdit">
+          🏷️ Géneros {{ peliculaEditando.generos?.length ? '(' + peliculaEditando.generos!.length + ')' : '' }}
+          {{ mostrarGenerosEdit ? '▲' : '▼' }}
+        </button>
+        <div class="generos-lista" *ngIf="mostrarGenerosEdit">
+          <span *ngFor="let g of GENEROS"
+            class="genero-tag"
+            [class.activo]="tieneGenero(peliculaEditando.generos, g)"
+            (click)="toggleGeneroEdicion(g)">{{ g }}</span>
+        </div>
+      </div>
+
+      <div class="personas-grid">
+        <div class="persona-bloque">
+          <h4>{{ peliculaEditando.nombrePersona1 || 'Persona 1' }}</h4>
+          <input type="text" [(ngModel)]="peliculaEditando.nombrePersona1" placeholder="Tu nombre" />
+          <input type="text" [(ngModel)]="peliculaEditando.personajeFavorito" placeholder="Personaje favorito ❤️" />
+          <input type="text" [(ngModel)]="peliculaEditando.personajeOdiado" placeholder="Personaje odiado 😤" />
+          <div class="nota-input">
+            <label>Nota:</label>
+            <input type="number" [(ngModel)]="peliculaEditando.nota" min="0" max="10" />
+          </div>
+        </div>
+        <div class="persona-bloque">
+          <h4>{{ peliculaEditando.nombrePersona2 || 'Persona 2' }}</h4>
+          <input type="text" [(ngModel)]="peliculaEditando.nombrePersona2" placeholder="Nombre" />
+          <input type="text" [(ngModel)]="peliculaEditando.personajeFavorito2" placeholder="Personaje favorito ❤️" />
+          <input type="text" [(ngModel)]="peliculaEditando.personajeOdiado2" placeholder="Personaje odiado 😤" />
+          <div class="nota-input">
+            <label>Nota:</label>
+            <input type="number" [(ngModel)]="peliculaEditando.nota2" min="0" max="10" />
+          </div>
+        </div>
+      </div>
+    </ng-container><!-- /VISTA -->
+
+    <div class="modal-actions">
+      <button class="btn-primary" (click)="guardarEdicion()">Guardar</button>
+      <button class="btn-secondary" (click)="peliculaEditando = null">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL EXPLORAR ─────────────────────────────────────────────── -->
+<div class="explorar-overlay" *ngIf="mostrarExplorar" (click)="mostrarExplorar = false">
+  <div class="explorar-panel" (click)="$event.stopPropagation()">
+
+    <div class="explorar-header">
+      <h2>🔭 Explorar películas</h2>
+      <button class="explorar-cerrar" (click)="mostrarExplorar = false">✕</button>
+    </div>
+
+    <div class="explorar-buscador">
+      <input type="text" [(ngModel)]="explorarBusqueda" placeholder="Buscar película..." (keyup.enter)="buscarExplorar()" />
+      <button class="btn-primary" (click)="buscarExplorar()">Buscar</button>
+      <button class="btn-secondary" (click)="abrirExplorar()">Trending</button>
+    </div>
+
+    <div class="explorar-etiquetas" *ngIf="!explorarCargando && explorarGenerosTodos.length > 0">
+      <span class="explorar-etiqueta-label">Filtrar:</span>
+      <span *ngFor="let g of explorarGenerosTodos" class="explorar-etiqueta"
+        [class.activa]="explorarGenerosActivos.includes(g)"
+        (click)="toggleExplorarGenero(g)">{{ g }}</span>
+      <button class="explorar-limpiar" *ngIf="explorarGenerosActivos.length > 0"
+        (click)="explorarGenerosActivos = []; abrirExplorar()">✕ Limpiar</button>
+    </div>
+
+    <div class="explorar-cargando" *ngIf="explorarCargando">Cargando...</div>
+
+    <div class="explorar-grid" *ngIf="!explorarCargando">
+      <div class="explorar-card" *ngFor="let r of explorarFiltrados" (click)="abrirDetalleExplorar(r)">
+        <div class="explorar-titulo-top">{{ r.titulo }}</div>
+        <img *ngIf="r.imagenUrl" [src]="r.imagenUrl" [alt]="r.titulo" class="explorar-poster" />
+        <div *ngIf="!r.imagenUrl" class="explorar-poster-ph">🎬</div>
+        <div class="explorar-info">
+          <div class="explorar-puntuacion" *ngIf="r.puntuacion > 0">⭐ {{ r.puntuacion }}/10</div>
+          <div class="explorar-generos">
+            <span class="genero-chip" *ngFor="let g of r.generos.slice(0,3)">{{ g }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="explorar-vacio" *ngIf="explorarFiltrados.length === 0">Sin resultados</div>
+      <div class="explorar-ver-mas" *ngIf="explorarFiltrados.length > 0">
+        <button class="btn-cargar-mas" (click)="cargarMasExplorar()" [disabled]="explorarCargandoMas">
+          {{ explorarCargandoMas ? 'Cargando...' : '➕ Ver más' }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Modal detalle dentro del panel explorar -->
+    <div class="explorar-detalle-overlay" *ngIf="explorarDetalle" (click)="explorarDetalle = null">
+      <div class="explorar-detalle-modal" (click)="$event.stopPropagation()">
+        <button class="explorar-cerrar explorar-detalle-cerrar" (click)="explorarDetalle = null">✕</button>
+        <div class="explorar-detalle-contenido">
+          <div class="explorar-detalle-poster-col">
+            <img *ngIf="explorarDetalle.imagenUrl" [src]="explorarDetalle.imagenUrl" [alt]="explorarDetalle.titulo" class="explorar-detalle-poster" />
+            <div *ngIf="!explorarDetalle.imagenUrl" class="explorar-detalle-poster-ph">🎬</div>
+          </div>
+          <div class="explorar-detalle-info-col">
+            <h2 class="explorar-detalle-titulo">{{ explorarDetalle.titulo }}</h2>
+            <div class="explorar-detalle-puntuacion" *ngIf="explorarDetalle.puntuacion > 0">⭐ {{ explorarDetalle.puntuacion }} / 10</div>
+            <div class="explorar-detalle-generos">
+              <span class="genero-chip" *ngFor="let g of explorarDetalle.generos">{{ g }}</span>
+            </div>
+            <p class="explorar-detalle-desc">{{ explorarDetalle.descripcion || 'Sin descripción disponible.' }}</p>
+            <button class="btn-success explorar-detalle-btn" (click)="agregarDesdeExplorar(explorarDetalle)" [disabled]="explorarAgregando">
+              {{ explorarAgregando ? 'Añadiendo...' : '➕ Añadir a Pendientes' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

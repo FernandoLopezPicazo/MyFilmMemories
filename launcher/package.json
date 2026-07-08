@@ -1,0 +1,45 @@
+{
+  "name": "myfilmmemories-launcher",
+  "version": "1.0.0",
+  "description": "Shell de escritorio para MyFilmMemories (Electron + backend Spring Boot embebido)",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "dist": "electron-builder"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0",
+    "sharp": "^0.35.3",
+    "png-to-ico": "^3.0.2"
+  },
+  "build": {
+    "appId": "com.fernando.myfilmmemories",
+    "productName": "MyFilmMemories",
+    "directories": {
+      "output": "dist-installer"
+    },
+    "files": [
+      "main.js"
+    ],
+    "extraResources": [
+      { "from": "resources/app/seriestracker-0.0.1-SNAPSHOT.jar", "to": "app/seriestracker-0.0.1-SNAPSHOT.jar" },
+      { "from": "resources/runtime", "to": "runtime" },
+      { "from": "resources/icon.ico", "to": "icon.ico" }
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.ico",
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "MyFilmMemories",
+      "createStartMenuShortcut": true,
+      "deleteAppDataOnUninstall": false
+    }
+  }
+}

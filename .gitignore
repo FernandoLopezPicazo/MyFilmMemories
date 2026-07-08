@@ -1,0 +1,34 @@
+# --- Dependencias ---
+node_modules/
+
+# --- Builds y artefactos ---
+frontend/dist/
+frontend/.angular/
+backend/target/
+launcher/dist-installer/
+backend/src/main/resources/static/
+
+# --- Binarios pesados que se generan al empaquetar ---
+launcher/resources/app/
+launcher/resources/runtime/
+
+# --- Datos locales (base de datos H2 e imágenes subidas por el usuario) ---
+backend/data/
+backend/uploads/
+data/
+*.mv.db
+*.lock.db
+
+# --- Secretos: la clave de TMDB vive aquí (usa environment.example.ts como plantilla) ---
+frontend/src/environments/environment.ts
+
+# --- Documentos de estudio personales (no forman parte de la app) ---
+REPASO_SPRINGBOOT.*
+SPRING_BOOT_TECNICO.*
+
+# --- IDE / SO ---
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db

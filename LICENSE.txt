@@ -1,0 +1,36 @@
+Copyright (c) 2025-2026 Fernando López-Picazo Torres. Todos los derechos reservados.
+All rights reserved.
+
+--- ESPAÑOL ---
+
+Este código fuente se publica únicamente con fines de demostración y
+evaluación profesional (portfolio).
+
+Se permite:
+  - Ver y leer el código con fines de evaluación o aprendizaje personal.
+
+NO se permite, sin autorización previa y por escrito del autor:
+  - Copiar, modificar o redistribuir el código, total o parcialmente.
+  - Usar el código o partes de él en otros proyectos, comerciales o no.
+  - Publicar la aplicación o derivados de ella en tiendas de aplicaciones
+    o cualquier otro medio de distribución.
+
+Para solicitar permisos: flopezpicazo@gmail.com
+
+--- ENGLISH ---
+
+This source code is published solely for demonstration and professional
+evaluation purposes (portfolio).
+
+You may:
+  - View and read the code for evaluation or personal learning purposes.
+
+You may NOT, without prior written permission from the author:
+  - Copy, modify or redistribute the code, in whole or in part.
+  - Use the code or parts of it in other projects, commercial or not.
+  - Publish the application or derivatives of it on app stores or any
+    other distribution channel.
+
+For permission requests: flopezpicazo@gmail.com
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.

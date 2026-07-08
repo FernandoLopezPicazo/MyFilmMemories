@@ -1,0 +1,141 @@
+<div class="backup-container">
+
+  <div class="backup-header">
+    <h1>🔗 Compartir colección</h1>
+    <p class="backup-subtitulo">Exporta o importa tu colección en formato JSON</p>
+  </div>
+
+  <!-- Tabs export / import -->
+  <div class="backup-tabs">
+    <button class="backup-tab" [class.activo]="modoVista === 'export'" (click)="modoVista = 'export'">
+      ⬆️ Exportar
+    </button>
+    <button class="backup-tab" [class.activo]="modoVista === 'import'" (click)="modoVista = 'import'">
+      ⬇️ Importar
+    </button>
+  </div>
+
+  <!-- ════════════ EXPORTAR ════════════ -->
+  <div *ngIf="modoVista === 'export'" class="backup-panel">
+
+    <p class="panel-desc">Selecciona qué quieres incluir en el archivo de exportación.</p>
+
+    <!-- Series -->
+    <div class="categoria-bloque">
+      <label class="categoria-titulo">
+        <input type="checkbox" [(ngModel)]="exportSeries" /> 📺 Series
+      </label>
+      <div class="estados-grid" *ngIf="exportSeries">
+        <label><input type="checkbox" [(ngModel)]="exportSeriesPendiente" /> Pendientes</label>
+        <label><input type="checkbox" [(ngModel)]="exportSeriesProceso"   /> En proceso</label>
+        <label><input type="checkbox" [(ngModel)]="exportSeriesVista"     /> Vistas</label>
+      </div>
+    </div>
+
+    <!-- Películas -->
+    <div class="categoria-bloque">
+      <label class="categoria-titulo">
+        <input type="checkbox" [(ngModel)]="exportPeliculas" /> 🎬 Películas
+      </label>
+      <div class="estados-grid" *ngIf="exportPeliculas">
+        <label><input type="checkbox" [(ngModel)]="exportPeliculasPendiente" /> Pendientes</label>
+        <label><input type="checkbox" [(ngModel)]="exportPeliculasVista"     /> Vistas</label>
+      </div>
+    </div>
+
+    <!-- Mangas -->
+    <div class="categoria-bloque">
+      <label class="categoria-titulo">
+        <input type="checkbox" [(ngModel)]="exportMangas" /> 📖 Mangas
+      </label>
+      <div class="estados-grid" *ngIf="exportMangas">
+        <label><input type="checkbox" [(ngModel)]="exportMangasPendiente"   /> Pendientes</label>
+        <label><input type="checkbox" [(ngModel)]="exportMangasProceso"     /> En proceso</label>
+        <label><input type="checkbox" [(ngModel)]="exportMangasFinalizados" /> Finalizados</label>
+      </div>
+    </div>
+
+    <div class="error" *ngIf="exportError">{{ exportError }}</div>
+
+    <button class="btn-accion btn-exportar" (click)="exportar()" [disabled]="exportando">
+      {{ exportando ? 'Exportando...' : '⬇️ Descargar backup.json' }}
+    </button>
+  </div>
+
+  <!-- ════════════ IMPORTAR ════════════ -->
+  <div *ngIf="modoVista === 'import'" class="backup-panel">
+
+    <p class="panel-desc">Selecciona un archivo <code>.json</code> exportado desde MyFilmMemories.</p>
+
+    <!-- Zona de selección de archivo -->
+    <input #fileInput type="file" accept=".json" (change)="onArchivoSeleccionado($event)" class="file-input-hidden" />
+    <div class="zona-archivo" [class.cargado]="!!archivoNombre" (click)="abrirSelectorArchivo()">
+      <span *ngIf="!archivoNombre">📂 Haz clic para seleccionar un archivo</span>
+      <span *ngIf="archivoNombre">📄 {{ archivoNombre }}</span>
+    </div>
+
+    <div class="error" *ngIf="importError">{{ importError }}</div>
+
+    <!-- Resultado de importación anterior -->
+    <div class="import-resultado" *ngIf="importOk > 0">
+      ✅ {{ importOk }} elemento{{ importOk !== 1 ? 's' : '' }} importado{{ importOk !== 1 ? 's' : '' }} correctamente.
+      <span *ngIf="importSaltados > 0"> · {{ importSaltados }} saltado{{ importSaltados !== 1 ? 's' : '' }}.</span>
+    </div>
+
+    <!-- Preview del archivo cargado -->
+    <div *ngIf="backupCargado" class="preview-container">
+
+      <div class="preview-header">
+        <span>Archivo del {{ backupCargado.fecha | date:'dd/MM/yyyy HH:mm' }}</span>
+        <span class="preview-total">{{ totalSeleccionados() }} seleccionado{{ totalSeleccionados() !== 1 ? 's' : '' }}</span>
+      </div>
+
+      <!-- Series -->
+      <div class="preview-seccion" *ngIf="importSeries.length > 0">
+        <div class="preview-seccion-titulo">📺 Series ({{ importSeries.length }})</div>
+        <div class="preview-item" *ngFor="let x of importSeries" [class.duplicado]="x.duplicado">
+          <label class="preview-check">
+            <input type="checkbox" [(ngModel)]="x.seleccionado" />
+            <span class="preview-titulo">{{ x.item.titulo }}</span>
+          </label>
+          <span class="estado-badge estado-{{ x.item.estado | lowercase }}">{{ estadoLabel(x.item.estado) }}</span>
+          <span class="duplicado-badge" *ngIf="x.duplicado">⚠️ Ya existe</span>
+        </div>
+      </div>
+
+      <!-- Películas -->
+      <div class="preview-seccion" *ngIf="importPeliculas.length > 0">
+        <div class="preview-seccion-titulo">🎬 Películas ({{ importPeliculas.length }})</div>
+        <div class="preview-item" *ngFor="let x of importPeliculas" [class.duplicado]="x.duplicado">
+          <label class="preview-check">
+            <input type="checkbox" [(ngModel)]="x.seleccionado" />
+            <span class="preview-titulo">{{ x.item.titulo }}</span>
+          </label>
+          <span class="estado-badge estado-{{ x.item.estado | lowercase }}">{{ estadoLabel(x.item.estado) }}</span>
+          <span class="duplicado-badge" *ngIf="x.duplicado">⚠️ Ya existe</span>
+        </div>
+      </div>
+
+      <!-- Mangas -->
+      <div class="preview-seccion" *ngIf="importMangas.length > 0">
+        <div class="preview-seccion-titulo">📖 Mangas ({{ importMangas.length }})</div>
+        <div class="preview-item" *ngFor="let x of importMangas" [class.duplicado]="x.duplicado">
+          <label class="preview-check">
+            <input type="checkbox" [(ngModel)]="x.seleccionado" />
+            <span class="preview-titulo">{{ x.item.titulo }}</span>
+          </label>
+          <span class="estado-badge estado-{{ x.item.estado | lowercase }}">{{ estadoLabel(x.item.estado) }}</span>
+          <span class="duplicado-badge" *ngIf="x.duplicado">⚠️ Ya existe</span>
+        </div>
+      </div>
+
+      <button class="btn-accion btn-importar"
+        (click)="importar()"
+        [disabled]="importando || totalSeleccionados() === 0">
+        {{ importando ? 'Importando...' : '⬆️ Importar ' + totalSeleccionados() + ' elemento' + (totalSeleccionados() !== 1 ? 's' : '') }}
+      </button>
+    </div>
+
+  </div>
+
+</div>

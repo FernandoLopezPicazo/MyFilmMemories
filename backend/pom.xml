@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!--
+        spring-boot-starter-parent es el "padre" del proyecto.
+        Nos hereda la versión de Java, de Spring, y configuraciones
+        por defecto de Maven. Es la forma estándar de arrancar Spring Boot.
+    -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.2.5</version>
+        <relativePath/>
+    </parent>
+
+    <!-- Identificador único de tu proyecto en el mundo Maven -->
+    <groupId>com.fernando</groupId>
+    <artifactId>seriestracker</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>seriestracker</name>
+
+    <properties>
+        <java.version>17</java.version>
+    </properties>
+
+    <dependencies>
+
+        <!--
+            spring-boot-starter-web: incluye Spring MVC + Tomcat embebido.
+            Gracias a esto puedes crear endpoints REST con @RestController
+            sin necesitar configurar nada de un servidor web externo.
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!--
+            spring-boot-starter-data-jpa: incluye Hibernate (implementación
+            de JPA) y Spring Data. Con esto mapeamos clases Java a tablas
+            de Oracle sin escribir SQL manualmente (salvo cuando queramos).
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <!--
+            H2: base de datos en memoria escrita en Java.
+            Arranca junto con Spring Boot, no necesita instalación.
+            Perfecta para desarrollar y probar sin tener Oracle instalado.
+            Cuando tengas Oracle, cambias esta dependencia por ojdbc11.
+        -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!--
+            Lombok: genera automáticamente getters, setters, constructores,
+            etc. mediante anotaciones como @Getter, @Setter, @Data.
+            Reduce el "boilerplate" (código repetitivo) enormemente.
+        -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Para tests (JUnit 5 incluido automáticamente) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>1.18.32</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

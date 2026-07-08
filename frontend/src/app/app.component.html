@@ -1,0 +1,52 @@
+<nav class="navbar">
+  <div class="nav-brand">
+    <app-icon name="brand" [size]="24" class="brand-icon"></app-icon>
+    <span class="brand-name">MyFilm<span class="brand-accent">Memories</span></span>
+  </div>
+
+  <div class="nav-links">
+    <a routerLink="/series" routerLinkActive="activa">
+      <app-icon name="series" [size]="18" class="nav-icon"></app-icon> Series
+    </a>
+    <a routerLink="/peliculas" routerLinkActive="activa">
+      <app-icon name="peliculas" [size]="18" class="nav-icon"></app-icon> Películas
+    </a>
+    <a routerLink="/mangas" routerLinkActive="activa">
+      <app-icon name="mangas" [size]="18" class="nav-icon"></app-icon> Mangas
+    </a>
+    <a routerLink="/backup" routerLinkActive="activa">
+      <app-icon name="compartir" [size]="18" class="nav-icon"></app-icon> Compartir
+    </a>
+  </div>
+
+  <div class="nav-acciones">
+    <div class="paleta-wrapper">
+      <button class="btn-tema" title="Color de tarjetas" (click)="mostrarPaleta = !mostrarPaleta">
+        <app-icon name="paleta" [size]="18"></app-icon>
+      </button>
+      <div class="paleta-panel" *ngIf="mostrarPaleta" (click)="$event.stopPropagation()">
+        <div class="paleta-titulo">Color de tarjetas</div>
+        <div class="paleta-opciones">
+          <button *ngFor="let e of esquemas"
+            class="paleta-opcion"
+            [class.activo]="theme.esquema.nombre === e.nombre"
+            (click)="seleccionarEsquema(e)">
+            <span class="paleta-muestras">
+              <span [style.background]="theme.dark ? e.pendienteOscuro : e.pendiente"></span>
+              <span [style.background]="theme.dark ? e.procesoOscuro : e.proceso"></span>
+              <span [style.background]="theme.dark ? e.finalizadoOscuro : e.finalizado"></span>
+            </span>
+            <span class="paleta-nombre">{{ e.nombre }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <button class="btn-tema" (click)="theme.toggleDark()" [title]="theme.dark ? 'Modo claro' : 'Modo oscuro'">
+      <app-icon [name]="theme.dark ? 'sol' : 'luna'" [size]="18"></app-icon>
+    </button>
+  </div>
+</nav>
+
+<div (click)="mostrarPaleta = false">
+  <router-outlet></router-outlet>
+</div>

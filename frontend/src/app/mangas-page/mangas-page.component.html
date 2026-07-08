@@ -1,0 +1,428 @@
+<div class="container">
+  <h1>📖 Mangas</h1>
+
+  <div class="error" *ngIf="error">{{ error }}</div>
+
+  <div class="barra-top">
+    <button class="btn-primary btn-nueva" (click)="mostrarFormulario = !mostrarFormulario">
+      {{ mostrarFormulario ? '✕ Cancelar' : '+ Añadir manga' }}
+    </button>
+    <div class="buscador">
+      <span class="buscador-icono">🔍</span>
+      <input type="text" [(ngModel)]="busqueda" placeholder="Buscar manga..." class="buscador-input" />
+      <button *ngIf="busqueda" class="buscador-clear" (click)="busqueda = ''">✕</button>
+    </div>
+    <button class="btn-explorar" (click)="abrirExplorar()">🔭 Explorar</button>
+    <button class="btn-filtrar" [class.activo]="generosSeleccionados.length > 0"
+      (click)="mostrarFiltro = !mostrarFiltro">
+      🏷️ Filtrar{{ generosSeleccionados.length > 0 ? ' (' + generosSeleccionados.length + ')' : '' }}
+    </button>
+  </div>
+
+  <div class="filtro-panel" *ngIf="mostrarFiltro">
+    <div class="filtro-header">
+      <span class="filtro-label">Filtrar por género</span>
+      <button class="btn-limpiar-filtro" *ngIf="generosSeleccionados.length > 0"
+        (click)="generosSeleccionados = []">✕ Limpiar</button>
+    </div>
+    <div class="filtro-generos">
+      <span *ngFor="let g of GENEROS" class="filtro-chip"
+        [class.activo]="generosSeleccionados.includes(g)"
+        (click)="toggleFiltroGenero(g)">{{ g }}</span>
+    </div>
+  </div>
+
+  <div class="card formulario" *ngIf="mostrarFormulario">
+    <h2>Nuevo manga</h2>
+    <div class="campos-simple">
+      <input type="text" [(ngModel)]="tituloNuevo" placeholder="Título *" (keyup.enter)="crear()" autofocus />
+      <button class="btn-primary" (click)="crear()">Añadir a Pendientes</button>
+    </div>
+  </div>
+
+  <div class="columnas columnas-3">
+
+    <!-- PENDIENTES -->
+    <div class="seccion drop-zone" [class.drag-sobre]="dragSobrePendiente"
+      (dragover)="onDragOver($event, 'PENDIENTE')"
+      (dragleave)="onDragLeave($event, 'PENDIENTE')"
+      (drop)="onDrop($event, 'PENDIENTE')">
+      <h2>📋 Pendientes ({{ pendientesFiltrados.length }})</h2>
+      <div *ngIf="pendientesFiltrados.length === 0" class="drop-hint">
+        {{ busqueda ? 'Sin resultados' : 'Arrastra aquí para volver a pendiente' }}
+      </div>
+      <div class="serie-card pendiente-card" *ngFor="let manga of pendientesFiltrados"
+        draggable="true"
+        (dragstart)="onDragStart(manga, $event)"
+        (click)="abrirDetalle(manga)">
+        <div class="serie-info">
+          <h3>{{ manga.titulo }}</h3>
+          <span class="hint-detalle">Arrastra o usa ▶ para empezar · Clic para ver más</span>
+        </div>
+        <div class="serie-acciones">
+          <button class="btn-proceso" (click)="empezar(manga.id!, $event)">▶ Empezar</button>
+          <button class="btn-edit" (click)="abrirEdicion(manga, $event)">✎</button>
+          <button class="btn-danger" (click)="eliminar(manga.id!, $event)">✕</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- EN PROCESO -->
+    <div class="seccion drop-zone" [class.drag-sobre]="dragSobreEnProceso"
+      (dragover)="onDragOver($event, 'EN_PROCESO')"
+      (dragleave)="onDragLeave($event, 'EN_PROCESO')"
+      (drop)="onDrop($event, 'EN_PROCESO')">
+      <h2>📖 En proceso ({{ enProcesoFiltrados.length }})</h2>
+      <div *ngIf="enProcesoFiltrados.length === 0" class="drop-hint">
+        {{ busqueda ? 'Sin resultados' : 'Arrastra un manga pendiente para empezar' }}
+      </div>
+      <div class="serie-card proceso-card" *ngFor="let manga of enProcesoFiltrados"
+        draggable="true"
+        (dragstart)="onDragStart(manga, $event)"
+        (click)="abrirDetalle(manga)">
+        <div class="serie-info">
+          <h3>{{ manga.titulo }}</h3>
+          <!-- Capítulo inline -->
+          <div class="progreso-inline" (click)="$event.stopPropagation()">
+            <span class="progreso-label">Cap.</span>
+            <button class="btn-step" (click)="cambiarCapitulo(manga, -1)">▼</button>
+            <span class="cap-valor">{{ manga.capituloActual || 1 }}</span>
+            <button class="btn-step" (click)="cambiarCapitulo(manga, 1)">▲</button>
+          </div>
+          <!-- URL inline -->
+          <div class="url-inline" (click)="$event.stopPropagation()">
+            <input type="text" [(ngModel)]="manga.urlLectura"
+              placeholder="URL de lectura..."
+              class="url-input"
+              (blur)="guardarUrl(manga)"
+              (keyup.enter)="guardarUrl(manga)" />
+            <a *ngIf="manga.urlLectura" [href]="manga.urlLectura" target="_blank" class="btn-link">🔗</a>
+          </div>
+          <span class="hint-detalle">Clic para ver más</span>
+        </div>
+        <div class="serie-acciones">
+          <button class="btn-success" (click)="abrirModalFinalizar(manga, $event)">✓ Fin</button>
+          <button class="btn-edit" (click)="abrirEdicion(manga, $event)">✎</button>
+          <button class="btn-danger" (click)="eliminar(manga.id!, $event)">✕</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FINALIZADOS -->
+    <div class="seccion drop-zone" [class.drag-sobre]="dragSobreFinalizado"
+      (dragover)="onDragOver($event, 'FINALIZADO')"
+      (dragleave)="onDragLeave($event, 'FINALIZADO')"
+      (drop)="onDrop($event, 'FINALIZADO')">
+      <h2>✅ Finalizados ({{ finalizadosFiltrados.length }})</h2>
+      <div *ngIf="finalizadosFiltrados.length === 0" class="drop-hint">
+        {{ busqueda ? 'Sin resultados' : 'Arrastra aquí cuando termines un manga' }}
+      </div>
+      <div class="serie-card finalizado-card" *ngFor="let manga of finalizadosFiltrados"
+        draggable="true"
+        (dragstart)="onDragStart(manga, $event)"
+        (click)="abrirDetalle(manga)">
+        <img *ngIf="manga.imagenUrl" [src]="imagenReal(manga.imagenUrl)" alt="{{ manga.titulo }}" class="serie-img" />
+        <div *ngIf="!manga.imagenUrl" class="serie-img-placeholder">📚</div>
+        <div class="serie-info">
+          <h3>{{ manga.titulo }}</h3>
+          <p *ngIf="manga.descripcion" class="descripcion">{{ manga.descripcion }}</p>
+          <div class="generos-tags" *ngIf="manga.generos?.length">
+            <span class="genero-chip" *ngFor="let g of manga.generos">{{ g }}</span>
+          </div>
+          <div class="notas-mini" *ngIf="manga.urlLectura">
+            <a [href]="manga.urlLectura" target="_blank" class="link-mini" (click)="$event.stopPropagation()">🔗 Leer</a>
+          </div>
+          <div class="notas-mini">
+            <span *ngIf="manga.nota != null">⭐ {{ manga.nombrePersona1 || 'P1' }}: {{ manga.nota }}/10</span>
+            <span *ngIf="manga.nota2 != null" class="nota2">⭐ {{ manga.nombrePersona2 || 'P2' }}: {{ manga.nota2 }}/10</span>
+          </div>
+          <span class="hint-detalle">Haz clic para ver más</span>
+        </div>
+        <div class="serie-acciones">
+          <button class="btn-edit" (click)="abrirEdicion(manga, $event)">✎</button>
+          <button class="btn-danger" (click)="eliminar(manga.id!, $event)">✕</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL DETALLE ──────────────────────────────────────────────── -->
+<div class="modal-overlay" *ngIf="mangaDetalle" (click)="mangaDetalle = null">
+  <div class="modal modal-detalle" (click)="$event.stopPropagation()">
+    <button class="modal-cerrar" (click)="mangaDetalle = null">✕</button>
+    <div class="detalle-header">
+      <img *ngIf="mangaDetalle.imagenUrl" [src]="imagenReal(mangaDetalle.imagenUrl)" class="detalle-img" />
+      <div *ngIf="!mangaDetalle.imagenUrl" class="detalle-img-placeholder">📚</div>
+      <div class="detalle-titulo-bloque">
+        <h2>{{ mangaDetalle.titulo }}</h2>
+        <span class="badge" [class.badge-proceso]="mangaDetalle.estado === 'EN_PROCESO'" [class.badge-finalizado]="mangaDetalle.estado === 'FINALIZADO'">
+          {{ mangaDetalle.estado }}
+        </span>
+        <div *ngIf="mangaDetalle.capituloActual != null" class="detalle-progreso">
+          📖 Capítulo {{ mangaDetalle.capituloActual }}
+        </div>
+        <div *ngIf="mangaDetalle.urlLectura" class="detalle-progreso">
+          <a [href]="mangaDetalle.urlLectura" target="_blank" (click)="$event.stopPropagation()">🔗 Abrir en navegador</a>
+        </div>
+        <p *ngIf="mangaDetalle.descripcion" class="detalle-descripcion">{{ mangaDetalle.descripcion }}</p>
+        <div class="generos-tags" *ngIf="mangaDetalle.generos?.length">
+          <span class="genero-chip" *ngFor="let g of mangaDetalle.generos">{{ g }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="opiniones" [class.una-opinion]="!tienePersona2(mangaDetalle)">
+      <div class="opinion-bloque">
+        <h4>{{ mangaDetalle.nombrePersona1 || 'Opinión 1' }}</h4>
+        <div class="opinion-fila" *ngIf="mangaDetalle.personajeFavorito">
+          <span class="opinion-label">❤️ Favorito</span>
+          <span>{{ mangaDetalle.personajeFavorito }}</span>
+        </div>
+        <div class="opinion-fila" *ngIf="mangaDetalle.personajeOdiado">
+          <span class="opinion-label">😤 Odiado</span>
+          <span>{{ mangaDetalle.personajeOdiado }}</span>
+        </div>
+        <div class="opinion-nota" *ngIf="mangaDetalle.nota != null">
+          <span>Nota</span><span class="nota-valor">{{ mangaDetalle.nota }}/10</span>
+        </div>
+        <div class="sin-datos" *ngIf="!mangaDetalle.personajeFavorito && !mangaDetalle.personajeOdiado && mangaDetalle.nota == null">
+          Sin opinión todavía
+        </div>
+      </div>
+      <div class="opinion-bloque" *ngIf="tienePersona2(mangaDetalle)">
+        <h4>{{ mangaDetalle.nombrePersona2 || 'Opinión 2' }}</h4>
+        <div class="opinion-fila" *ngIf="mangaDetalle.personajeFavorito2">
+          <span class="opinion-label">❤️ Favorito</span><span>{{ mangaDetalle.personajeFavorito2 }}</span>
+        </div>
+        <div class="opinion-fila" *ngIf="mangaDetalle.personajeOdiado2">
+          <span class="opinion-label">😤 Odiado</span><span>{{ mangaDetalle.personajeOdiado2 }}</span>
+        </div>
+        <div class="opinion-nota" *ngIf="mangaDetalle.nota2 != null">
+          <span>Nota</span><span class="nota-valor">{{ mangaDetalle.nota2 }}/10</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="detalle-acciones">
+      <button class="btn-edit" (click)="abrirEdicion(mangaDetalle, $event)">✎ Editar</button>
+      <button class="btn-proceso" *ngIf="mangaDetalle.estado === 'PENDIENTE'"
+        (click)="empezarDesdeDetalle()">▶ Empezar</button>
+      <button class="btn-success" *ngIf="mangaDetalle.estado === 'EN_PROCESO'"
+        (click)="abrirModalFinalizar(mangaDetalle, $event)">✓ Finalizar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL FINALIZAR ────────────────────────────────────────────── -->
+<div class="modal-overlay" *ngIf="mangaFinalizando" (click)="mangaFinalizando = null">
+  <div class="modal modal-vista" (click)="$event.stopPropagation()">
+    <h3>✅ {{ mangaFinalizando.titulo }}</h3>
+    <p class="vista-subtitulo">Completa los detalles antes de marcarlo como finalizado</p>
+
+    <div class="form-con-imagen">
+      <div class="imagen-upload" (click)="fileFinalizarInput.click()">
+        <img *ngIf="imagenFinalizarPreview" [src]="imagenFinalizarPreview" alt="preview" />
+        <img *ngIf="!imagenFinalizarPreview && finalizarForm.imagenUrl" [src]="imagenReal(finalizarForm.imagenUrl!)" alt="actual" />
+        <div *ngIf="!imagenFinalizarPreview && !finalizarForm.imagenUrl" class="imagen-placeholder">
+          <span>📷</span><small>Añadir imagen</small>
+        </div>
+        <input #fileFinalizarInput type="file" accept="image/*" (change)="onImagenFinalizarSeleccionada($event)" hidden />
+      </div>
+      <div class="campos">
+        <textarea [(ngModel)]="finalizarForm.descripcion" placeholder="Descripción..." rows="3"></textarea>
+        <input type="text" [(ngModel)]="finalizarForm.urlLectura" placeholder="URL de lectura (opcional)" />
+      </div>
+    </div>
+
+    <div class="generos-selector">
+      <button type="button" class="btn-secondary btn-generos-toggle"
+        (click)="mostrarGenerosFinalizando = !mostrarGenerosFinalizando">
+        🏷️ Géneros {{ finalizarForm.generos?.length ? '(' + finalizarForm.generos!.length + ')' : '' }}
+        {{ mostrarGenerosFinalizando ? '▲' : '▼' }}
+      </button>
+      <div class="generos-lista" *ngIf="mostrarGenerosFinalizando">
+        <span *ngFor="let g of GENEROS" class="genero-tag"
+          [class.activo]="tieneGenero(finalizarForm.generos, g)"
+          (click)="toggleGeneroFinalizar(g)">{{ g }}</span>
+      </div>
+    </div>
+
+    <div class="personas-grid">
+      <div class="persona-bloque">
+        <h4>Persona 1</h4>
+        <input type="text" [(ngModel)]="finalizarForm.nombrePersona1" placeholder="Tu nombre" />
+        <input type="text" [(ngModel)]="finalizarForm.personajeFavorito" placeholder="Personaje favorito ❤️" />
+        <input type="text" [(ngModel)]="finalizarForm.personajeOdiado" placeholder="Personaje odiado 😤" />
+        <div class="nota-input">
+          <label>Nota:</label>
+          <input type="number" [(ngModel)]="finalizarForm.nota" min="0" max="10" />
+        </div>
+      </div>
+      <div class="persona-bloque">
+        <h4>Persona 2 (opcional)</h4>
+        <input type="text" [(ngModel)]="finalizarForm.nombrePersona2" placeholder="Nombre" />
+        <input type="text" [(ngModel)]="finalizarForm.personajeFavorito2" placeholder="Personaje favorito ❤️" />
+        <input type="text" [(ngModel)]="finalizarForm.personajeOdiado2" placeholder="Personaje odiado 😤" />
+        <div class="nota-input">
+          <label>Nota:</label>
+          <input type="number" [(ngModel)]="finalizarForm.nota2" min="0" max="10" />
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-primary" (click)="confirmarFinalizar()">✅ Guardar y finalizar</button>
+      <button class="btn-secondary" (click)="mangaFinalizando = null">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL EDICIÓN ──────────────────────────────────────────────── -->
+<div class="modal-overlay" *ngIf="mangaEditando" (click)="mangaEditando = null">
+  <div class="modal modal-edit" (click)="$event.stopPropagation()">
+    <h3>Editar — {{ mangaEditando.titulo }}</h3>
+
+    <!-- PENDIENTE: solo título -->
+    <ng-container *ngIf="mangaEditando.estado === 'PENDIENTE'">
+      <input type="text" [(ngModel)]="mangaEditando.titulo" placeholder="Título *" />
+    </ng-container>
+
+    <!-- EN_PROCESO: título + capítulo + url -->
+    <ng-container *ngIf="mangaEditando.estado === 'EN_PROCESO'">
+      <input type="text" [(ngModel)]="mangaEditando.titulo" placeholder="Título *" />
+      <div class="nota-input">
+        <label>Capítulo actual:</label>
+        <input type="number" [(ngModel)]="mangaEditando.capituloActual" min="1" />
+      </div>
+      <input type="text" [(ngModel)]="mangaEditando.urlLectura" placeholder="URL de lectura" />
+    </ng-container>
+
+    <!-- FINALIZADO: formulario completo -->
+    <ng-container *ngIf="mangaEditando.estado === 'FINALIZADO'">
+      <div class="form-con-imagen">
+        <div class="imagen-upload" (click)="fileEditInput.click()">
+          <img *ngIf="imagenEditPreview" [src]="imagenEditPreview" alt="preview" />
+          <img *ngIf="!imagenEditPreview && mangaEditando.imagenUrl" [src]="imagenReal(mangaEditando.imagenUrl!)" alt="actual" />
+          <div *ngIf="!imagenEditPreview && !mangaEditando.imagenUrl" class="imagen-placeholder">
+            <span>📷</span><small>Cambiar imagen</small>
+          </div>
+          <input #fileEditInput type="file" accept="image/*" (change)="onImagenEditSeleccionada($event)" hidden />
+        </div>
+        <div class="campos">
+          <input type="text" [(ngModel)]="mangaEditando.titulo" placeholder="Título *" />
+          <textarea [(ngModel)]="mangaEditando.descripcion" placeholder="Descripción..." rows="3"></textarea>
+          <input type="text" [(ngModel)]="mangaEditando.urlLectura" placeholder="URL de lectura" />
+        </div>
+      </div>
+
+      <div class="generos-selector">
+        <button type="button" class="btn-secondary btn-generos-toggle"
+          (click)="mostrarGenerosEdit = !mostrarGenerosEdit">
+          🏷️ Géneros {{ mangaEditando.generos?.length ? '(' + mangaEditando.generos!.length + ')' : '' }}
+          {{ mostrarGenerosEdit ? '▲' : '▼' }}
+        </button>
+        <div class="generos-lista" *ngIf="mostrarGenerosEdit">
+          <span *ngFor="let g of GENEROS" class="genero-tag"
+            [class.activo]="tieneGenero(mangaEditando.generos, g)"
+            (click)="toggleGeneroEdicion(g)">{{ g }}</span>
+        </div>
+      </div>
+
+      <div class="personas-grid">
+        <div class="persona-bloque">
+          <h4>{{ mangaEditando.nombrePersona1 || 'Persona 1' }}</h4>
+          <input type="text" [(ngModel)]="mangaEditando.nombrePersona1" placeholder="Tu nombre" />
+          <input type="text" [(ngModel)]="mangaEditando.personajeFavorito" placeholder="Personaje favorito ❤️" />
+          <input type="text" [(ngModel)]="mangaEditando.personajeOdiado" placeholder="Personaje odiado 😤" />
+          <div class="nota-input">
+            <label>Nota:</label>
+            <input type="number" [(ngModel)]="mangaEditando.nota" min="0" max="10" />
+          </div>
+        </div>
+        <div class="persona-bloque">
+          <h4>{{ mangaEditando.nombrePersona2 || 'Persona 2' }}</h4>
+          <input type="text" [(ngModel)]="mangaEditando.nombrePersona2" placeholder="Nombre" />
+          <input type="text" [(ngModel)]="mangaEditando.personajeFavorito2" placeholder="Personaje favorito ❤️" />
+          <input type="text" [(ngModel)]="mangaEditando.personajeOdiado2" placeholder="Personaje odiado 😤" />
+          <div class="nota-input">
+            <label>Nota:</label>
+            <input type="number" [(ngModel)]="mangaEditando.nota2" min="0" max="10" />
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <div class="modal-actions">
+      <button class="btn-primary" (click)="guardarEdicion()">Guardar</button>
+      <button class="btn-secondary" (click)="mangaEditando = null">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL EXPLORAR ─────────────────────────────────────────────── -->
+<div class="explorar-overlay" *ngIf="mostrarExplorar" (click)="mostrarExplorar = false">
+  <div class="explorar-panel" (click)="$event.stopPropagation()">
+    <div class="explorar-header">
+      <h2>🔭 Explorar mangas</h2>
+      <button class="explorar-cerrar" (click)="mostrarExplorar = false">✕</button>
+    </div>
+    <div class="explorar-buscador">
+      <input type="text" [(ngModel)]="explorarBusqueda" placeholder="Buscar manga..." (keyup.enter)="buscarExplorar()" />
+      <button class="btn-primary" (click)="buscarExplorar()">Buscar</button>
+      <button class="btn-secondary" (click)="abrirExplorar()">Top manga</button>
+    </div>
+    <div class="explorar-etiquetas" *ngIf="!explorarCargando && explorarGenerosTodos.length > 0">
+      <span class="explorar-etiqueta-label">Filtrar:</span>
+      <span *ngFor="let g of explorarGenerosTodos" class="explorar-etiqueta"
+        [class.activa]="explorarGenerosActivos.includes(g)"
+        (click)="toggleExplorarGenero(g)">{{ g }}</span>
+      <button class="explorar-limpiar" *ngIf="explorarGenerosActivos.length > 0"
+        (click)="explorarGenerosActivos = []; abrirExplorar()">✕ Limpiar</button>
+    </div>
+    <div class="explorar-cargando" *ngIf="explorarCargando">Cargando...</div>
+    <div class="explorar-grid" *ngIf="!explorarCargando">
+      <div class="explorar-card" *ngFor="let r of explorarFiltrados" (click)="abrirDetalleExplorar(r)">
+        <div class="explorar-titulo-top">{{ r.titulo }}</div>
+        <img *ngIf="r.imagenUrl" [src]="r.imagenUrl" [alt]="r.titulo" class="explorar-poster" />
+        <div *ngIf="!r.imagenUrl" class="explorar-poster-ph">📚</div>
+        <div class="explorar-info">
+          <div class="explorar-puntuacion" *ngIf="r.puntuacion > 0">⭐ {{ r.puntuacion }}/10</div>
+          <div class="explorar-generos">
+            <span class="genero-chip" *ngFor="let g of r.generos.slice(0,3)">{{ g }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="explorar-vacio" *ngIf="explorarFiltrados.length === 0">Sin resultados</div>
+      <div class="explorar-ver-mas" *ngIf="explorarFiltrados.length > 0">
+        <button class="btn-cargar-mas" (click)="cargarMasExplorar()" [disabled]="explorarCargandoMas">
+          {{ explorarCargandoMas ? 'Cargando...' : '➕ Ver más' }}
+        </button>
+      </div>
+    </div>
+
+    <div class="explorar-detalle-overlay" *ngIf="explorarDetalle" (click)="explorarDetalle = null">
+      <div class="explorar-detalle-modal" (click)="$event.stopPropagation()">
+        <button class="explorar-cerrar explorar-detalle-cerrar" (click)="explorarDetalle = null">✕</button>
+        <div class="explorar-detalle-contenido">
+          <div class="explorar-detalle-poster-col">
+            <img *ngIf="explorarDetalle.imagenUrl" [src]="explorarDetalle.imagenUrl" [alt]="explorarDetalle.titulo" class="explorar-detalle-poster" />
+            <div *ngIf="!explorarDetalle.imagenUrl" class="explorar-detalle-poster-ph">📚</div>
+          </div>
+          <div class="explorar-detalle-info-col">
+            <h2 class="explorar-detalle-titulo">{{ explorarDetalle.titulo }}</h2>
+            <div class="explorar-detalle-puntuacion" *ngIf="explorarDetalle.puntuacion > 0">⭐ {{ explorarDetalle.puntuacion }} / 10</div>
+            <div class="explorar-detalle-generos">
+              <span class="genero-chip" *ngFor="let g of explorarDetalle.generos">{{ g }}</span>
+            </div>
+            <p class="explorar-detalle-desc">{{ explorarDetalle.descripcion || 'Sin descripción disponible.' }}</p>
+            <button class="btn-success explorar-detalle-btn" (click)="agregarDesdeExplorar(explorarDetalle)" [disabled]="explorarAgregando">
+              {{ explorarAgregando ? 'Añadiendo...' : '➕ Añadir a Pendientes' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
