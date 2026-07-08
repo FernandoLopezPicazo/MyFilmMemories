@@ -49,4 +49,4 @@ Para generar el instalador de Windows: compila el frontend, empaqueta el backend
 
 ## 👤 Autor
 
-**Fernando López-Picazo Torres** — flopezpicazo@gmail.com
+**Fernando López-Picazo Torres** — flopezpicazotorres@gmail.com
