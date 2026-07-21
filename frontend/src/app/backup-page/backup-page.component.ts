@@ -6,6 +6,8 @@ import { Serie } from '../serie.service';
 import { Pelicula } from '../pelicula.service';
 import { Manga } from '../manga.service';
 import { environment } from '../../environments/environment';
+import { AuthService } from '../auth.service';
+import { SincronizacionService, ResultadoSincronizacion } from '../sincronizacion.service';
 
 interface BackupFile {
   version: number;
@@ -48,7 +50,7 @@ export class BackupPageComponent {
   exportError = '';
 
   // ── IMPORTAR ─────────────────────────────────────
-  modoVista: 'export' | 'import' = 'export';
+  modoVista: 'export' | 'import' | 'sincronizar' = 'export';
   importando = false;
   importError = '';
   importOk = 0;
@@ -61,7 +63,49 @@ export class BackupPageComponent {
   importPeliculas: ItemImport<Pelicula>[] = [];
   importMangas:    ItemImport<Manga>[]    = [];
 
-  constructor(private http: HttpClient) {}
+  // ── SINCRONIZACIÓN CON LA NUBE (opcional, solo si Supabase está
+  // configurado en este build — ver environment.electron.ts) ─────
+  emailLogin = '';
+  passwordLogin = '';
+  loginCargando = false;
+  loginError = '';
+
+  sincronizando = false;
+  sincronizacionError = '';
+  ultimoResultadoSincronizacion: ResultadoSincronizacion | null = null;
+
+  constructor(
+    private http: HttpClient,
+    public auth: AuthService,
+    private sincronizacionService: SincronizacionService
+  ) {}
+
+  async iniciarSesionSincronizacion(): Promise<void> {
+    if (!this.emailLogin.trim() || !this.passwordLogin.trim()) return;
+    this.loginError = '';
+    this.loginCargando = true;
+    try {
+      await this.auth.signIn(this.emailLogin.trim(), this.passwordLogin);
+      this.passwordLogin = '';
+    } catch (e: any) {
+      this.loginError = e?.message || 'No se pudo iniciar sesión';
+    } finally {
+      this.loginCargando = false;
+    }
+  }
+
+  async sincronizarAhora(): Promise<void> {
+    this.sincronizacionError = '';
+    this.sincronizando = true;
+    this.ultimoResultadoSincronizacion = null;
+    try {
+      this.ultimoResultadoSincronizacion = await this.sincronizacionService.sincronizar();
+    } catch (e: any) {
+      this.sincronizacionError = e?.error?.error || e?.message || 'Error durante la sincronización';
+    } finally {
+      this.sincronizando = false;
+    }
+  }
 
   async abrirSelectorArchivo(): Promise<void> {
     // API moderna (Chrome/Edge): abre el diálogo directamente en la carpeta Descargas

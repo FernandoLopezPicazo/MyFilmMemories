@@ -13,6 +13,10 @@
     <button class="backup-tab" [class.activo]="modoVista === 'import'" (click)="modoVista = 'import'">
       ⬇️ Importar
     </button>
+    <button *ngIf="auth.habilitado" class="backup-tab" [class.activo]="modoVista === 'sincronizar'"
+      (click)="modoVista = 'sincronizar'">
+      ☁️ Sincronizar
+    </button>
   </div>
 
   <!-- ════════════ EXPORTAR ════════════ -->
@@ -136,6 +140,47 @@
       </button>
     </div>
 
+  </div>
+
+  <div *ngIf="modoVista === 'sincronizar'" class="backup-panel">
+    <p class="backup-subtitulo" style="margin-bottom: 20px;">
+      Sube y baja tu colección con tu cuenta de la nube. Los borrados no se
+      sincronizan — si quitas un título, tendrás que borrarlo también en el
+      otro sitio si quieres que desaparezca de los dos.
+    </p>
+
+    <div *ngIf="!auth.haySesion" class="card" style="max-width: 420px;">
+      <h3 style="margin-bottom: 14px;">Inicia sesión para sincronizar</h3>
+      <div class="campos-simple" style="display:flex; flex-direction: column; gap: 10px;">
+        <input type="email" [(ngModel)]="emailLogin" placeholder="tu@email.com"
+               (keyup.enter)="iniciarSesionSincronizacion()" />
+        <input type="password" [(ngModel)]="passwordLogin" placeholder="Contraseña"
+               (keyup.enter)="iniciarSesionSincronizacion()" />
+        <button class="btn-accion btn-importar" [disabled]="loginCargando"
+                (click)="iniciarSesionSincronizacion()">
+          {{ loginCargando ? 'Entrando...' : 'Entrar' }}
+        </button>
+        <div class="error" *ngIf="loginError">{{ loginError }}</div>
+      </div>
+    </div>
+
+    <div *ngIf="auth.haySesion">
+      <p style="margin-bottom: 14px;">Conectado como <b>{{ auth.email }}</b></p>
+      <button class="btn-accion btn-importar" [disabled]="sincronizando" (click)="sincronizarAhora()">
+        {{ sincronizando ? 'Sincronizando...' : '☁️ Sincronizar ahora' }}
+      </button>
+
+      <div class="error" *ngIf="sincronizacionError">{{ sincronizacionError }}</div>
+
+      <div *ngIf="ultimoResultadoSincronizacion" style="margin-top: 16px;">
+        <p>✅ Sincronización completa:</p>
+        <ul>
+          <li>Series: {{ ultimoResultadoSincronizacion.series }} título(s) en total</li>
+          <li>Películas: {{ ultimoResultadoSincronizacion.peliculas }} título(s) en total</li>
+          <li>Mangas: {{ ultimoResultadoSincronizacion.mangas }} título(s) en total</li>
+        </ul>
+      </div>
+    </div>
   </div>
 
 </div>

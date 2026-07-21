@@ -10,4 +10,11 @@ export const environment = {
   // para el navegador — nunca poner aquí la service_role key.
   supabaseUrl: 'https://olacmlyndgtetyhamgod.supabase.co',
   supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9sYWNtbHluZGd0ZXR5aGFtZ29kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2NDIxOTAsImV4cCI6MjEwMDIxODE5MH0.7HwYO1bcu9J_fFbsc9Evc6ldnUVyzt5fvOfSI9N5eQg',
+
+  // La web de la nube siempre exige sesión iniciada.
+  requiereLogin: true,
+
+  // Aquí la nube y el backend "normal" son el mismo — la sincronización no
+  // tiene sentido en la propia web (no hay ningún "local" con el que fusionar).
+  nubeApiUrl: 'https://myfilmmemories-backend.onrender.com',
 };

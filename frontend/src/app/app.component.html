@@ -17,7 +17,7 @@
     <a routerLink="/backup" routerLinkActive="activa">
       <app-icon name="compartir" [size]="18" class="nav-icon"></app-icon> Compartir
     </a>
-    <ng-container *ngIf="auth.habilitado">
+    <ng-container *ngIf="auth.habilitado && auth.haySesion">
       <a routerLink="/amigos" routerLinkActive="activa">
         <app-icon name="amigos" [size]="18" class="nav-icon"></app-icon> Amigos
       </a>
@@ -28,7 +28,7 @@
   </div>
 
   <div class="nav-acciones">
-    <div class="backend-status" *ngIf="auth.habilitado && (backend.estado$ | async) as estadoBackend" [class.listo]="estadoBackend === 'listo'">
+    <div class="backend-status" *ngIf="auth.requiereLogin && (backend.estado$ | async) as estadoBackend" [class.listo]="estadoBackend === 'listo'">
       <span class="backend-status-punto"></span>
       {{ estadoBackend === 'listo' ? 'Servidor activo' : 'Despertando servidor…' }}
     </div>

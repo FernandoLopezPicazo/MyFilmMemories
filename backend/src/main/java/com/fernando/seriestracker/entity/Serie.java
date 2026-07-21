@@ -79,6 +79,15 @@ public class Serie {
     @Column(name = "oculto_para_amigos", nullable = false)
     private boolean ocultoParaAmigos = false;
 
+    // Identificador estable usado por la sincronización escritorio↔nube para
+    // reconocer "el mismo título" en dos bases de datos con contadores de id
+    // independientes. Nulo en filas creadas antes de esta función.
+    @Column(name = "sync_id")
+    private java.util.UUID syncId;
+
+    @Column(name = "actualizado_en")
+    private java.time.LocalDateTime actualizadoEn;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "serie_generos", joinColumns = @JoinColumn(name = "serie_id"))
     @Column(name = "genero")

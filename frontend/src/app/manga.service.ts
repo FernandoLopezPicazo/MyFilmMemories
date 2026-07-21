@@ -35,6 +35,10 @@ export class MangaService {
     return this.http.get<Manga[]>(`${this.url}?estado=${estado}`);
   }
 
+  obtenerTodos(): Observable<Manga[]> {
+    return this.http.get<Manga[]>(this.url);
+  }
+
   crear(manga: Partial<Manga>): Observable<Manga> {
     return this.http.post<Manga>(this.url, manga);
   }

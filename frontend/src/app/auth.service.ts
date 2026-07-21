@@ -44,9 +44,18 @@ export class AuthService {
     this.http.post(`${environment.apiUrl}/api/perfiles/sincronizar`, {}).subscribe({ error: () => {} });
   }
 
-  // false en dev/Electron (sin credenciales de Supabase) — true en la nube
+  // false en dev puro (sin credenciales de Supabase) — true en la nube y en
+  // el escritorio (que sí tiene Supabase configurado, para el login
+  // opcional de sincronización — ver environment.electron.ts).
   get habilitado(): boolean {
     return this.supabase !== null;
+  }
+
+  // Distinto de "habilitado": aquí es donde se decide si AuthGuard exige
+  // sesión. true en la nube; false en el escritorio, aunque tenga Supabase
+  // configurado — ahí el login es opcional (solo hace falta para sincronizar).
+  get requiereLogin(): boolean {
+    return environment.requiereLogin;
   }
 
   get haySesion(): boolean {

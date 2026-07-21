@@ -247,6 +247,20 @@
   flex-shrink: 0;
 }
 
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+}
+.card input {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-input);
+  color: var(--text-primary);
+}
+
 /* ── Dark mode ───────────────────────────────── */
 :host-context(html.dark) .import-resultado { background: #14352a; color: #86efac; }
 :host-context(html.dark) .error { background: #3b1a1a; color: #fca5a5; }

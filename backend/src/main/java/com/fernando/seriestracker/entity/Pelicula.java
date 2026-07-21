@@ -80,6 +80,13 @@ public class Pelicula {
     @Column(name = "oculto_para_amigos", nullable = false)
     private boolean ocultoParaAmigos = false;
 
+    // Identificador estable usado por la sincronización escritorio↔nube.
+    @Column(name = "sync_id")
+    private java.util.UUID syncId;
+
+    @Column(name = "actualizado_en")
+    private java.time.LocalDateTime actualizadoEn;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "pelicula_generos", joinColumns = @JoinColumn(name = "pelicula_id"))
     @Column(name = "genero")

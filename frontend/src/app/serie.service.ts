@@ -38,6 +38,10 @@ export class SerieService {
     return this.http.get<Serie[]>(`${this.apiUrl}?estado=${estado}`);
   }
 
+  obtenerTodas(): Observable<Serie[]> {
+    return this.http.get<Serie[]>(this.apiUrl);
+  }
+
   crear(serie: Partial<Serie>): Observable<Serie> {
     return this.http.post<Serie>(this.apiUrl, serie);
   }

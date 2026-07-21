@@ -11,4 +11,12 @@ export const environment = {
   // "prod" (nube). En dev/local estas claves no se usan para nada.
   supabaseUrl: '',
   supabaseAnonKey: '',
+
+  // Si false, AuthGuard deja pasar todas las rutas sin sesión — el login
+  // (si está configurado) queda como algo opcional, no obligatorio.
+  requiereLogin: false,
+
+  // URL del backend en la nube, para la sincronización escritorio↔nube.
+  // Sin uso aquí (no hay Supabase configurado en dev puro).
+  nubeApiUrl: '',
 };

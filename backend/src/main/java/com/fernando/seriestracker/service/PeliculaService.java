@@ -86,6 +86,8 @@ public class PeliculaService {
         pelicula.setEstado(Pelicula.EstadoPelicula.PENDIENTE);
         pelicula.setNota(null);
         pelicula.setFechaVista(null);
+        pelicula.setSyncId(java.util.UUID.randomUUID());
+        pelicula.setActualizadoEn(java.time.LocalDateTime.now());
         return peliculaRepository.save(pelicula);
     }
 
@@ -108,6 +110,7 @@ public class PeliculaService {
         pelicula.setEstado(Pelicula.EstadoPelicula.VISTA);
         pelicula.setNota(nota);
         pelicula.setFechaVista(java.time.LocalDate.now());
+        pelicula.setActualizadoEn(java.time.LocalDateTime.now());
 
         peliculaRepository.save(pelicula);
 
@@ -137,6 +140,7 @@ public class PeliculaService {
         pelicula.setNota2(datos.getNota2());
         pelicula.setGeneros(datos.getGeneros() != null ? datos.getGeneros() : new java.util.ArrayList<>());
         if (datos.getDuracionMinutos() != null) pelicula.setDuracionMinutos(datos.getDuracionMinutos());
+        pelicula.setActualizadoEn(java.time.LocalDateTime.now());
 
         return peliculaRepository.save(pelicula);
     }
@@ -146,6 +150,7 @@ public class PeliculaService {
         Pelicula pelicula = peliculaRepository.findByIdAndUsuarioId(id, usuarioActual.obtenerId())
                 .orElseThrow(() -> new IllegalArgumentException("No existe una pelicula con id: " + id));
         pelicula.setEstado(Pelicula.EstadoPelicula.PENDIENTE);
+        pelicula.setActualizadoEn(java.time.LocalDateTime.now());
         peliculaRepository.save(pelicula);
 
         if (pelicula.getSagaId() != null) {

@@ -11,14 +11,17 @@ function Paso($mensaje) {
     Write-Host "==> $mensaje" -ForegroundColor Cyan
 }
 
-# 1. Build de Angular en modo produccion
-Paso "1/6 Compilando frontend Angular (produccion)"
+# 1. Build de Angular en modo "electron": sin login obligatorio, pero con
+# las claves de Supabase configuradas para poder ofrecer la sincronizacion
+# opcional con la nube (ver environment.electron.ts). Usar "production" a
+# secas aqui volveria a exigir login en el escritorio (bug ya visto una vez).
+Paso "1/6 Compilando frontend Angular (electron)"
 Set-Location "$root\frontend"
 if (-not (Test-Path "node_modules")) {
     npm install
     if (-not $?) { throw "npm install (frontend) fallo" }
 }
-npm run build -- --configuration production
+npm run build -- --configuration electron
 if (-not $?) { throw "ng build fallo" }
 
 # 2. Copiar el build de Angular a los recursos estaticos del backend

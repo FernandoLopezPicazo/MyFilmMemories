@@ -44,6 +44,10 @@ export class PeliculaService {
     return this.http.get<Pelicula[]>(`${this.apiUrl}?estado=${estado}`);
   }
 
+  obtenerTodas(): Observable<Pelicula[]> {
+    return this.http.get<Pelicula[]>(this.apiUrl);
+  }
+
   crear(pelicula: Partial<Pelicula>): Observable<Pelicula> {
     return this.http.post<Pelicula>(this.apiUrl, pelicula);
   }
