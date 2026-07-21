@@ -4,10 +4,7 @@ export const environment = {
   tmdbBaseUrl: 'https://api.themoviedb.org/3',
   tmdbImageUrl: 'https://image.tmdb.org/t/p/w300',
 
-  // TODO: sustituir por la URL real del backend una vez desplegado en Render
-  // (ver task #13 del plan). Por ahora el frontend prod build no tiene un
-  // backend real donde apuntar todavía.
-  apiUrl: 'https://TU-BACKEND.onrender.com',
+  apiUrl: 'https://myfilmmemories-backend.onrender.com',
 
   // Proyecto real de Supabase (eu-west-1). La anon key es pública y segura
   // para el navegador — nunca poner aquí la service_role key.

@@ -19,9 +19,6 @@ data/
 *.mv.db
 *.lock.db
 
-# --- Secretos: la clave de TMDB vive aquí (usa environment.example.ts como plantilla) ---
-frontend/src/environments/environment.ts
-
 # --- Documentos de estudio personales (no forman parte de la app) ---
 REPASO_SPRINGBOOT.*
 SPRING_BOOT_TECNICO.*
