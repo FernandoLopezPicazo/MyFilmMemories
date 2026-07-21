@@ -136,10 +136,18 @@ textarea {
 .item-cabecera {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 10px;
   cursor: pointer;
 }
-.item-cabecera h3 { font-size: 1rem; color: var(--text-primary); }
+.item-cabecera h3 { font-size: 1rem; color: var(--text-primary); flex: 1; }
+
+.item-imagen {
+  width: 36px;
+  height: 54px;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
 
 .item-descripcion { color: var(--text-secondary); font-size: 0.9rem; margin: 8px 0; }
 
@@ -176,4 +184,54 @@ textarea {
   color: var(--text-primary);
   flex: 1;
   min-width: 120px;
+}
+
+.resultados-explorar {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.resultado-card {
+  cursor: pointer;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--bg-card-alt);
+  transition: border-color 0.15s;
+}
+.resultado-card:hover { border-color: var(--acento); }
+
+.resultado-card img {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  display: block;
+}
+
+.resultado-info { padding: 8px 10px; }
+.resultado-info h4 {
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.resultado-generos { font-size: 0.72rem; color: var(--text-muted); }
+
+.btn-manual {
+  display: block;
+  margin-top: 14px;
+  background: none;
+  border: none;
+  color: var(--acento);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.85rem;
 }

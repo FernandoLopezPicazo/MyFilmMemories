@@ -3,6 +3,7 @@ import { AuthService } from '../auth.service';
 import {
   GrupoService, Grupo, GrupoDetalle, GrupoInvitacion, GrupoItem, TipoGrupoItem
 } from '../grupo.service';
+import { ExplorarService, ResultadoExplorar } from '../explorar.service';
 
 @Component({
   selector: 'app-grupos-page',
@@ -23,13 +24,20 @@ export class GruposPageComponent implements OnInit {
   mostrarFormularioItem = false;
   nuevoTitulo = '';
   nuevaDescripcion = '';
+  nuevaImagenUrl: string | null = null;
+  nuevosGeneros: string[] = [];
+
+  mostrarBusquedaManual = false;
+  busquedaExplorar = '';
+  resultadosExplorar: ResultadoExplorar[] = [];
+  cargandoExplorar = false;
 
   emailInvitar = '';
 
   itemAbierto: number | null = null;
   formOpinion = { nota: null as number | null, personajeFavorito: '', personajeOdiado: '', comentario: '' };
 
-  constructor(private grupoService: GrupoService, public auth: AuthService) {}
+  constructor(private grupoService: GrupoService, private explorarService: ExplorarService, public auth: AuthService) {}
 
   ngOnInit(): void {
     this.cargarGrupos();
@@ -78,6 +86,8 @@ export class GruposPageComponent implements OnInit {
   cambiarTabItem(tipo: TipoGrupoItem): void {
     this.tabItem = tipo;
     this.itemAbierto = null;
+    this.mostrarFormularioItem = false;
+    this.resultadosExplorar = [];
     this.cargarItems();
   }
 
@@ -86,12 +96,49 @@ export class GruposPageComponent implements OnInit {
     this.grupoService.listarItems(this.grupoSeleccionado.id, this.tabItem).subscribe(i => this.items = i);
   }
 
+  abrirFormularioItem(): void {
+    this.mostrarFormularioItem = !this.mostrarFormularioItem;
+    this.mostrarBusquedaManual = false;
+    this.busquedaExplorar = '';
+    this.resultadosExplorar = [];
+    this.nuevoTitulo = '';
+    this.nuevaDescripcion = '';
+    this.nuevaImagenUrl = null;
+    this.nuevosGeneros = [];
+  }
+
+  buscarExplorarGrupo(): void {
+    const q = this.busquedaExplorar.trim();
+    if (!q) { this.resultadosExplorar = []; return; }
+    this.cargandoExplorar = true;
+    const obs = this.tabItem === 'SERIE' ? this.explorarService.buscarSeries(q)
+              : this.tabItem === 'PELICULA' ? this.explorarService.buscarPeliculas(q)
+              : this.explorarService.buscarMangas(q);
+    obs.subscribe({
+      next: (r) => { this.resultadosExplorar = r; this.cargandoExplorar = false; },
+      error: () => { this.cargandoExplorar = false; }
+    });
+  }
+
+  agregarDesdeExplorar(r: ResultadoExplorar): void {
+    if (!this.grupoSeleccionado) return;
+    this.grupoService.crearItem(this.grupoSeleccionado.id, this.tabItem, r.titulo, r.descripcion,
+        r.generos, r.imagenUrl).subscribe(() => {
+      this.mostrarFormularioItem = false;
+      this.resultadosExplorar = [];
+      this.busquedaExplorar = '';
+      this.cargarItems();
+    });
+  }
+
   crearItem(): void {
     if (!this.grupoSeleccionado || !this.nuevoTitulo.trim()) return;
     this.grupoService.crearItem(this.grupoSeleccionado.id, this.tabItem, this.nuevoTitulo.trim(),
-        this.nuevaDescripcion.trim(), []).subscribe(() => {
+        this.nuevaDescripcion.trim(), this.nuevosGeneros, this.nuevaImagenUrl).subscribe(() => {
       this.nuevoTitulo = '';
       this.nuevaDescripcion = '';
+      this.nuevaImagenUrl = null;
+      this.nuevosGeneros = [];
       this.mostrarFormularioItem = false;
       this.cargarItems();
     });

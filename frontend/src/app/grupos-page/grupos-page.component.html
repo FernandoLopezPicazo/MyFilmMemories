@@ -57,21 +57,49 @@
     <button [class.activo]="tabItem === 'MANGA'" (click)="cambiarTabItem('MANGA')">Mangas</button>
   </div>
 
-  <button class="btn-primary btn-nueva" (click)="mostrarFormularioItem = !mostrarFormularioItem">
+  <button class="btn-primary btn-nueva" (click)="abrirFormularioItem()">
     {{ mostrarFormularioItem ? '✕ Cancelar' : '+ Añadir título' }}
   </button>
 
   <div class="card formulario" *ngIf="mostrarFormularioItem">
-    <div class="campos-simple">
-      <input type="text" [(ngModel)]="nuevoTitulo" placeholder="Título *" (keyup.enter)="crearItem()" />
-    </div>
-    <textarea [(ngModel)]="nuevaDescripcion" placeholder="Descripción (opcional)" rows="2"></textarea>
-    <button class="btn-primary" (click)="crearItem()">Añadir a la lista del grupo</button>
+    <ng-container *ngIf="!mostrarBusquedaManual">
+      <div class="campos-simple">
+        <input type="text" [(ngModel)]="busquedaExplorar" placeholder="Buscar título (TMDB/MyAnimeList)..."
+               (keyup.enter)="buscarExplorarGrupo()" />
+        <button class="btn-primary" (click)="buscarExplorarGrupo()">Buscar</button>
+      </div>
+
+      <div class="resultados-explorar" *ngIf="resultadosExplorar.length > 0">
+        <div class="resultado-card" *ngFor="let r of resultadosExplorar" (click)="agregarDesdeExplorar(r)">
+          <img *ngIf="r.imagenUrl" [src]="r.imagenUrl" [alt]="r.titulo" />
+          <div class="resultado-info">
+            <h4>{{ r.titulo }}</h4>
+            <span class="resultado-generos" *ngIf="r.generos.length">{{ r.generos.join(', ') }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="hint" *ngIf="cargandoExplorar">Buscando...</div>
+      <div class="hint" *ngIf="!cargandoExplorar && busquedaExplorar && resultadosExplorar.length === 0">
+        Sin resultados.
+      </div>
+
+      <button class="btn-manual" (click)="mostrarBusquedaManual = true">¿No lo encuentras? Añadir manualmente</button>
+    </ng-container>
+
+    <ng-container *ngIf="mostrarBusquedaManual">
+      <div class="campos-simple">
+        <input type="text" [(ngModel)]="nuevoTitulo" placeholder="Título *" (keyup.enter)="crearItem()" />
+      </div>
+      <textarea [(ngModel)]="nuevaDescripcion" placeholder="Descripción (opcional)" rows="2"></textarea>
+      <button class="btn-primary" (click)="crearItem()">Añadir a la lista del grupo</button>
+      <button class="btn-manual" (click)="mostrarBusquedaManual = false">◀ Volver al buscador</button>
+    </ng-container>
   </div>
 
   <div class="lista-items">
     <div class="item-grupo" *ngFor="let item of items">
       <div class="item-cabecera" (click)="abrirOpinion(item)">
+        <img *ngIf="item.imagenUrl" [src]="item.imagenUrl" [alt]="item.titulo" class="item-imagen" />
         <h3>{{ item.titulo }}</h3>
         <button class="btn-danger btn-pequeno" (click)="eliminarItem(item, $event)">✕</button>
       </div>

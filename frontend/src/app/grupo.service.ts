@@ -90,8 +90,9 @@ export class GrupoService {
     return this.http.get<GrupoItem[]>(`${this.url}/${grupoId}/items?tipo=${tipo}`);
   }
 
-  crearItem(grupoId: number, tipo: TipoGrupoItem, titulo: string, descripcion: string, generos: string[]): Observable<GrupoItem> {
-    return this.http.post<GrupoItem>(`${this.url}/${grupoId}/items`, { tipo, titulo, descripcion, generos });
+  crearItem(grupoId: number, tipo: TipoGrupoItem, titulo: string, descripcion: string,
+            generos: string[], imagenUrl?: string | null): Observable<GrupoItem> {
+    return this.http.post<GrupoItem>(`${this.url}/${grupoId}/items`, { tipo, titulo, descripcion, generos, imagenUrl });
   }
 
   eliminarItem(grupoId: number, itemId: number): Observable<void> {
