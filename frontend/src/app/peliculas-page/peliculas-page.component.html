@@ -131,6 +131,9 @@
         </div>
         <div class="serie-acciones">
           <button class="btn-success" (click)="abrirModalVista(pelicula, $event)">✓ Vista</button>
+          <button class="btn-visibilidad" [class.activo]="pelicula.ocultoParaAmigos"
+            [title]="pelicula.ocultoParaAmigos ? 'Oculto para amigos' : 'Visible para amigos'"
+            (click)="alternarVisibilidad(pelicula, $event)">{{ pelicula.ocultoParaAmigos ? '🙈' : '👁️' }}</button>
           <button class="btn-edit" (click)="abrirEdicion(pelicula, $event)">✎</button>
           <button class="btn-danger" (click)="eliminar(pelicula.id!, $event)">✕</button>
         </div>
@@ -166,6 +169,9 @@
           <span class="hint-detalle">Haz clic para ver más</span>
         </div>
         <div class="serie-acciones">
+          <button class="btn-visibilidad" [class.activo]="pelicula.ocultoParaAmigos"
+            [title]="pelicula.ocultoParaAmigos ? 'Oculto para amigos' : 'Visible para amigos'"
+            (click)="alternarVisibilidad(pelicula, $event)">{{ pelicula.ocultoParaAmigos ? '🙈' : '👁️' }}</button>
           <button class="btn-edit" (click)="abrirEdicion(pelicula, $event)">✎</button>
           <button class="btn-danger" (click)="eliminar(pelicula.id!, $event)">✕</button>
         </div>

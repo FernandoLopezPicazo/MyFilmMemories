@@ -17,6 +17,14 @@
     <a routerLink="/backup" routerLinkActive="activa">
       <app-icon name="compartir" [size]="18" class="nav-icon"></app-icon> Compartir
     </a>
+    <ng-container *ngIf="auth.habilitado">
+      <a routerLink="/amigos" routerLinkActive="activa">
+        <app-icon name="amigos" [size]="18" class="nav-icon"></app-icon> Amigos
+      </a>
+      <a routerLink="/grupos" routerLinkActive="activa">
+        <app-icon name="grupos" [size]="18" class="nav-icon"></app-icon> Grupos
+      </a>
+    </ng-container>
   </div>
 
   <div class="nav-acciones">

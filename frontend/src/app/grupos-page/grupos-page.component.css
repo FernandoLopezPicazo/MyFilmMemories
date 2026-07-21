@@ -1,0 +1,179 @@
+.container { max-width: 900px; margin: 0 auto; padding: 28px; }
+
+h1 { font-size: 1.6rem; margin-bottom: 20px; color: var(--text-primary); }
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.card h2, .seccion h2 { font-size: 1.05rem; color: var(--text-primary); margin-bottom: 14px; }
+
+.seccion { margin-bottom: 28px; }
+
+.campos-simple { display: flex; gap: 10px; }
+.campos-simple input {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-input);
+  color: var(--text-primary);
+}
+
+textarea {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-family: inherit;
+  resize: vertical;
+}
+
+.btn-primary {
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  background: var(--acento);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-nueva { margin-bottom: 16px; }
+
+.btn-danger {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: #dc4444;
+  cursor: pointer;
+  font-weight: 600;
+}
+.btn-pequeno { padding: 4px 9px; font-size: 0.85rem; }
+
+.btn-salir {
+  margin-top: 14px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.error { margin-top: 10px; color: #dc4444; font-size: 0.85rem; }
+
+.fila-solicitud, .fila-amigo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+.fila-amigo { cursor: pointer; }
+.fila-amigo:hover { background: var(--bg-card-alt); }
+
+.acciones { display: flex; gap: 8px; }
+
+.miembros-tag, .pendiente-tag { font-size: 0.8rem; color: var(--text-muted); }
+
+.hint { color: var(--text-muted); font-size: 0.9rem; }
+
+.btn-volver {
+  background: none;
+  border: none;
+  color: var(--acento);
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 16px;
+  padding: 0;
+}
+
+.lista-miembros { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.miembro-chip {
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: var(--bg-card-alt);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+.invitar-fila { margin-top: 4px; }
+
+.tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+.tabs button {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-weight: 600;
+}
+.tabs button.activo { background: var(--acento); color: white; border-color: var(--acento); }
+
+.lista-items { display: flex; flex-direction: column; gap: 12px; }
+
+.item-grupo {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.item-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
+.item-cabecera h3 { font-size: 1rem; color: var(--text-primary); }
+
+.item-descripcion { color: var(--text-secondary); font-size: 0.9rem; margin: 8px 0; }
+
+.opiniones { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+
+.opinion-chip {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--bg-card-alt);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  border: 1px solid transparent;
+}
+.opinion-chip.mia { border-color: var(--acento); }
+.opinion-chip b { color: var(--text-primary); }
+.opinion-comentario { font-style: italic; }
+
+.form-opinion {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+.form-opinion h4 { font-size: 0.9rem; margin-bottom: 10px; color: var(--text-primary); }
+
+.campos-opinion { display: flex; gap: 8px; flex-wrap: wrap; }
+.campos-opinion input {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  flex: 1;
+  min-width: 120px;
+}

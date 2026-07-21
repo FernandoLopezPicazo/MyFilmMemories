@@ -113,4 +113,17 @@ public class MangaService {
         }
         mangaRepository.deleteById(id);
     }
+
+    @Transactional
+    public void alternarOcultoParaAmigos(Long id) {
+        Manga manga = mangaRepository.findByIdAndUsuarioId(id, usuarioActual.obtenerId())
+                .orElseThrow(() -> new IllegalArgumentException("No existe un manga con id: " + id));
+        manga.setOcultoParaAmigos(!manga.isOcultoParaAmigos());
+        mangaRepository.save(manga);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Manga> obtenerColeccionVisible(java.util.UUID usuarioId) {
+        return mangaRepository.findByUsuarioIdAndOcultoParaAmigosFalse(usuarioId);
+    }
 }

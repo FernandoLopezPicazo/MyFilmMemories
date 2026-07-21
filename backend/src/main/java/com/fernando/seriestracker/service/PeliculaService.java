@@ -160,4 +160,17 @@ public class PeliculaService {
         }
         peliculaRepository.deleteById(id);
     }
+
+    @Transactional
+    public void alternarOcultoParaAmigos(Long id) {
+        Pelicula pelicula = peliculaRepository.findByIdAndUsuarioId(id, usuarioActual.obtenerId())
+                .orElseThrow(() -> new IllegalArgumentException("No existe una pelicula con id: " + id));
+        pelicula.setOcultoParaAmigos(!pelicula.isOcultoParaAmigos());
+        peliculaRepository.save(pelicula);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Pelicula> obtenerColeccionVisible(java.util.UUID usuarioId) {
+        return peliculaRepository.findByUsuarioIdAndOcultoParaAmigosFalse(usuarioId);
+    }
 }

@@ -52,6 +52,24 @@ import { Component, Input } from '@angular/core';
         <path d="M11 18.7 7.8 15.5 11 12.3" />
       </ng-container>
 
+      <!-- Amigos: dos personas -->
+      <ng-container *ngIf="name === 'amigos'">
+        <circle cx="8.5" cy="8" r="2.8" />
+        <path d="M3.5 19c0-3 2.2-5 5-5s5 2 5 5" />
+        <circle cx="16.5" cy="8.5" r="2.2" />
+        <path d="M14.8 14.3c2.2.3 3.7 2.1 3.7 4.7" />
+      </ng-container>
+
+      <!-- Grupos: tres personas -->
+      <ng-container *ngIf="name === 'grupos'">
+        <circle cx="12" cy="7.5" r="2.6" />
+        <path d="M6.5 19c0-3 2.5-5.2 5.5-5.2s5.5 2.2 5.5 5.2" />
+        <circle cx="4.8" cy="9.5" r="1.8" />
+        <path d="M2 17.5c0-2.1 1.3-3.6 2.8-3.9" />
+        <circle cx="19.2" cy="9.5" r="1.8" />
+        <path d="M22 17.5c0-2.1-1.3-3.6-2.8-3.9" />
+      </ng-container>
+
       <!-- Paleta de colores -->
       <ng-container *ngIf="name === 'paleta'">
         <path d="M12 3.5c-4.8 0-8.5 3.6-8.5 8 0 3 2 4.7 4 4.7.9 0 1.4-.5 1.4-1.2 0-.6-.4-.9-.4-1.6 0-.9.8-1.6 1.8-1.6h2.3c2.7 0 5.4-1.9 5.4-5.3 0-1.6-2.6-3-6-3Z" />

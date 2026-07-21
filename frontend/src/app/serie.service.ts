@@ -23,6 +23,7 @@ export interface Serie {
   fechaVista?: string;
   temporadaActual?: number;
   episodioActual?: number;
+  ocultoParaAmigos?: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -69,5 +70,9 @@ export class SerieService {
     const formData = new FormData();
     formData.append('archivo', archivo);
     return this.http.post<{ url: string }>(`${this.imagenesUrl}/subir`, formData);
+  }
+
+  alternarVisibilidad(id: number): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/${id}/visibilidad`, {});
   }
 }

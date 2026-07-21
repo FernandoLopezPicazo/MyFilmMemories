@@ -21,6 +21,7 @@ export interface Manga {
   estado: 'PENDIENTE' | 'EN_PROCESO' | 'FINALIZADO';
   fechaFinalizado?: string;
   generos?: string[];
+  ocultoParaAmigos?: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -66,5 +67,9 @@ export class MangaService {
     const formData = new FormData();
     formData.append('imagen', file);
     return this.http.post<{ url: string }>(`${environment.apiUrl}/api/imagenes/subir`, formData);
+  }
+
+  alternarVisibilidad(id: number): Observable<void> {
+    return this.http.put<void>(`${this.url}/${id}/visibilidad`, {});
   }
 }

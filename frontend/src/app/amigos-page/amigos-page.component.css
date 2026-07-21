@@ -1,0 +1,146 @@
+.container { max-width: 900px; margin: 0 auto; padding: 28px; }
+
+h1 { font-size: 1.6rem; margin-bottom: 20px; color: var(--text-primary); }
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.card h2, .seccion h2 {
+  font-size: 1.05rem;
+  color: var(--text-primary);
+  margin-bottom: 14px;
+}
+
+.seccion { margin-bottom: 28px; }
+
+.campos-simple { display: flex; gap: 10px; }
+
+.campos-simple input {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-input);
+  color: var(--text-primary);
+}
+
+.btn-primary {
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  background: var(--acento);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-primary:disabled { opacity: 0.6; cursor: default; }
+
+.btn-danger {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: #dc4444;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.error {
+  margin-top: 10px;
+  color: #dc4444;
+  font-size: 0.85rem;
+}
+
+.mensaje-ok {
+  margin-top: 10px;
+  color: #2fa860;
+  font-size: 0.85rem;
+}
+
+.fila-solicitud, .fila-amigo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+
+.fila-amigo { cursor: pointer; }
+.fila-amigo:hover { background: var(--bg-card-alt); }
+
+.acciones { display: flex; gap: 8px; }
+
+.btn-ver {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--acento);
+  background: transparent;
+  color: var(--acento);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pendiente-tag {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.hint { color: var(--text-muted); font-size: 0.9rem; }
+
+.btn-volver {
+  background: none;
+  border: none;
+  color: var(--acento);
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 16px;
+  padding: 0;
+}
+
+.tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+.tabs button {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-weight: 600;
+}
+.tabs button.activo { background: var(--acento); color: white; border-color: var(--acento); }
+
+.grid-coleccion {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+}
+
+.mini-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+}
+.mini-card h3 { font-size: 0.95rem; color: var(--text-primary); margin-bottom: 8px; }
+
+.estado-tag {
+  display: inline-block;
+  font-size: 0.75rem;
+  padding: 3px 8px;
+  border-radius: 20px;
+  background: var(--bg-card-alt);
+  color: var(--text-secondary);
+  margin-right: 6px;
+}
+
+.nota-tag { font-size: 0.8rem; color: var(--text-secondary); }

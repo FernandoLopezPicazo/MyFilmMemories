@@ -265,6 +265,8 @@ button:hover { opacity: 0.85; }
 .btn-danger    { background: #dc2626; color: white; }
 .btn-secondary { background: #e5e7eb; color: #333; }
 .btn-edit      { background: #f59e0b; color: white; }
+.btn-visibilidad { background: var(--bg-card-alt); border: 1px solid var(--border); }
+.btn-visibilidad.activo { background: #64748b; }
 
 .error {
   background: #fee2e2;

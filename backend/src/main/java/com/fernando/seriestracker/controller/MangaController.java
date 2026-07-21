@@ -91,6 +91,12 @@ public class MangaController {
         return ResponseEntity.noContent().build();
     }
 
+    @PutMapping("/{id}/visibilidad")
+    public ResponseEntity<Void> alternarOcultoParaAmigos(@PathVariable Long id) {
+        mangaService.alternarOcultoParaAmigos(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, String>> handleIllegalArgument(IllegalArgumentException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", ex.getMessage()));

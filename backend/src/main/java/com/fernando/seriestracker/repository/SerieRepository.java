@@ -34,4 +34,7 @@ public interface SerieRepository extends JpaRepository<Serie, Long> {
     Optional<Serie> findByIdAndUsuarioId(Long id, UUID usuarioId);
 
     boolean existsByIdAndUsuarioId(Long id, UUID usuarioId);
+
+    // Para ver la colección de un amigo: solo lo que no haya marcado como oculto
+    List<Serie> findByUsuarioIdAndOcultoParaAmigosFalse(UUID usuarioId);
 }

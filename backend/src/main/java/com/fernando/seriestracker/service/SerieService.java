@@ -169,4 +169,17 @@ public class SerieService {
         }
         serieRepository.deleteById(id);
     }
+
+    @Transactional
+    public void alternarOcultoParaAmigos(Long id) {
+        Serie serie = serieRepository.findByIdAndUsuarioId(id, usuarioActual.obtenerId())
+                .orElseThrow(() -> new IllegalArgumentException("No existe una serie con id: " + id));
+        serie.setOcultoParaAmigos(!serie.isOcultoParaAmigos());
+        serieRepository.save(serie);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Serie> obtenerColeccionVisible(java.util.UUID usuarioId) {
+        return serieRepository.findByUsuarioIdAndOcultoParaAmigosFalse(usuarioId);
+    }
 }

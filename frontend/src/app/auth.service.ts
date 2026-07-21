@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { createClient, Session, SupabaseClient } from '@supabase/supabase-js';
 import { BehaviorSubject } from 'rxjs';
 import { environment } from '../environments/environment';
@@ -20,12 +21,13 @@ export class AuthService {
 
   private inicializado: Promise<void>;
 
-  constructor() {
+  constructor(private http: HttpClient) {
     if (environment.supabaseUrl && environment.supabaseAnonKey) {
       this.supabase = createClient(environment.supabaseUrl, environment.supabaseAnonKey);
 
       this.inicializado = this.supabase.auth.getSession().then(({ data }) => {
         this.sessionSubject.next(data.session);
+        if (data.session) this.sincronizarPerfil();
       });
 
       this.supabase.auth.onAuthStateChange((_evento, session) => {
@@ -34,6 +36,12 @@ export class AuthService {
     } else {
       this.inicializado = Promise.resolve();
     }
+  }
+
+  // El backend necesita saber qué email corresponde a tu usuario_id para que
+  // el sistema de amigos pueda buscarte — ver PerfilController en el backend.
+  private sincronizarPerfil(): void {
+    this.http.post(`${environment.apiUrl}/api/perfiles/sincronizar`, {}).subscribe({ error: () => {} });
   }
 
   // false en dev/Electron (sin credenciales de Supabase) — true en la nube
@@ -67,6 +75,7 @@ export class AuthService {
     if (!this.supabase) throw new Error('Supabase no está configurado en este entorno');
     const { error } = await this.supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
+    this.sincronizarPerfil();
   }
 
   async signOut() {

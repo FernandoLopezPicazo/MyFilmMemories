@@ -16,4 +16,8 @@ import java.util.UUID;
  */
 public interface UsuarioActualService {
     UUID obtenerId();
+
+    // Email del usuario autenticado — lo necesita el sistema de amigos para
+    // buscar por email y mostrar quién es quién.
+    String obtenerEmail();
 }

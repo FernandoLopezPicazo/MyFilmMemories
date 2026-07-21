@@ -1,0 +1,104 @@
+<div class="container" *ngIf="!grupoSeleccionado">
+  <h1>👨‍👩‍👧‍👦 Grupos</h1>
+
+  <div class="error" *ngIf="error">{{ error }}</div>
+
+  <div class="seccion" *ngIf="invitaciones.length > 0">
+    <h2>📥 Invitaciones recibidas ({{ invitaciones.length }})</h2>
+    <div class="fila-solicitud" *ngFor="let inv of invitaciones">
+      <span><b>{{ inv.nombreGrupo }}</b> — invitado por {{ inv.deEmail }}</span>
+      <div class="acciones">
+        <button class="btn-primary" (click)="aceptarInvitacion(inv)">Aceptar</button>
+        <button class="btn-danger" (click)="rechazarInvitacion(inv)">Rechazar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Crear grupo</h2>
+    <div class="campos-simple">
+      <input type="text" [(ngModel)]="nombreNuevoGrupo" placeholder="Nombre del grupo"
+             (keyup.enter)="crearGrupo()" />
+      <button class="btn-primary" (click)="crearGrupo()">Crear</button>
+    </div>
+  </div>
+
+  <div class="seccion">
+    <h2>Mis grupos ({{ grupos.length }})</h2>
+    <div *ngIf="grupos.length === 0" class="hint">Todavía no perteneces a ningún grupo.</div>
+    <div class="fila-amigo" *ngFor="let g of grupos" (click)="abrirGrupo(g)">
+      <span>{{ g.nombre }}</span>
+      <span class="miembros-tag">{{ g.numeroMiembros }} miembro(s)</span>
+    </div>
+  </div>
+</div>
+
+<div class="container" *ngIf="grupoSeleccionado">
+  <button class="btn-volver" (click)="volverALista()">◀ Volver a grupos</button>
+  <h1>{{ grupoSeleccionado.nombre }}</h1>
+
+  <div class="card">
+    <h2>Miembros ({{ grupoSeleccionado.miembros.length }})</h2>
+    <div class="lista-miembros">
+      <span class="miembro-chip" *ngFor="let m of grupoSeleccionado.miembros">{{ m.email }}</span>
+    </div>
+    <div class="campos-simple invitar-fila">
+      <input type="email" [(ngModel)]="emailInvitar" placeholder="Email de un amigo para invitar"
+             (keyup.enter)="invitar()" />
+      <button class="btn-primary" (click)="invitar()">Invitar</button>
+    </div>
+    <div class="error" *ngIf="error">{{ error }}</div>
+    <button class="btn-salir" (click)="salirDelGrupo()">Salir del grupo</button>
+  </div>
+
+  <div class="tabs">
+    <button [class.activo]="tabItem === 'SERIE'" (click)="cambiarTabItem('SERIE')">Series</button>
+    <button [class.activo]="tabItem === 'PELICULA'" (click)="cambiarTabItem('PELICULA')">Películas</button>
+    <button [class.activo]="tabItem === 'MANGA'" (click)="cambiarTabItem('MANGA')">Mangas</button>
+  </div>
+
+  <button class="btn-primary btn-nueva" (click)="mostrarFormularioItem = !mostrarFormularioItem">
+    {{ mostrarFormularioItem ? '✕ Cancelar' : '+ Añadir título' }}
+  </button>
+
+  <div class="card formulario" *ngIf="mostrarFormularioItem">
+    <div class="campos-simple">
+      <input type="text" [(ngModel)]="nuevoTitulo" placeholder="Título *" (keyup.enter)="crearItem()" />
+    </div>
+    <textarea [(ngModel)]="nuevaDescripcion" placeholder="Descripción (opcional)" rows="2"></textarea>
+    <button class="btn-primary" (click)="crearItem()">Añadir a la lista del grupo</button>
+  </div>
+
+  <div class="lista-items">
+    <div class="item-grupo" *ngFor="let item of items">
+      <div class="item-cabecera" (click)="abrirOpinion(item)">
+        <h3>{{ item.titulo }}</h3>
+        <button class="btn-danger btn-pequeno" (click)="eliminarItem(item, $event)">✕</button>
+      </div>
+      <p class="item-descripcion" *ngIf="item.descripcion">{{ item.descripcion }}</p>
+
+      <div class="opiniones">
+        <div class="opinion-chip" *ngFor="let o of item.opiniones" [class.mia]="esMiOpinion(o.email)">
+          <b>{{ o.email }}</b>
+          <span *ngIf="o.nota">⭐ {{ o.nota }}/10</span>
+          <span *ngIf="o.personajeFavorito">💚 {{ o.personajeFavorito }}</span>
+          <span *ngIf="o.personajeOdiado">💔 {{ o.personajeOdiado }}</span>
+          <span *ngIf="o.comentario" class="opinion-comentario">"{{ o.comentario }}"</span>
+        </div>
+        <div class="hint" *ngIf="item.opiniones.length === 0">Nadie ha opinado todavía.</div>
+      </div>
+
+      <div class="form-opinion" *ngIf="itemAbierto === item.id">
+        <h4>Tu opinión</h4>
+        <div class="campos-opinion">
+          <input type="number" min="0" max="10" [(ngModel)]="formOpinion.nota" placeholder="Nota (0-10)" />
+          <input type="text" [(ngModel)]="formOpinion.personajeFavorito" placeholder="Personaje favorito" />
+          <input type="text" [(ngModel)]="formOpinion.personajeOdiado" placeholder="Personaje odiado" />
+        </div>
+        <textarea [(ngModel)]="formOpinion.comentario" placeholder="Comentario (opcional)" rows="2"></textarea>
+        <button class="btn-primary" (click)="guardarOpinion(item)">Guardar mi opinión</button>
+      </div>
+    </div>
+    <div *ngIf="items.length === 0" class="hint">Todavía no hay títulos en esta lista.</div>
+  </div>
+</div>

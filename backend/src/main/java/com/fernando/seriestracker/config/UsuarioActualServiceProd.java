@@ -22,4 +22,10 @@ public class UsuarioActualServiceProd implements UsuarioActualService {
         Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return UUID.fromString(jwt.getSubject());
     }
+
+    @Override
+    public String obtenerEmail() {
+        Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return jwt.getClaimAsString("email");
+    }
 }

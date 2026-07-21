@@ -22,4 +22,9 @@ public class UsuarioActualServiceDev implements UsuarioActualService {
     public UUID obtenerId() {
         return USUARIO_LOCAL;
     }
+
+    @Override
+    public String obtenerEmail() {
+        return "local@dev";
+    }
 }

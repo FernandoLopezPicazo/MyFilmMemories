@@ -323,6 +323,13 @@ export class SeriesPageComponent implements OnInit {
     });
   }
 
+  alternarVisibilidad(serie: Serie, event: Event): void {
+    event.stopPropagation();
+    this.serieService.alternarVisibilidad(serie.id!).subscribe(() => {
+      serie.ocultoParaAmigos = !serie.ocultoParaAmigos;
+    });
+  }
+
   // ── DRAG & DROP ───────────────────────────────────
   onDragStart(serie: Serie, event: DragEvent): void {
     event.dataTransfer!.setData('serieId', serie.id!.toString());

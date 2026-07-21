@@ -61,6 +61,9 @@
         </div>
         <div class="serie-acciones">
           <button class="btn-proceso" (click)="empezar(manga.id!, $event)">▶ Empezar</button>
+          <button class="btn-visibilidad" [class.activo]="manga.ocultoParaAmigos"
+            [title]="manga.ocultoParaAmigos ? 'Oculto para amigos' : 'Visible para amigos'"
+            (click)="alternarVisibilidad(manga, $event)">{{ manga.ocultoParaAmigos ? '🙈' : '👁️' }}</button>
           <button class="btn-edit" (click)="abrirEdicion(manga, $event)">✎</button>
           <button class="btn-danger" (click)="eliminar(manga.id!, $event)">✕</button>
         </div>
@@ -102,6 +105,9 @@
         </div>
         <div class="serie-acciones">
           <button class="btn-success" (click)="abrirModalFinalizar(manga, $event)">✓ Fin</button>
+          <button class="btn-visibilidad" [class.activo]="manga.ocultoParaAmigos"
+            [title]="manga.ocultoParaAmigos ? 'Oculto para amigos' : 'Visible para amigos'"
+            (click)="alternarVisibilidad(manga, $event)">{{ manga.ocultoParaAmigos ? '🙈' : '👁️' }}</button>
           <button class="btn-edit" (click)="abrirEdicion(manga, $event)">✎</button>
           <button class="btn-danger" (click)="eliminar(manga.id!, $event)">✕</button>
         </div>
@@ -139,6 +145,9 @@
           <span class="hint-detalle">Haz clic para ver más</span>
         </div>
         <div class="serie-acciones">
+          <button class="btn-visibilidad" [class.activo]="manga.ocultoParaAmigos"
+            [title]="manga.ocultoParaAmigos ? 'Oculto para amigos' : 'Visible para amigos'"
+            (click)="alternarVisibilidad(manga, $event)">{{ manga.ocultoParaAmigos ? '🙈' : '👁️' }}</button>
           <button class="btn-edit" (click)="abrirEdicion(manga, $event)">✎</button>
           <button class="btn-danger" (click)="eliminar(manga.id!, $event)">✕</button>
         </div>

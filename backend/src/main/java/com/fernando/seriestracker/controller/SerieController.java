@@ -133,6 +133,12 @@ public class SerieController {
         return ResponseEntity.noContent().build();
     }
 
+    @PutMapping("/{id}/visibilidad")
+    public ResponseEntity<Void> alternarOcultoParaAmigos(@PathVariable Long id) {
+        serieService.alternarOcultoParaAmigos(id);
+        return ResponseEntity.noContent().build();
+    }
+
     /*
      * Manejador global de errores de ESTE controller.
      * Cuando el Service lanza IllegalArgumentException, Spring la captura aquí

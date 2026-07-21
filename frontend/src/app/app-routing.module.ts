@@ -5,6 +5,8 @@ import { PeliculasPageComponent } from './peliculas-page/peliculas-page.componen
 import { MangasPageComponent } from './mangas-page/mangas-page.component';
 import { BackupPageComponent } from './backup-page/backup-page.component';
 import { LoginComponent } from './login/login.component';
+import { AmigosPageComponent } from './amigos-page/amigos-page.component';
+import { GruposPageComponent } from './grupos-page/grupos-page.component';
 import { AuthGuard } from './auth.guard';
 
 const routes: Routes = [
@@ -13,6 +15,8 @@ const routes: Routes = [
   { path: 'peliculas', component: PeliculasPageComponent, canActivate: [AuthGuard] },
   { path: 'mangas', component: MangasPageComponent, canActivate: [AuthGuard] },
   { path: 'backup', component: BackupPageComponent, canActivate: [AuthGuard] },
+  { path: 'amigos', component: AmigosPageComponent, canActivate: [AuthGuard] },
+  { path: 'grupos', component: GruposPageComponent, canActivate: [AuthGuard] },
   { path: '', redirectTo: '/series', pathMatch: 'full' }
 ];
 

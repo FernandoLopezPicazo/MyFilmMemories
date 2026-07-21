@@ -19,4 +19,7 @@ public interface MangaRepository extends JpaRepository<Manga, Long> {
     Optional<Manga> findByIdAndUsuarioId(Long id, UUID usuarioId);
 
     boolean existsByIdAndUsuarioId(Long id, UUID usuarioId);
+
+    // Para ver la colección de un amigo: solo lo que no haya marcado como oculto
+    List<Manga> findByUsuarioIdAndOcultoParaAmigosFalse(UUID usuarioId);
 }

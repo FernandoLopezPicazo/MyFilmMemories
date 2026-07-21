@@ -398,6 +398,13 @@ export class PeliculasPageComponent implements OnInit {
     });
   }
 
+  alternarVisibilidad(pelicula: Pelicula, event: Event): void {
+    event.stopPropagation();
+    this.peliculaService.alternarVisibilidad(pelicula.id!).subscribe(() => {
+      pelicula.ocultoParaAmigos = !pelicula.ocultoParaAmigos;
+    });
+  }
+
   // ── DRAG & DROP (solo 2 estados) ──────────────────
   onDragStart(pelicula: Pelicula, event: DragEvent): void {
     event.dataTransfer!.setData('peliculaId', pelicula.id!.toString());

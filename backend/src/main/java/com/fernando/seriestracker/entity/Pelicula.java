@@ -76,7 +76,9 @@ public class Pelicula {
     @Column(name = "saga_id", nullable = true)
     private Long sagaId;
 
-    
+    // Si es true, este título no aparece cuando un amigo consulta tu colección.
+    @Column(name = "oculto_para_amigos", nullable = false)
+    private boolean ocultoParaAmigos = false;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "pelicula_generos", joinColumns = @JoinColumn(name = "pelicula_id"))

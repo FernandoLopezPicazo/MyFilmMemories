@@ -1,0 +1,83 @@
+<div class="container" *ngIf="!amigoSeleccionado">
+  <h1>🤝 Amigos</h1>
+
+  <div class="card buscador-card">
+    <h2>Añadir amigo</h2>
+    <div class="campos-simple">
+      <input type="email" [(ngModel)]="emailBusqueda" placeholder="Email de tu amigo"
+             (keyup.enter)="enviarSolicitud()" />
+      <button class="btn-primary" (click)="enviarSolicitud()" [disabled]="cargando">Enviar solicitud</button>
+    </div>
+    <div class="error" *ngIf="error">{{ error }}</div>
+    <div class="mensaje-ok" *ngIf="mensaje">{{ mensaje }}</div>
+  </div>
+
+  <div class="seccion" *ngIf="recibidas.length > 0">
+    <h2>📥 Solicitudes recibidas ({{ recibidas.length }})</h2>
+    <div class="fila-solicitud" *ngFor="let s of recibidas">
+      <span>{{ s.otroEmail }}</span>
+      <div class="acciones">
+        <button class="btn-primary" (click)="aceptar(s)">Aceptar</button>
+        <button class="btn-danger" (click)="rechazar(s)">Rechazar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="seccion" *ngIf="enviadas.length > 0">
+    <h2>📤 Solicitudes enviadas ({{ enviadas.length }})</h2>
+    <div class="fila-solicitud" *ngFor="let s of enviadas">
+      <span>{{ s.otroEmail }}</span>
+      <span class="pendiente-tag">Pendiente</span>
+    </div>
+  </div>
+
+  <div class="seccion">
+    <h2>👥 Mis amigos ({{ amigos.length }})</h2>
+    <div *ngIf="amigos.length === 0" class="hint">Todavía no tienes amigos añadidos.</div>
+    <div class="fila-amigo" *ngFor="let a of amigos" (click)="verColeccion(a)">
+      <span>{{ a.email }}</span>
+      <div class="acciones">
+        <button class="btn-ver">Ver colección ▶</button>
+        <button class="btn-danger" (click)="eliminarAmistad(a); $event.stopPropagation()">Eliminar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container" *ngIf="amigoSeleccionado">
+  <button class="btn-volver" (click)="cerrarColeccion()">◀ Volver a amigos</button>
+  <h1>Colección de {{ amigoSeleccionado.email }}</h1>
+
+  <div class="tabs">
+    <button [class.activo]="tabColeccion === 'series'" (click)="cambiarTab('series')">Series</button>
+    <button [class.activo]="tabColeccion === 'peliculas'" (click)="cambiarTab('peliculas')">Películas</button>
+    <button [class.activo]="tabColeccion === 'mangas'" (click)="cambiarTab('mangas')">Mangas</button>
+  </div>
+
+  <div class="grid-coleccion" *ngIf="tabColeccion === 'series'">
+    <div class="mini-card" *ngFor="let s of seriesAmigo">
+      <h3>{{ s.titulo }}</h3>
+      <span class="estado-tag">{{ s.estado }}</span>
+      <span class="nota-tag" *ngIf="s.nota">⭐ {{ s.nota }}/10</span>
+    </div>
+    <div *ngIf="seriesAmigo.length === 0" class="hint">Sin series visibles.</div>
+  </div>
+
+  <div class="grid-coleccion" *ngIf="tabColeccion === 'peliculas'">
+    <div class="mini-card" *ngFor="let p of peliculasAmigo">
+      <h3>{{ p.titulo }}</h3>
+      <span class="estado-tag">{{ p.estado }}</span>
+      <span class="nota-tag" *ngIf="p.nota">⭐ {{ p.nota }}/10</span>
+    </div>
+    <div *ngIf="peliculasAmigo.length === 0" class="hint">Sin películas visibles.</div>
+  </div>
+
+  <div class="grid-coleccion" *ngIf="tabColeccion === 'mangas'">
+    <div class="mini-card" *ngFor="let m of mangasAmigo">
+      <h3>{{ m.titulo }}</h3>
+      <span class="estado-tag">{{ m.estado }}</span>
+      <span class="nota-tag" *ngIf="m.nota">⭐ {{ m.nota }}/10</span>
+    </div>
+    <div *ngIf="mangasAmigo.length === 0" class="hint">Sin mangas visibles.</div>
+  </div>
+</div>

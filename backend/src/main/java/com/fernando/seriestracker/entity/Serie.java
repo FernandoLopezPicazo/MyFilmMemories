@@ -75,6 +75,10 @@ public class Serie {
     @Column(name = "episodio_actual", nullable = true)
     private Integer episodioActual;
 
+    // Si es true, este título no aparece cuando un amigo consulta tu colección.
+    @Column(name = "oculto_para_amigos", nullable = false)
+    private boolean ocultoParaAmigos = false;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "serie_generos", joinColumns = @JoinColumn(name = "serie_id"))
     @Column(name = "genero")

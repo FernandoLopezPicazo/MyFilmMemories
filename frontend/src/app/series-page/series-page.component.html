@@ -59,6 +59,9 @@
       </div>
       <div class="serie-acciones">
         <button class="btn-proceso" title="Mover a En Proceso" (click)="moverAEnProceso(serie.id!); $event.stopPropagation()">▶</button>
+        <button class="btn-visibilidad" [class.activo]="serie.ocultoParaAmigos"
+          [title]="serie.ocultoParaAmigos ? 'Oculto para amigos' : 'Visible para amigos'"
+          (click)="alternarVisibilidad(serie, $event)">{{ serie.ocultoParaAmigos ? '🙈' : '👁️' }}</button>
         <button class="btn-edit" (click)="abrirEdicion(serie, $event)">✎</button>
         <button class="btn-danger" (click)="eliminar(serie.id!, $event)">✕</button>
       </div>
@@ -100,6 +103,9 @@
       </div>
       <div class="serie-acciones">
         <button class="btn-success" (click)="abrirModalVista(serie, $event)">✓ Vista</button>
+        <button class="btn-visibilidad" [class.activo]="serie.ocultoParaAmigos"
+          [title]="serie.ocultoParaAmigos ? 'Oculto para amigos' : 'Visible para amigos'"
+          (click)="alternarVisibilidad(serie, $event)">{{ serie.ocultoParaAmigos ? '🙈' : '👁️' }}</button>
         <button class="btn-edit" (click)="abrirEdicion(serie, $event)">✎</button>
         <button class="btn-danger" (click)="eliminar(serie.id!, $event)">✕</button>
       </div>
@@ -132,6 +138,9 @@
         <span class="hint-detalle">Haz clic para ver más</span>
       </div>
       <div class="serie-acciones">
+        <button class="btn-visibilidad" [class.activo]="serie.ocultoParaAmigos"
+          [title]="serie.ocultoParaAmigos ? 'Oculto para amigos' : 'Visible para amigos'"
+          (click)="alternarVisibilidad(serie, $event)">{{ serie.ocultoParaAmigos ? '🙈' : '👁️' }}</button>
         <button class="btn-edit" (click)="abrirEdicion(serie, $event)">✎</button>
         <button class="btn-danger" (click)="eliminar(serie.id!, $event)">✕</button>
       </div>

@@ -216,6 +216,8 @@ button:hover { opacity: 0.85; }
 .btn-secondary { background: #e5e7eb; color: #333; }
 .btn-edit      { background: #8b5cf6; color: white; }
 .btn-proceso   { background: #3b82f6; color: white; }
+.btn-visibilidad { background: var(--bg-card-alt); border: 1px solid var(--border); }
+.btn-visibilidad.activo { background: #64748b; }
 
 .error {
   background: #fee2e2; color: #b91c1c;

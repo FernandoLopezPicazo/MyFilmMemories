@@ -341,6 +341,13 @@ export class MangasPageComponent implements OnInit {
     });
   }
 
+  alternarVisibilidad(manga: Manga, event: Event): void {
+    event.stopPropagation();
+    this.mangaService.alternarVisibilidad(manga.id!).subscribe(() => {
+      manga.ocultoParaAmigos = !manga.ocultoParaAmigos;
+    });
+  }
+
   // ── DRAG & DROP ───────────────────────────────────
   onDragStart(manga: Manga, event: DragEvent): void {
     event.dataTransfer!.setData('mangaId', manga.id!.toString());

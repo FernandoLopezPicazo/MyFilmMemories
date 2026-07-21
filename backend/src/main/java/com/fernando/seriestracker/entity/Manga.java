@@ -76,6 +76,10 @@ public class Manga {
     @Column(name = "fecha_finalizado", nullable = true)
     private LocalDate fechaFinalizado;
 
+    // Si es true, este título no aparece cuando un amigo consulta tu colección.
+    @Column(name = "oculto_para_amigos", nullable = false)
+    private boolean ocultoParaAmigos = false;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "manga_generos", joinColumns = @JoinColumn(name = "manga_id"))
     @Column(name = "genero")

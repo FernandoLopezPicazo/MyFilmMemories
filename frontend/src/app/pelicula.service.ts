@@ -29,6 +29,7 @@ export interface Pelicula {
   estado: 'PENDIENTE'| 'VISTA';
   fechaVista?: string;
   duracionMinutos?: number; // Duración en minutos
+  ocultoParaAmigos?: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -91,5 +92,9 @@ export class PeliculaService {
     const formData = new FormData();
     formData.append('archivo', archivo);
     return this.http.post<{ url: string }>(`${this.imagenesUrl}/subir`, formData);
+  }
+
+  alternarVisibilidad(id: number): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/${id}/visibilidad`, {});
   }
 }
