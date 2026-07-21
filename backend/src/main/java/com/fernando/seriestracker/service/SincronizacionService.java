@@ -30,8 +30,15 @@ import java.util.*;
  * SincronizacionController) y lo fusiona contra lo que ya existe para ese
  * usuario:
  *   - Si el syncId ya existe → gana el más reciente por "actualizadoEn".
- *   - Si el syncId es null (título creado antes de esta función) → se
- *     empareja con lo existente por título exacto, como mejor esfuerzo.
+ *   - Si no hay match por syncId (porque es null, o porque el otro lado aún
+ *     no conoce el syncId que se le asignó en una pasada anterior) → se
+ *     empareja con lo existente por título exacto, como mejor esfuerzo. Esto
+ *     es necesario incluso cuando el syncId entrante NO es null: un título
+ *     "legacy" recién emparejado en UN lado (que ya tiene syncId asignado)
+ *     todavía no lo tiene reflejado en el OTRO lado hasta que complete su
+ *     propio primer emparejamiento — si en ese momento solo se intentara el
+ *     título quedaría excluido por ya tener syncId, y el título acabaría
+ *     duplicándose.
  *   - Si no hay ningún emparejamiento → es un título nuevo, se crea.
  *   - Lo que exista en este lado y NO viniera en el lote también se
  *     devuelve, para que el otro lado lo descargue.
@@ -56,10 +63,10 @@ public class SincronizacionService {
         List<Serie> existentes = serieRepository.findByUsuarioId(yo);
 
         Map<UUID, Serie> porSyncId = new HashMap<>();
-        Map<String, Serie> sinSyncPorTitulo = new HashMap<>();
+        Map<String, Serie> porTitulo = new HashMap<>();
         for (Serie s : existentes) {
             if (s.getSyncId() != null) porSyncId.put(s.getSyncId(), s);
-            else sinSyncPorTitulo.putIfAbsent(clavePorTitulo(s.getTitulo()), s);
+            porTitulo.putIfAbsent(clavePorTitulo(s.getTitulo()), s);
         }
 
         Set<Long> idsUsados = new HashSet<>();
@@ -67,9 +74,13 @@ public class SincronizacionService {
 
         for (Serie local : lote) {
             Long localId = local.getId();
-            Serie existente = local.getSyncId() != null
-                    ? porSyncId.get(local.getSyncId())
-                    : sinSyncPorTitulo.get(clavePorTitulo(local.getTitulo()));
+            Serie existente = local.getSyncId() != null ? porSyncId.get(local.getSyncId()) : null;
+            if (existente == null) {
+                Serie porTituloCandidata = porTitulo.get(clavePorTitulo(local.getTitulo()));
+                if (porTituloCandidata != null && !idsUsados.contains(porTituloCandidata.getId())) {
+                    existente = porTituloCandidata;
+                }
+            }
 
             if (existente != null) {
                 if (esMasReciente(local.getActualizadoEn(), existente.getActualizadoEn())) {
@@ -125,10 +136,10 @@ public class SincronizacionService {
         List<Pelicula> existentes = peliculaRepository.findByUsuarioIdAndSagaIdIsNull(yo);
 
         Map<UUID, Pelicula> porSyncId = new HashMap<>();
-        Map<String, Pelicula> sinSyncPorTitulo = new HashMap<>();
+        Map<String, Pelicula> porTitulo = new HashMap<>();
         for (Pelicula p : existentes) {
             if (p.getSyncId() != null) porSyncId.put(p.getSyncId(), p);
-            else sinSyncPorTitulo.putIfAbsent(clavePorTitulo(p.getTitulo()), p);
+            porTitulo.putIfAbsent(clavePorTitulo(p.getTitulo()), p);
         }
 
         Set<Long> idsUsados = new HashSet<>();
@@ -136,9 +147,13 @@ public class SincronizacionService {
 
         for (Pelicula local : lote) {
             Long localId = local.getId();
-            Pelicula existente = local.getSyncId() != null
-                    ? porSyncId.get(local.getSyncId())
-                    : sinSyncPorTitulo.get(clavePorTitulo(local.getTitulo()));
+            Pelicula existente = local.getSyncId() != null ? porSyncId.get(local.getSyncId()) : null;
+            if (existente == null) {
+                Pelicula porTituloCandidata = porTitulo.get(clavePorTitulo(local.getTitulo()));
+                if (porTituloCandidata != null && !idsUsados.contains(porTituloCandidata.getId())) {
+                    existente = porTituloCandidata;
+                }
+            }
 
             if (existente != null) {
                 if (esMasReciente(local.getActualizadoEn(), existente.getActualizadoEn())) {
@@ -195,10 +210,10 @@ public class SincronizacionService {
         List<Manga> existentes = mangaRepository.findByUsuarioId(yo);
 
         Map<UUID, Manga> porSyncId = new HashMap<>();
-        Map<String, Manga> sinSyncPorTitulo = new HashMap<>();
+        Map<String, Manga> porTitulo = new HashMap<>();
         for (Manga m : existentes) {
             if (m.getSyncId() != null) porSyncId.put(m.getSyncId(), m);
-            else sinSyncPorTitulo.putIfAbsent(clavePorTitulo(m.getTitulo()), m);
+            porTitulo.putIfAbsent(clavePorTitulo(m.getTitulo()), m);
         }
 
         Set<Long> idsUsados = new HashSet<>();
@@ -206,9 +221,13 @@ public class SincronizacionService {
 
         for (Manga local : lote) {
             Long localId = local.getId();
-            Manga existente = local.getSyncId() != null
-                    ? porSyncId.get(local.getSyncId())
-                    : sinSyncPorTitulo.get(clavePorTitulo(local.getTitulo()));
+            Manga existente = local.getSyncId() != null ? porSyncId.get(local.getSyncId()) : null;
+            if (existente == null) {
+                Manga porTituloCandidata = porTitulo.get(clavePorTitulo(local.getTitulo()));
+                if (porTituloCandidata != null && !idsUsados.contains(porTituloCandidata.getId())) {
+                    existente = porTituloCandidata;
+                }
+            }
 
             if (existente != null) {
                 if (esMasReciente(local.getActualizadoEn(), existente.getActualizadoEn())) {
