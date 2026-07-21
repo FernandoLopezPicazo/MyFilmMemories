@@ -1,5 +1,6 @@
 package com.fernando.seriestracker.service;
 
+import com.fernando.seriestracker.config.UsuarioActualService;
 import com.fernando.seriestracker.entity.Serie;
 import com.fernando.seriestracker.repository.SerieRepository;
 import lombok.RequiredArgsConstructor;
@@ -47,6 +48,7 @@ import java.util.List;
 public class SerieService {
 
     private final SerieRepository serieRepository;
+    private final UsuarioActualService usuarioActual;
 
     /*
      * @Transactional(readOnly = true): abre una transacción de BD de solo lectura.
@@ -56,12 +58,12 @@ public class SerieService {
      */
     @Transactional(readOnly = true)
     public List<Serie> obtenerTodas() {
-        return serieRepository.findAll();
+        return serieRepository.findByUsuarioId(usuarioActual.obtenerId());
     }
 
     @Transactional(readOnly = true)
     public List<Serie> obtenerPorEstado(Serie.EstadoSerie estado) {
-        return serieRepository.findByEstado(estado);
+        return serieRepository.findByUsuarioIdAndEstado(usuarioActual.obtenerId(), estado);
     }
 
     /*
@@ -78,6 +80,7 @@ public class SerieService {
     public Serie crear(Serie serie) {
         // Forzamos estado PENDIENTE y sin nota al crear — la regla de negocio
         // dice que la nota solo existe en series VISTAS.
+        serie.setUsuarioId(usuarioActual.obtenerId());
         serie.setEstado(Serie.EstadoSerie.PENDIENTE);
         serie.setNota(null);
         serie.setFechaVista(null);
@@ -97,7 +100,7 @@ public class SerieService {
          *
          * Con Oracle usaríamos el stored procedure. Con H2 lo hacemos con JPA.
          */
-        Serie serie = serieRepository.findById(id)
+        Serie serie = serieRepository.findByIdAndUsuarioId(id, usuarioActual.obtenerId())
                 .orElseThrow(() -> new IllegalArgumentException("No existe una serie con id: " + id));
 
         serie.setEstado(Serie.EstadoSerie.VISTA);
@@ -109,7 +112,7 @@ public class SerieService {
 
     @Transactional
     public Serie editar(Long id, Serie datos) {
-        Serie serie = serieRepository.findById(id)
+        Serie serie = serieRepository.findByIdAndUsuarioId(id, usuarioActual.obtenerId())
                 .orElseThrow(() -> new IllegalArgumentException("No existe una serie con id: " + id));
 
         // Solo actualizamos los campos editables — estado y nota NO se tocan aquí
@@ -134,7 +137,7 @@ public class SerieService {
 
     @Transactional
     public void marcarComoPendiente(Long id) {
-        Serie serie = serieRepository.findById(id)
+        Serie serie = serieRepository.findByIdAndUsuarioId(id, usuarioActual.obtenerId())
                 .orElseThrow(() -> new IllegalArgumentException("No existe una serie con id: " + id));
         serie.setEstado(Serie.EstadoSerie.PENDIENTE);
         serieRepository.save(serie);
@@ -142,7 +145,7 @@ public class SerieService {
 
     @Transactional
     public void marcarComoEnProceso(Long id) {
-        Serie serie = serieRepository.findById(id)
+        Serie serie = serieRepository.findByIdAndUsuarioId(id, usuarioActual.obtenerId())
                 .orElseThrow(() -> new IllegalArgumentException("No existe una serie con id: " + id));
         serie.setEstado(Serie.EstadoSerie.EN_PROCESO);
         if (serie.getTemporadaActual() == null) serie.setTemporadaActual(1);
@@ -152,7 +155,7 @@ public class SerieService {
 
     @Transactional
     public void actualizarProgreso(Long id, Integer temporada, Integer episodio) {
-        Serie serie = serieRepository.findById(id)
+        Serie serie = serieRepository.findByIdAndUsuarioId(id, usuarioActual.obtenerId())
                 .orElseThrow(() -> new IllegalArgumentException("No existe una serie con id: " + id));
         if (temporada != null && temporada >= 1) serie.setTemporadaActual(temporada);
         if (episodio != null && episodio >= 1) serie.setEpisodioActual(episodio);
@@ -161,7 +164,7 @@ public class SerieService {
 
     @Transactional
     public void eliminar(Long id) {
-        if (!serieRepository.existsById(id)) {
+        if (!serieRepository.existsByIdAndUsuarioId(id, usuarioActual.obtenerId())) {
             throw new IllegalArgumentException("No existe una serie con id: " + id);
         }
         serieRepository.deleteById(id);

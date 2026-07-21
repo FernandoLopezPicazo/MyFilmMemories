@@ -23,13 +23,11 @@ import java.util.Map;
  * @RequestMapping("/api/peliculas"): prefijo de URL para todos los endpoints
  * de este controller. Todos empezarán con /api/peliculas.
  *
- * @CrossOrigin: permite peticiones desde otros orígenes (el frontend Angular
- * en localhost:4200 no puede llamar al backend en localhost:8080 sin esto,
- * por la política CORS del navegador).
+ * El CORS ya no se declara aquí por controller — está centralizado en
+ * config/SecurityConfig.java, configurable vía APP_CORS_ALLOWED_ORIGINS.
  */
 @RestController
 @RequestMapping("/api/peliculas")
-@CrossOrigin(origins = "http://localhost:4200")
 @RequiredArgsConstructor
 public class PeliculaController {
 

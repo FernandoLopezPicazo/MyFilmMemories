@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../environments/environment';
 
 export interface Manga {
   id?: number;
@@ -25,7 +26,7 @@ export interface Manga {
 @Injectable({ providedIn: 'root' })
 export class MangaService {
 
-  private url = 'http://localhost:8090/api/mangas';
+  private url = `${environment.apiUrl}/api/mangas`;
 
   constructor(private http: HttpClient) {}
 
@@ -64,6 +65,6 @@ export class MangaService {
   subirImagen(file: File): Observable<{ url: string }> {
     const formData = new FormData();
     formData.append('imagen', file);
-    return this.http.post<{ url: string }>('http://localhost:8090/api/imagenes/subir', formData);
+    return this.http.post<{ url: string }>(`${environment.apiUrl}/api/imagenes/subir`, formData);
   }
 }

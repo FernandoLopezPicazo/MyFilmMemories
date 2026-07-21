@@ -1,5 +1,6 @@
 package com.fernando.seriestracker.service;
 
+import com.fernando.seriestracker.config.UsuarioActualService;
 import com.fernando.seriestracker.entity.Pelicula;
 import com.fernando.seriestracker.repository.PeliculaRepository;
 import lombok.RequiredArgsConstructor;
@@ -48,6 +49,7 @@ public class PeliculaService {
 
     private final PeliculaRepository peliculaRepository;
     private final SagaService sagaService;
+    private final UsuarioActualService usuarioActual;
 
     /*
      * @Transactional(readOnly = true): abre una transacción de BD de solo lectura.
@@ -57,13 +59,13 @@ public class PeliculaService {
      */
     @Transactional(readOnly = true)
     public List<Pelicula> obtenerTodas() {
-        return peliculaRepository.findAll();
+        return peliculaRepository.findByUsuarioIdAndSagaIdIsNull(usuarioActual.obtenerId());
     }
 
     @Transactional(readOnly = true)
     public List<Pelicula> obtenerPorEstado(Pelicula.EstadoPelicula estado) {
         // Solo devuelve películas sueltas (sin saga) — las de saga se gestionan desde SagaController
-        return peliculaRepository.findByEstadoAndSagaIdIsNull(estado);
+        return peliculaRepository.findByUsuarioIdAndEstadoAndSagaIdIsNull(usuarioActual.obtenerId(), estado);
     }
 
     /*
@@ -80,6 +82,7 @@ public class PeliculaService {
     public Pelicula crear(Pelicula pelicula) {
         // Forzamos estado PENDIENTE y sin nota al crear — la regla de negocio
         // dice que la nota solo existe en pelicula VISTAS.
+        pelicula.setUsuarioId(usuarioActual.obtenerId());
         pelicula.setEstado(Pelicula.EstadoPelicula.PENDIENTE);
         pelicula.setNota(null);
         pelicula.setFechaVista(null);
@@ -99,7 +102,7 @@ public class PeliculaService {
          *
          * Con Oracle usaríamos el stored procedure. Con H2 lo hacemos con JPA.
          */
-        Pelicula pelicula = peliculaRepository.findById(id)
+        Pelicula pelicula = peliculaRepository.findByIdAndUsuarioId(id, usuarioActual.obtenerId())
                 .orElseThrow(() -> new IllegalArgumentException("No existe una pelicula con id: " + id));
 
         pelicula.setEstado(Pelicula.EstadoPelicula.VISTA);
@@ -116,7 +119,7 @@ public class PeliculaService {
 
     @Transactional
     public Pelicula editar(Long id, Pelicula datos) {
-        Pelicula pelicula = peliculaRepository.findById(id)
+        Pelicula pelicula = peliculaRepository.findByIdAndUsuarioId(id, usuarioActual.obtenerId())
                 .orElseThrow(() -> new IllegalArgumentException("No existe una pelicula con id: " + id));
 
         // Solo actualizamos los campos editables — estado y nota NO se tocan aquí
@@ -140,7 +143,7 @@ public class PeliculaService {
 
     @Transactional
     public void marcarComoPendiente(Long id) {
-        Pelicula pelicula = peliculaRepository.findById(id)
+        Pelicula pelicula = peliculaRepository.findByIdAndUsuarioId(id, usuarioActual.obtenerId())
                 .orElseThrow(() -> new IllegalArgumentException("No existe una pelicula con id: " + id));
         pelicula.setEstado(Pelicula.EstadoPelicula.PENDIENTE);
         peliculaRepository.save(pelicula);
@@ -152,7 +155,7 @@ public class PeliculaService {
     
     @Transactional
     public void eliminar(Long id) {
-        if (!peliculaRepository.existsById(id)) {
+        if (!peliculaRepository.existsByIdAndUsuarioId(id, usuarioActual.obtenerId())) {
             throw new IllegalArgumentException("No existe una pelicula con id: " + id);
         }
         peliculaRepository.deleteById(id);

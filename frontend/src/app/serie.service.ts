@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../environments/environment';
 
 export interface Serie {
   id?: number;
@@ -27,8 +28,8 @@ export interface Serie {
 @Injectable({ providedIn: 'root' })
 export class SerieService {
 
-  private apiUrl = 'http://localhost:8090/api/series';
-  private imagenesUrl = 'http://localhost:8090/api/imagenes';
+  private apiUrl = `${environment.apiUrl}/api/series`;
+  private imagenesUrl = `${environment.apiUrl}/api/imagenes`;
 
   constructor(private http: HttpClient) {}
 

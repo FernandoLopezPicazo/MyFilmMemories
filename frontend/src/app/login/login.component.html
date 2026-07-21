@@ -1,0 +1,31 @@
+<div class="login-page">
+  <div class="login-card">
+    <div class="login-brand">
+      <app-icon name="brand" [size]="32" class="login-brand-icon"></app-icon>
+      <span class="login-brand-name">MyFilm<span class="brand-accent">Memories</span></span>
+    </div>
+
+    <h1>{{ modo === 'entrar' ? 'Inicia sesión' : 'Crea tu cuenta' }}</h1>
+    <p class="login-subtitulo">
+      {{ modo === 'entrar' ? 'Accede a tu colección personal' : 'Empieza tu propia colección' }}
+    </p>
+
+    <form (ngSubmit)="enviar()">
+      <label>Email</label>
+      <input type="email" [(ngModel)]="email" name="email" placeholder="tu@email.com" autocomplete="email" />
+
+      <label>Contraseña</label>
+      <input type="password" [(ngModel)]="password" name="password" placeholder="••••••••" autocomplete="current-password" />
+
+      <div class="error" *ngIf="error">{{ error }}</div>
+
+      <button type="submit" class="btn-login" [disabled]="cargando">
+        {{ cargando ? 'Cargando...' : (modo === 'entrar' ? 'Entrar' : 'Crear cuenta') }}
+      </button>
+    </form>
+
+    <button type="button" class="btn-cambiar-modo" (click)="cambiarModo()">
+      {{ modo === 'entrar' ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión' }}
+    </button>
+  </div>
+</div>

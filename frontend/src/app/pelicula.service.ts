@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../environments/environment';
 
 export interface Saga {
   id?: number;
@@ -33,8 +34,8 @@ export interface Pelicula {
 @Injectable({ providedIn: 'root' })
 export class PeliculaService {
 
-  private apiUrl = 'http://localhost:8090/api/peliculas';
-  private imagenesUrl = 'http://localhost:8090/api/imagenes';
+  private apiUrl = `${environment.apiUrl}/api/peliculas`;
+  private imagenesUrl = `${environment.apiUrl}/api/imagenes`;
 
   constructor(private http: HttpClient) {}
 
@@ -64,7 +65,7 @@ export class PeliculaService {
 
 
   // ── SAGAS ─────────────────────────────────────────
-  private sagasUrl = 'http://localhost:8090/api/sagas';
+  private sagasUrl = `${environment.apiUrl}/api/sagas`;
 
   obtenerSagas(): Observable<Saga[]> {
     return this.http.get<Saga[]>(this.sagasUrl);

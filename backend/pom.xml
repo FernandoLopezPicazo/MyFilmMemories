@@ -52,13 +52,49 @@
         <!--
             H2: base de datos en memoria escrita en Java.
             Arranca junto con Spring Boot, no necesita instalación.
-            Perfecta para desarrollar y probar sin tener Oracle instalado.
-            Cuando tengas Oracle, cambias esta dependencia por ojdbc11.
+            Se usa solo en el profile "dev" (desarrollo local).
         -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <scope>runtime</scope>
+        </dependency>
+
+        <!--
+            PostgreSQL: driver JDBC para la base de datos de Supabase.
+            Se usa en el profile "prod" (nube).
+        -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!--
+            Spring Security + OAuth2 Resource Server: validan el JWT que emite
+            Supabase Auth en cada request a /api/**. El "resource server" no
+            emite tokens (eso lo hace Supabase) — solo los valida contra el
+            JWKS público del proyecto de Supabase.
+        -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+        </dependency>
+
+        <!--
+            Flyway: migraciones de esquema versionadas (db/migration/V1__*.sql).
+            Sustituye a ddl-auto=update para el esquema en Postgres. La versión
+            que gestiona Spring Boot 3.2.5 (9.22.3) incluye soporte de
+            PostgreSQL directamente en flyway-core — el módulo separado
+            flyway-database-postgresql solo existe desde Flyway 10+.
+        -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
         </dependency>
 
         <!--

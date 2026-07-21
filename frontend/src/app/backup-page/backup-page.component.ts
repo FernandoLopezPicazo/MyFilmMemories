@@ -5,6 +5,7 @@ import { catchError } from 'rxjs/operators';
 import { Serie } from '../serie.service';
 import { Pelicula } from '../pelicula.service';
 import { Manga } from '../manga.service';
+import { environment } from '../../environments/environment';
 
 interface BackupFile {
   version: number;
@@ -98,25 +99,25 @@ export class BackupPageComponent {
     const peticiones: any = {};
     if (this.exportSeries) {
       if (this.exportSeriesPendiente) peticiones['seriesPendiente'] =
-        this.http.get<Serie[]>('http://localhost:8090/api/series?estado=PENDIENTE').pipe(catchError(() => of([])));
+        this.http.get<Serie[]>(`${environment.apiUrl}/api/series?estado=PENDIENTE`).pipe(catchError(() => of([])));
       if (this.exportSeriesProceso) peticiones['seriesProceso'] =
-        this.http.get<Serie[]>('http://localhost:8090/api/series?estado=EN_PROCESO').pipe(catchError(() => of([])));
+        this.http.get<Serie[]>(`${environment.apiUrl}/api/series?estado=EN_PROCESO`).pipe(catchError(() => of([])));
       if (this.exportSeriesVista) peticiones['seriesVista'] =
-        this.http.get<Serie[]>('http://localhost:8090/api/series?estado=VISTA').pipe(catchError(() => of([])));
+        this.http.get<Serie[]>(`${environment.apiUrl}/api/series?estado=VISTA`).pipe(catchError(() => of([])));
     }
     if (this.exportPeliculas) {
       if (this.exportPeliculasPendiente) peticiones['peliculasPendiente'] =
-        this.http.get<Pelicula[]>('http://localhost:8090/api/peliculas?estado=PENDIENTE').pipe(catchError(() => of([])));
+        this.http.get<Pelicula[]>(`${environment.apiUrl}/api/peliculas?estado=PENDIENTE`).pipe(catchError(() => of([])));
       if (this.exportPeliculasVista) peticiones['peliculasVista'] =
-        this.http.get<Pelicula[]>('http://localhost:8090/api/peliculas?estado=VISTA').pipe(catchError(() => of([])));
+        this.http.get<Pelicula[]>(`${environment.apiUrl}/api/peliculas?estado=VISTA`).pipe(catchError(() => of([])));
     }
     if (this.exportMangas) {
       if (this.exportMangasPendiente) peticiones['mangasPendiente'] =
-        this.http.get<Manga[]>('http://localhost:8090/api/mangas?estado=PENDIENTE').pipe(catchError(() => of([])));
+        this.http.get<Manga[]>(`${environment.apiUrl}/api/mangas?estado=PENDIENTE`).pipe(catchError(() => of([])));
       if (this.exportMangasProceso) peticiones['mangasProceso'] =
-        this.http.get<Manga[]>('http://localhost:8090/api/mangas?estado=EN_PROCESO').pipe(catchError(() => of([])));
+        this.http.get<Manga[]>(`${environment.apiUrl}/api/mangas?estado=EN_PROCESO`).pipe(catchError(() => of([])));
       if (this.exportMangasFinalizados) peticiones['mangasFinalizados'] =
-        this.http.get<Manga[]>('http://localhost:8090/api/mangas?estado=FINALIZADO').pipe(catchError(() => of([])));
+        this.http.get<Manga[]>(`${environment.apiUrl}/api/mangas?estado=FINALIZADO`).pipe(catchError(() => of([])));
     }
 
     if (Object.keys(peticiones).length === 0) {
@@ -196,9 +197,9 @@ export class BackupPageComponent {
   private cargarPreview(json: BackupFile): void {
     // Cargar existentes para marcar duplicados
     forkJoin({
-      series:    this.http.get<Serie[]>   ('http://localhost:8090/api/series').pipe(catchError(() => of([]))),
-      peliculas: this.http.get<Pelicula[]>('http://localhost:8090/api/peliculas').pipe(catchError(() => of([]))),
-      mangas:    this.http.get<Manga[]>   ('http://localhost:8090/api/mangas').pipe(catchError(() => of([]))),
+      series:    this.http.get<Serie[]>   (`${environment.apiUrl}/api/series`).pipe(catchError(() => of([]))),
+      peliculas: this.http.get<Pelicula[]>(`${environment.apiUrl}/api/peliculas`).pipe(catchError(() => of([]))),
+      mangas:    this.http.get<Manga[]>   (`${environment.apiUrl}/api/mangas`).pipe(catchError(() => of([]))),
     }).subscribe(existentes => {
       const titulosSeries    = new Set(existentes.series.map(s => s.titulo.toLowerCase()));
       const titulosPeliculas = new Set(existentes.peliculas.map(p => p.titulo.toLowerCase()));
@@ -245,9 +246,9 @@ export class BackupPageComponent {
       + this.importMangas.filter(x => !x.seleccionado).length;
 
     const peticiones: any[] = [
-      ...series.map(s    => this.http.post('http://localhost:8090/api/series', s).pipe(catchError(() => of(null)))),
-      ...peliculas.map(p => this.http.post('http://localhost:8090/api/peliculas', p).pipe(catchError(() => of(null)))),
-      ...mangas.map(m    => this.http.post('http://localhost:8090/api/mangas', m).pipe(catchError(() => of(null)))),
+      ...series.map(s    => this.http.post(`${environment.apiUrl}/api/series`, s).pipe(catchError(() => of(null)))),
+      ...peliculas.map(p => this.http.post(`${environment.apiUrl}/api/peliculas`, p).pipe(catchError(() => of(null)))),
+      ...mangas.map(m    => this.http.post(`${environment.apiUrl}/api/mangas`, m).pipe(catchError(() => of(null)))),
     ];
 
     if (peticiones.length === 0) { this.importando = false; return; }

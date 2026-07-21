@@ -1,5 +1,6 @@
 package com.fernando.seriestracker.service;
 
+import com.fernando.seriestracker.config.UsuarioActualService;
 import com.fernando.seriestracker.entity.Manga;
 import com.fernando.seriestracker.repository.MangaRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,19 +14,21 @@ import java.util.List;
 public class MangaService {
 
     private final MangaRepository mangaRepository;
+    private final UsuarioActualService usuarioActual;
 
     @Transactional(readOnly = true)
     public List<Manga> obtenerTodos() {
-        return mangaRepository.findAll();
+        return mangaRepository.findByUsuarioId(usuarioActual.obtenerId());
     }
 
     @Transactional(readOnly = true)
     public List<Manga> obtenerPorEstado(Manga.EstadoManga estado) {
-        return mangaRepository.findByEstado(estado);
+        return mangaRepository.findByUsuarioIdAndEstado(usuarioActual.obtenerId(), estado);
     }
 
     @Transactional
     public Manga crear(Manga manga) {
+        manga.setUsuarioId(usuarioActual.obtenerId());
         manga.setEstado(Manga.EstadoManga.PENDIENTE);
         manga.setNota(null);
         manga.setFechaFinalizado(null);
@@ -35,7 +38,7 @@ public class MangaService {
 
     @Transactional
     public void marcarComoEnProceso(Long id) {
-        Manga manga = mangaRepository.findById(id)
+        Manga manga = mangaRepository.findByIdAndUsuarioId(id, usuarioActual.obtenerId())
                 .orElseThrow(() -> new IllegalArgumentException("No existe un manga con id: " + id));
         manga.setEstado(Manga.EstadoManga.EN_PROCESO);
         if (manga.getCapituloActual() == null) manga.setCapituloActual(1);
@@ -44,7 +47,7 @@ public class MangaService {
 
     @Transactional
     public void actualizarProgreso(Long id, Integer capitulo, String urlLectura) {
-        Manga manga = mangaRepository.findById(id)
+        Manga manga = mangaRepository.findByIdAndUsuarioId(id, usuarioActual.obtenerId())
                 .orElseThrow(() -> new IllegalArgumentException("No existe un manga con id: " + id));
         if (capitulo != null) manga.setCapituloActual(capitulo);
         if (urlLectura != null) manga.setUrlLectura(urlLectura);
@@ -53,7 +56,7 @@ public class MangaService {
 
     @Transactional
     public Manga finalizar(Long id, Manga datos, Integer nota) {
-        Manga manga = mangaRepository.findById(id)
+        Manga manga = mangaRepository.findByIdAndUsuarioId(id, usuarioActual.obtenerId())
                 .orElseThrow(() -> new IllegalArgumentException("No existe un manga con id: " + id));
 
         manga.setEstado(Manga.EstadoManga.FINALIZADO);
@@ -75,7 +78,7 @@ public class MangaService {
 
     @Transactional
     public Manga editar(Long id, Manga datos) {
-        Manga manga = mangaRepository.findById(id)
+        Manga manga = mangaRepository.findByIdAndUsuarioId(id, usuarioActual.obtenerId())
                 .orElseThrow(() -> new IllegalArgumentException("No existe un manga con id: " + id));
 
         manga.setTitulo(datos.getTitulo());
@@ -97,7 +100,7 @@ public class MangaService {
 
     @Transactional
     public void marcarComoPendiente(Long id) {
-        Manga manga = mangaRepository.findById(id)
+        Manga manga = mangaRepository.findByIdAndUsuarioId(id, usuarioActual.obtenerId())
                 .orElseThrow(() -> new IllegalArgumentException("No existe un manga con id: " + id));
         manga.setEstado(Manga.EstadoManga.PENDIENTE);
         mangaRepository.save(manga);
@@ -105,7 +108,7 @@ public class MangaService {
 
     @Transactional
     public void eliminar(Long id) {
-        if (!mangaRepository.existsById(id)) {
+        if (!mangaRepository.existsByIdAndUsuarioId(id, usuarioActual.obtenerId())) {
             throw new IllegalArgumentException("No existe un manga con id: " + id);
         }
         mangaRepository.deleteById(id);

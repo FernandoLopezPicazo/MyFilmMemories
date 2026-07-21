@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "series")
@@ -20,6 +21,11 @@ public class Serie {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "serie_seq")
     @SequenceGenerator(name = "serie_seq", sequenceName = "SERIE_SEQ", allocationSize = 1)
     private Long id;
+
+    // Propietario del registro (id del usuario en Supabase Auth). Cada usuario
+    // solo ve/edita sus propias series — el filtrado ocurre en el Service.
+    @Column(name = "usuario_id", nullable = false)
+    private UUID usuarioId;
 
     @Column(nullable = false)
     private String titulo;

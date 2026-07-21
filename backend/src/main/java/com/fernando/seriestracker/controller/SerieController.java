@@ -23,13 +23,12 @@ import java.util.Map;
  * @RequestMapping("/api/series"): prefijo de URL para todos los endpoints
  * de este controller. Todos empezarán con /api/series.
  *
- * @CrossOrigin: permite peticiones desde otros orígenes (el frontend Angular
- * en localhost:4200 no puede llamar al backend en localhost:8080 sin esto,
- * por la política CORS del navegador).
+ * El CORS (qué orígenes pueden llamar a esta API) ya no se declara aquí por
+ * controller — está centralizado en config/SecurityConfig.java, configurable
+ * vía la variable de entorno APP_CORS_ALLOWED_ORIGINS.
  */
 @RestController
 @RequestMapping("/api/series")
-@CrossOrigin(origins = "http://localhost:4200")
 @RequiredArgsConstructor
 public class SerieController {
 

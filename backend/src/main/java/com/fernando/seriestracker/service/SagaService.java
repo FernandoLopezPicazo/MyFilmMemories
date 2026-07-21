@@ -1,5 +1,6 @@
 package com.fernando.seriestracker.service;
 
+import com.fernando.seriestracker.config.UsuarioActualService;
 import com.fernando.seriestracker.entity.Pelicula;
 import com.fernando.seriestracker.entity.Saga;
 import com.fernando.seriestracker.repository.PeliculaRepository;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -16,13 +18,15 @@ public class SagaService {
 
     private final SagaRepository sagaRepository;
     private final PeliculaRepository peliculaRepository;
+    private final UsuarioActualService usuarioActual;
 
     @Transactional(readOnly = true)
     public List<Saga> obtenerTodas() {
-        List<Saga> sagas = sagaRepository.findAll();
+        UUID usuarioId = usuarioActual.obtenerId();
+        List<Saga> sagas = sagaRepository.findByUsuarioId(usuarioId);
         // Rellenamos el campo @Transient con las películas de cada saga
         for (Saga saga : sagas) {
-            List<Pelicula> peliculas = peliculaRepository.findBySagaId(saga.getId());
+            List<Pelicula> peliculas = peliculaRepository.findBySagaIdAndUsuarioId(saga.getId(), usuarioId);
             saga.setPeliculas(peliculas);
         }
         return sagas;
@@ -34,6 +38,7 @@ public class SagaService {
             throw new IllegalArgumentException("El título de la saga no puede estar vacío");
         }
         Saga saga = new Saga();
+        saga.setUsuarioId(usuarioActual.obtenerId());
         saga.setTitulo(titulo);
         saga.setEstado(Saga.EstadoSaga.EN_PROCESO);
         return sagaRepository.save(saga);
@@ -41,20 +46,26 @@ public class SagaService {
 
     @Transactional
     public void eliminar(Long sagaId) {
+        UUID usuarioId = usuarioActual.obtenerId();
+        Saga saga = sagaRepository.findByIdAndUsuarioId(sagaId, usuarioId)
+                .orElseThrow(() -> new IllegalArgumentException("No existe la saga con id: " + sagaId));
+
         // Desvinculamos todas las películas antes de borrar la saga
-        List<Pelicula> peliculas = peliculaRepository.findBySagaId(sagaId);
+        List<Pelicula> peliculas = peliculaRepository.findBySagaIdAndUsuarioId(sagaId, usuarioId);
         for (Pelicula p : peliculas) {
             p.setSagaId(null);
             peliculaRepository.save(p);
         }
-        sagaRepository.deleteById(sagaId);
+        sagaRepository.deleteById(saga.getId());
     }
 
     @Transactional
     public Pelicula agregarPelicula(Long sagaId, String titulo) {
-        Saga saga = sagaRepository.findById(sagaId)
+        UUID usuarioId = usuarioActual.obtenerId();
+        Saga saga = sagaRepository.findByIdAndUsuarioId(sagaId, usuarioId)
                 .orElseThrow(() -> new IllegalArgumentException("No existe la saga con id: " + sagaId));
         Pelicula nueva = new Pelicula();
+        nueva.setUsuarioId(usuarioId);
         nueva.setTitulo(titulo);
         nueva.setEstado(Pelicula.EstadoPelicula.PENDIENTE);
         nueva.setSagaId(saga.getId());
@@ -65,7 +76,7 @@ public class SagaService {
 
     @Transactional
     public void quitarPelicula(Long peliculaId) {
-        Pelicula pelicula = peliculaRepository.findById(peliculaId)
+        Pelicula pelicula = peliculaRepository.findByIdAndUsuarioId(peliculaId, usuarioActual.obtenerId())
                 .orElseThrow(() -> new IllegalArgumentException("No existe la película con id: " + peliculaId));
         Long sagaId = pelicula.getSagaId();
         pelicula.setSagaId(null);
@@ -74,7 +85,9 @@ public class SagaService {
     }
 
     // Recalcula el estado de la saga: FINALIZADA si todas sus películas son VISTA,
-    // EN_PROCESO si hay alguna PENDIENTE o si no tiene películas
+    // EN_PROCESO si hay alguna PENDIENTE o si no tiene películas.
+    // Se llama solo desde operaciones que ya verificaron la propiedad del usuario
+    // sobre la saga/película de origen, así que aquí no se repite el filtro.
     @Transactional
     public void recalcularEstado(Long sagaId) {
         Saga saga = sagaRepository.findById(sagaId).orElse(null);

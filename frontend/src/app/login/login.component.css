@@ -1,0 +1,108 @@
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-page);
+  padding: 20px;
+}
+
+.login-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 36px;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: 0 8px 32px var(--shadow);
+}
+
+.login-brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 28px;
+}
+.login-brand-icon { color: var(--acento); }
+.login-brand-name {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+.brand-accent { color: var(--acento); }
+
+h1 {
+  font-size: 1.4rem;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.login-subtitulo {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-top: 10px;
+}
+
+input {
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+input:focus { border-color: var(--acento); }
+
+.error {
+  background: #fee2e2;
+  color: #b91c1c;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  margin-top: 12px;
+}
+
+.btn-login {
+  margin-top: 18px;
+  padding: 11px;
+  border: none;
+  border-radius: 8px;
+  background: var(--acento);
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.btn-login:hover:not(:disabled) { opacity: 0.88; }
+.btn-login:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.btn-cambiar-modo {
+  margin-top: 18px;
+  width: 100%;
+  background: none;
+  border: none;
+  color: var(--acento);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+}
+.btn-cambiar-modo:hover { text-decoration: underline; }
+
+:host-context(html.dark) .error { background: #3b1a1a; color: #fca5a5; }
