@@ -91,6 +91,94 @@
 }
 .btn-tema:hover { background: var(--bg-card-alt); }
 
+/* ── Estado del backend (Render se duerme tras inactividad) ─── */
+.backend-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.backend-status-punto {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #e0a72c;
+  flex-shrink: 0;
+  animation: parpadeo 1.4s infinite;
+}
+
+.backend-status.listo .backend-status-punto {
+  background: #2fa860;
+  animation: none;
+}
+
+@keyframes parpadeo {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+/* ── Usuario conectado ──────────────────────────────── */
+.usuario-wrapper { position: relative; }
+
+.btn-usuario {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  max-width: 220px;
+}
+.btn-usuario span, .btn-usuario { overflow: hidden; text-overflow: ellipsis; }
+.btn-usuario:hover { background: var(--bg-card-alt); }
+
+.usuario-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 8px 24px var(--shadow);
+  min-width: 220px;
+  z-index: 200;
+}
+
+.usuario-email {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  word-break: break-all;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.btn-cerrar-sesion {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: none;
+  background: var(--bg-card-alt);
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.btn-cerrar-sesion:hover { background: var(--acento); color: white; }
+
 /* ── Paleta de colores ─────────────────────────────── */
 .paleta-wrapper { position: relative; }
 

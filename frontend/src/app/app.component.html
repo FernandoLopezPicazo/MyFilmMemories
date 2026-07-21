@@ -20,6 +20,22 @@
   </div>
 
   <div class="nav-acciones">
+    <div class="backend-status" *ngIf="auth.habilitado && (backend.estado$ | async) as estadoBackend" [class.listo]="estadoBackend === 'listo'">
+      <span class="backend-status-punto"></span>
+      {{ estadoBackend === 'listo' ? 'Servidor activo' : 'Despertando servidor…' }}
+    </div>
+
+    <div class="usuario-wrapper" *ngIf="auth.habilitado && auth.haySesion">
+      <button class="btn-usuario" (click)="mostrarMenuUsuario = !mostrarMenuUsuario">
+        <app-icon name="brand" [size]="16"></app-icon>
+        {{ auth.email }}
+      </button>
+      <div class="usuario-panel" *ngIf="mostrarMenuUsuario" (click)="$event.stopPropagation()">
+        <div class="usuario-email">{{ auth.email }}</div>
+        <button class="btn-cerrar-sesion" (click)="cerrarSesion()">Cerrar sesión</button>
+      </div>
+    </div>
+
     <div class="paleta-wrapper">
       <button class="btn-tema" title="Color de tarjetas" (click)="mostrarPaleta = !mostrarPaleta">
         <app-icon name="paleta" [size]="18"></app-icon>
@@ -47,6 +63,6 @@
   </div>
 </nav>
 
-<div (click)="mostrarPaleta = false">
+<div (click)="mostrarPaleta = false; mostrarMenuUsuario = false">
   <router-outlet></router-outlet>
 </div>
