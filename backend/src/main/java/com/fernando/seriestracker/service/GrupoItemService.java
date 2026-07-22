@@ -102,7 +102,7 @@ public class GrupoItemService {
                         o.getPersonajeFavorito(), o.getPersonajeOdiado(), o.getComentario()))
                 .toList();
         return new GrupoItemDTO(item.getId(), item.getTipo(), item.getTitulo(), item.getDescripcion(),
-                item.getImagenUrl(), item.getGeneros(), opiniones);
+                item.getImagenUrl(), item.getGeneros(), opiniones, item.getSagaId(), item.getEstado());
     }
 
     private String emailDe(UUID usuarioId) {

@@ -60,6 +60,78 @@
   <button class="btn-primary btn-nueva" (click)="abrirFormularioItem()">
     {{ mostrarFormularioItem ? '✕ Cancelar' : '+ Añadir título' }}
   </button>
+  <button class="btn-saga btn-nueva" *ngIf="tabItem === 'PELICULA'"
+    (click)="mostrarFormularioSagaGrupo = !mostrarFormularioSagaGrupo">
+    {{ mostrarFormularioSagaGrupo ? '✕ Cancelar' : '🎞️ Añadir saga' }}
+  </button>
+
+  <!-- Formulario nueva saga de grupo -->
+  <div class="card formulario" *ngIf="mostrarFormularioSagaGrupo">
+    <h2>Nueva saga</h2>
+    <div class="campos-simple">
+      <input type="text" [(ngModel)]="tituloNuevaSagaGrupo" placeholder="Nombre de la saga *"
+        (keyup.enter)="crearSagaGrupo()" autofocus />
+      <button class="btn-saga" (click)="crearSagaGrupo()">Crear saga</button>
+    </div>
+  </div>
+
+  <!-- ── SAGAS DE GRUPO ──────────────────────────────── -->
+  <div class="sagas-seccion" *ngIf="tabItem === 'PELICULA' && sagasGrupo.length > 0">
+    <div class="sagas-titulo-bar" (click)="seccionSagasGrupoAbierta = !seccionSagasGrupoAbierta">
+      <h2 class="sagas-titulo">🎞️ Sagas ({{ sagasGrupo.length }})</h2>
+      <span class="sagas-toggle">{{ seccionSagasGrupoAbierta ? '▲' : '▼' }}</span>
+    </div>
+    <ng-container *ngIf="seccionSagasGrupoAbierta">
+    <div class="saga-card" *ngFor="let saga of sagasGrupo">
+      <!-- Cabecera de la saga -->
+      <div class="saga-header" (click)="toggleSagaGrupo(saga.id!)">
+        <div class="saga-header-izq">
+          <span class="saga-nombre">{{ saga.titulo }}</span>
+          <span class="saga-badge" [class.badge-finalizada]="saga.estado === 'FINALIZADA'">
+            {{ saga.estado === 'FINALIZADA' ? '✅ Finalizada' : '🎬 En proceso' }}
+          </span>
+          <span class="saga-contador">{{ contarVistasGrupo(saga) }}/{{ saga.items?.length ?? 0 }} vistas</span>
+        </div>
+        <div class="saga-header-der">
+          <span class="saga-toggle">{{ sagasGrupoExpandidas.has(saga.id!) ? '▲' : '▼' }}</span>
+          <button class="btn-danger btn-saga-del" (click)="$event.stopPropagation(); eliminarSagaGrupo(saga.id!)">✕</button>
+        </div>
+      </div>
+
+      <!-- Contenido expandible -->
+      <div class="saga-body" *ngIf="sagasGrupoExpandidas.has(saga.id!)">
+        <!-- Lista de películas -->
+        <div class="saga-peli-row" *ngFor="let item of saga.items" [class.peli-vista]="item.estado === 'VISTA'">
+          <img *ngIf="item.imagenUrl" [src]="item.imagenUrl" class="saga-peli-img" />
+          <div *ngIf="!item.imagenUrl" class="saga-peli-img-ph">🎬</div>
+          <div class="saga-peli-info">
+            <span class="saga-peli-titulo">{{ item.titulo }}</span>
+          </div>
+          <div class="saga-peli-acc">
+            <button *ngIf="item.estado === 'PENDIENTE'" class="btn-success btn-sm"
+              (click)="marcarVistaEnSaga(item, $event)">✓ Vista</button>
+            <button *ngIf="item.estado === 'VISTA'" class="btn-secondary btn-sm"
+              (click)="deshacerVistaEnSaga(item, $event)">↩ Pendiente</button>
+            <button class="btn-danger btn-sm" (click)="quitarItemDeSaga(item.id, $event)">✕</button>
+          </div>
+        </div>
+
+        <!-- Sin películas -->
+        <div class="saga-vacia" *ngIf="!saga.items?.length">
+          Aún no hay películas en esta saga
+        </div>
+
+        <!-- Añadir película a la saga -->
+        <div class="saga-add-peli">
+          <input type="text" [(ngModel)]="tituloItemEnSaga[saga.id!]"
+            placeholder="Título de la nueva película..."
+            (keyup.enter)="agregarItemASaga(saga.id!)" />
+          <button class="btn-primary btn-sm" (click)="agregarItemASaga(saga.id!)">+ Añadir</button>
+        </div>
+      </div>
+    </div>
+    </ng-container>
+  </div>
 
   <div class="card formulario" *ngIf="mostrarFormularioItem">
     <ng-container *ngIf="!mostrarBusquedaManual">

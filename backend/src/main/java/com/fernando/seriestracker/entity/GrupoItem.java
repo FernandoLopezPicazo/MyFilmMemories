@@ -51,6 +51,23 @@ public class GrupoItem {
     @Column(name = "fecha_creacion", nullable = false)
     private LocalDateTime fechaCreacion = LocalDateTime.now();
 
+    // Solo relevante cuando tipo == PELICULA y el item pertenece a una
+    // GrupoSaga; null para items sueltos.
+    @Column(name = "saga_id", nullable = true)
+    private Long sagaId;
+
+    // A diferencia de las listas personales, este estado es COMPARTIDO por
+    // todo el grupo (no por miembro): si alguien marca la película como
+    // vista, se marca vista para todos. Solo se usa/expone en el contexto
+    // de sagas de grupo; los items sueltos se quedan en PENDIENTE sin uso.
+    // nullable=true a nivel JPA (aunque el default en código siempre lo
+    // rellena) porque H2 en dev usa ddl-auto=update: añadir una columna
+    // NOT NULL sin default falla si la tabla ya tiene filas. En Postgres
+    // la migración V7 sí la crea NOT NULL DEFAULT 'PENDIENTE'.
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = true, length = 20)
+    private EstadoGrupoItem estado = EstadoGrupoItem.PENDIENTE;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "grupo_item_generos", joinColumns = @JoinColumn(name = "grupo_item_id"))
     @Column(name = "genero")
@@ -58,5 +75,9 @@ public class GrupoItem {
 
     public enum TipoGrupoItem {
         SERIE, PELICULA, MANGA
+    }
+
+    public enum EstadoGrupoItem {
+        PENDIENTE, VISTA
     }
 }

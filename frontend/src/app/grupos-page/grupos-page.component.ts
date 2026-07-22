@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../auth.service';
 import {
-  GrupoService, Grupo, GrupoDetalle, GrupoInvitacion, GrupoItem, TipoGrupoItem
+  GrupoService, Grupo, GrupoDetalle, GrupoInvitacion, GrupoItem, TipoGrupoItem, GrupoSaga
 } from '../grupo.service';
 import { ExplorarService, ResultadoExplorar } from '../explorar.service';
 
@@ -36,6 +36,14 @@ export class GruposPageComponent implements OnInit {
 
   itemAbierto: number | null = null;
   formOpinion = { nota: null as number | null, personajeFavorito: '', personajeOdiado: '', comentario: '' };
+
+  // ── SAGAS DE GRUPO (solo en la pestaña Películas) ───
+  sagasGrupo: GrupoSaga[] = [];
+  seccionSagasGrupoAbierta = true;
+  mostrarFormularioSagaGrupo = false;
+  tituloNuevaSagaGrupo = '';
+  sagasGrupoExpandidas = new Set<number>();
+  tituloItemEnSaga: { [sagaId: number]: string } = {};
 
   constructor(private grupoService: GrupoService, private explorarService: ExplorarService, public auth: AuthService) {}
 
@@ -81,6 +89,7 @@ export class GruposPageComponent implements OnInit {
     this.grupoSeleccionado = null;
     this.items = [];
     this.itemAbierto = null;
+    this.sagasGrupo = [];
   }
 
   cambiarTabItem(tipo: TipoGrupoItem): void {
@@ -89,11 +98,85 @@ export class GruposPageComponent implements OnInit {
     this.mostrarFormularioItem = false;
     this.resultadosExplorar = [];
     this.cargarItems();
+    if (tipo === 'PELICULA') this.cargarSagasGrupo();
   }
 
   private cargarItems(): void {
     if (!this.grupoSeleccionado) return;
     this.grupoService.listarItems(this.grupoSeleccionado.id, this.tabItem).subscribe(i => this.items = i);
+  }
+
+  // ── SAGAS DE GRUPO ────────────────────────────────
+  cargarSagasGrupo(): void {
+    if (!this.grupoSeleccionado) return;
+    this.grupoService.obtenerSagasGrupo(this.grupoSeleccionado.id).subscribe(s => this.sagasGrupo = s);
+  }
+
+  toggleSagaGrupo(id: number): void {
+    if (this.sagasGrupoExpandidas.has(id)) this.sagasGrupoExpandidas.delete(id);
+    else this.sagasGrupoExpandidas.add(id);
+  }
+
+  crearSagaGrupo(): void {
+    if (!this.grupoSeleccionado || !this.tituloNuevaSagaGrupo.trim()) return;
+    this.grupoService.crearSagaGrupo(this.grupoSeleccionado.id, this.tituloNuevaSagaGrupo.trim()).subscribe({
+      next: () => {
+        this.tituloNuevaSagaGrupo = '';
+        this.mostrarFormularioSagaGrupo = false;
+        this.cargarSagasGrupo();
+      }
+    });
+  }
+
+  eliminarSagaGrupo(id: number): void {
+    if (!this.grupoSeleccionado) return;
+    if (!confirm('¿Eliminar esta saga? Las películas pasarán a la lista suelta.')) return;
+    this.grupoService.eliminarSagaGrupo(this.grupoSeleccionado.id, id).subscribe({
+      next: () => {
+        this.sagasGrupoExpandidas.delete(id);
+        this.cargarSagasGrupo();
+      }
+    });
+  }
+
+  agregarItemASaga(sagaId: number): void {
+    if (!this.grupoSeleccionado) return;
+    const titulo = (this.tituloItemEnSaga[sagaId] || '').trim();
+    if (!titulo) return;
+    this.grupoService.agregarItemASagaGrupo(this.grupoSeleccionado.id, sagaId, titulo).subscribe({
+      next: () => {
+        this.tituloItemEnSaga[sagaId] = '';
+        this.cargarSagasGrupo();
+      }
+    });
+  }
+
+  quitarItemDeSaga(itemId: number, evento: Event): void {
+    evento.stopPropagation();
+    if (!this.grupoSeleccionado) return;
+    this.grupoService.quitarItemDeSagaGrupo(this.grupoSeleccionado.id, itemId).subscribe({
+      next: () => this.cargarSagasGrupo()
+    });
+  }
+
+  marcarVistaEnSaga(item: GrupoItem, evento: Event): void {
+    evento.stopPropagation();
+    if (!this.grupoSeleccionado) return;
+    this.grupoService.marcarVistaGrupoSaga(this.grupoSeleccionado.id, item.id).subscribe({
+      next: () => this.cargarSagasGrupo()
+    });
+  }
+
+  deshacerVistaEnSaga(item: GrupoItem, evento: Event): void {
+    evento.stopPropagation();
+    if (!this.grupoSeleccionado) return;
+    this.grupoService.marcarPendienteGrupoSaga(this.grupoSeleccionado.id, item.id).subscribe({
+      next: () => this.cargarSagasGrupo()
+    });
+  }
+
+  contarVistasGrupo(saga: GrupoSaga): number {
+    return saga.items?.filter(i => i.estado === 'VISTA').length ?? 0;
   }
 
   abrirFormularioItem(): void {

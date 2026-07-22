@@ -14,4 +14,6 @@ public interface GrupoItemRepository extends JpaRepository<GrupoItem, Long> {
     List<GrupoItem> findByGrupoIdAndTipo(Long grupoId, TipoGrupoItem tipo);
 
     Optional<GrupoItem> findByIdAndGrupoId(Long id, Long grupoId);
+
+    List<GrupoItem> findBySagaId(Long sagaId);
 }

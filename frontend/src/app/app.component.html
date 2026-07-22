@@ -1,8 +1,12 @@
-<nav class="navbar">
+<nav class="navbar" [class.menu-abierto]="menuMovilAbierto">
   <div class="nav-brand">
     <app-icon name="brand" [size]="24" class="brand-icon"></app-icon>
     <span class="brand-name">MyFilm<span class="brand-accent">Memories</span></span>
   </div>
+
+  <button class="btn-hamburguesa" (click)="menuMovilAbierto = !menuMovilAbierto" aria-label="Abrir menú">
+    <span></span><span></span><span></span>
+  </button>
 
   <div class="nav-links">
     <a routerLink="/series" routerLinkActive="activa">

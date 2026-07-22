@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { ThemeService, ESQUEMAS, ColorScheme } from './theme.service';
 import { AuthService } from './auth.service';
 import { BackendStatusService } from './backend-status.service';
@@ -13,13 +13,20 @@ export class AppComponent {
   readonly esquemas = ESQUEMAS;
   mostrarPaleta = false;
   mostrarMenuUsuario = false;
+  menuMovilAbierto = false;
 
   constructor(
     public theme: ThemeService,
     public auth: AuthService,
     public backend: BackendStatusService,
     private router: Router
-  ) {}
+  ) {
+    // Cierra el menú móvil al navegar a otra página, para no dejarlo
+    // abierto tapando el contenido tras elegir un enlace.
+    this.router.events.subscribe(e => {
+      if (e instanceof NavigationEnd) this.menuMovilAbierto = false;
+    });
+  }
 
   seleccionarEsquema(e: ColorScheme): void {
     this.theme.setEsquema(e);
@@ -33,6 +40,7 @@ export class AppComponent {
   cerrarPaneles(): void {
     this.mostrarPaleta = false;
     this.mostrarMenuUsuario = false;
+    this.menuMovilAbierto = false;
   }
 
   async cerrarSesion(): Promise<void> {

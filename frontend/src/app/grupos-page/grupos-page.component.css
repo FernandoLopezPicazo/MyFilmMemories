@@ -235,3 +235,161 @@ textarea {
   padding: 0;
   font-size: 0.85rem;
 }
+
+/* ── SAGAS DE GRUPO (mismo look que peliculas-page) ─────────── */
+.btn-success   { background: #16a34a; color: white; padding: 8px 12px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; }
+.btn-secondary { background: #e5e7eb; color: #333; padding: 8px 12px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; }
+
+.btn-saga {
+  background: #7c3aed;
+  color: white;
+  padding: 10px 20px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+}
+.btn-saga:hover { opacity: 0.85; }
+
+.sagas-seccion { margin-bottom: 28px; }
+
+.sagas-titulo-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  padding: 10px 14px;
+  background: #faf5ff;
+  border: 1px solid #e9d5ff;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  transition: background 0.15s;
+  user-select: none;
+}
+.sagas-titulo-bar:hover { background: #f3e8ff; }
+
+.sagas-titulo { font-size: 1.1rem; color: #5b21b6; margin: 0; }
+.sagas-toggle { font-size: 0.8rem; color: #7c3aed; font-weight: 600; }
+
+.saga-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  margin-bottom: 12px;
+  overflow: hidden;
+  border-left: 4px solid #7c3aed;
+}
+
+.saga-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  cursor: pointer;
+  user-select: none;
+  background: #faf5ff;
+  transition: background 0.15s;
+}
+.saga-header:hover { background: #f3e8ff; }
+
+.saga-header-izq { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.saga-nombre { font-weight: 700; font-size: 1rem; color: #1a1a2e; }
+
+.saga-badge {
+  font-size: 0.75rem; font-weight: 600;
+  padding: 3px 10px; border-radius: 20px;
+  background: #dbeafe; color: #1d4ed8;
+}
+.saga-badge.badge-finalizada { background: #dcfce7; color: #16a34a; }
+
+.saga-contador { font-size: 0.8rem; color: #888; }
+
+.saga-header-der { display: flex; align-items: center; gap: 8px; }
+.saga-toggle { font-size: 0.75rem; color: #888; }
+.btn-saga-del {
+  padding: 4px 8px !important;
+  font-size: 0.75rem !important;
+}
+
+.saga-body { padding: 12px 16px; border-top: 1px solid #f0e8ff; }
+
+.saga-peli-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 6px;
+  border-radius: 8px;
+  margin-bottom: 4px;
+  background: #fafafa;
+  transition: background 0.15s;
+}
+.saga-peli-row:hover { background: #f3f4f6; }
+.saga-peli-row.peli-vista { background: #f0fdf4; }
+
+.saga-peli-img {
+  width: 36px; height: 50px;
+  object-fit: cover; border-radius: 5px; flex-shrink: 0;
+}
+.saga-peli-img-ph {
+  width: 36px; height: 50px;
+  background: #e5e7eb; border-radius: 5px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; flex-shrink: 0;
+}
+.saga-peli-info { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.saga-peli-titulo { font-size: 0.9rem; font-weight: 600; color: #1a1a2e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.saga-peli-acc { display: flex; gap: 5px; flex-shrink: 0; }
+.btn-sm { padding: 5px 9px !important; font-size: 0.75rem !important; }
+
+.saga-vacia { font-size: 0.85rem; color: #aaa; font-style: italic; padding: 8px 0; }
+
+.saga-add-peli {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed #e9d5ff;
+}
+.saga-add-peli input { flex: 1; }
+
+:host-context(html.dark) .sagas-titulo-bar { background: var(--bg-card); border-color: var(--border); }
+:host-context(html.dark) .sagas-titulo-bar:hover { background: var(--bg-card-alt); }
+:host-context(html.dark) .saga-card { background: var(--bg-card); border-color: var(--border); }
+:host-context(html.dark) .saga-header { background: var(--bg-card); border-color: var(--border); }
+:host-context(html.dark) .saga-header:hover { background: var(--bg-card-alt); }
+:host-context(html.dark) .saga-nombre { color: var(--text-primary); }
+:host-context(html.dark) .saga-contador,
+:host-context(html.dark) .saga-toggle { color: var(--text-muted); }
+:host-context(html.dark) .saga-body { border-color: var(--border); background: var(--bg-panel); }
+:host-context(html.dark) .saga-peli-row { background: var(--bg-card-alt); border-color: var(--border); }
+:host-context(html.dark) .saga-peli-row:hover { background: var(--bg-card); }
+:host-context(html.dark) .saga-peli-row.peli-vista { background: var(--color-finalizado); }
+:host-context(html.dark) .saga-peli-titulo { color: var(--text-primary); }
+:host-context(html.dark) .saga-vacia { color: var(--text-muted); }
+:host-context(html.dark) .btn-secondary { background: #334155; color: var(--text-primary); }
+
+/* ── Responsive ───────────────────────────────────── */
+@media (max-width: 700px) {
+  .container { margin: 16px auto; padding: 0 12px; }
+  h1 { font-size: 1.4rem; margin-bottom: 16px; }
+
+  .tabs { flex-wrap: wrap; }
+  .btn-nueva, .btn-saga.btn-nueva { flex: 1; text-align: center; min-width: 140px; }
+
+  .campos-simple, .invitar-fila .campos-simple { flex-direction: column; }
+  .lista-miembros { gap: 6px; }
+
+  .resultados-explorar { grid-template-columns: repeat(2, 1fr); }
+
+  .item-cabecera { flex-wrap: wrap; }
+  .opiniones { flex-direction: column; }
+  .campos-opinion { flex-direction: column; }
+  .campos-opinion input { min-width: 0; }
+
+  .saga-header-izq { gap: 6px; }
+  .saga-peli-acc { flex-direction: column; }
+  .saga-add-peli { flex-direction: column; }
+}
