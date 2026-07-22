@@ -34,7 +34,7 @@ public class MangaService {
         manga.setFechaFinalizado(null);
         manga.setCapituloActual(null);
         manga.setSyncId(java.util.UUID.randomUUID());
-        manga.setActualizadoEn(java.time.LocalDateTime.now());
+        manga.setActualizadoEn(java.time.LocalDateTime.now(java.time.ZoneOffset.UTC));
         return mangaRepository.save(manga);
     }
 
@@ -44,7 +44,7 @@ public class MangaService {
                 .orElseThrow(() -> new IllegalArgumentException("No existe un manga con id: " + id));
         manga.setEstado(Manga.EstadoManga.EN_PROCESO);
         if (manga.getCapituloActual() == null) manga.setCapituloActual(1);
-        manga.setActualizadoEn(java.time.LocalDateTime.now());
+        manga.setActualizadoEn(java.time.LocalDateTime.now(java.time.ZoneOffset.UTC));
         mangaRepository.save(manga);
     }
 
@@ -54,7 +54,7 @@ public class MangaService {
                 .orElseThrow(() -> new IllegalArgumentException("No existe un manga con id: " + id));
         if (capitulo != null) manga.setCapituloActual(capitulo);
         if (urlLectura != null) manga.setUrlLectura(urlLectura);
-        manga.setActualizadoEn(java.time.LocalDateTime.now());
+        manga.setActualizadoEn(java.time.LocalDateTime.now(java.time.ZoneOffset.UTC));
         mangaRepository.save(manga);
     }
 
@@ -77,7 +77,7 @@ public class MangaService {
         manga.setNota2(datos.getNota2());
         if (datos.getUrlLectura() != null) manga.setUrlLectura(datos.getUrlLectura());
         manga.setGeneros(datos.getGeneros() != null ? datos.getGeneros() : new java.util.ArrayList<>());
-        manga.setActualizadoEn(java.time.LocalDateTime.now());
+        manga.setActualizadoEn(java.time.LocalDateTime.now(java.time.ZoneOffset.UTC));
         return mangaRepository.save(manga);
     }
 
@@ -100,7 +100,7 @@ public class MangaService {
         if (datos.getCapituloActual() != null) manga.setCapituloActual(datos.getCapituloActual());
         if (datos.getUrlLectura() != null) manga.setUrlLectura(datos.getUrlLectura());
         manga.setGeneros(datos.getGeneros() != null ? datos.getGeneros() : new java.util.ArrayList<>());
-        manga.setActualizadoEn(java.time.LocalDateTime.now());
+        manga.setActualizadoEn(java.time.LocalDateTime.now(java.time.ZoneOffset.UTC));
         return mangaRepository.save(manga);
     }
 
@@ -109,7 +109,7 @@ public class MangaService {
         Manga manga = mangaRepository.findByIdAndUsuarioId(id, usuarioActual.obtenerId())
                 .orElseThrow(() -> new IllegalArgumentException("No existe un manga con id: " + id));
         manga.setEstado(Manga.EstadoManga.PENDIENTE);
-        manga.setActualizadoEn(java.time.LocalDateTime.now());
+        manga.setActualizadoEn(java.time.LocalDateTime.now(java.time.ZoneOffset.UTC));
         mangaRepository.save(manga);
     }
 

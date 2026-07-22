@@ -85,7 +85,7 @@ public class SerieService {
         serie.setNota(null);
         serie.setFechaVista(null);
         serie.setSyncId(java.util.UUID.randomUUID());
-        serie.setActualizadoEn(java.time.LocalDateTime.now());
+        serie.setActualizadoEn(java.time.LocalDateTime.now(java.time.ZoneOffset.UTC));
         return serieRepository.save(serie);
     }
 
@@ -108,7 +108,7 @@ public class SerieService {
         serie.setEstado(Serie.EstadoSerie.VISTA);
         serie.setNota(nota);
         serie.setFechaVista(java.time.LocalDate.now());
-        serie.setActualizadoEn(java.time.LocalDateTime.now());
+        serie.setActualizadoEn(java.time.LocalDateTime.now(java.time.ZoneOffset.UTC));
 
         serieRepository.save(serie);
     }
@@ -134,7 +134,7 @@ public class SerieService {
         serie.setGeneros(datos.getGeneros() != null ? datos.getGeneros() : new java.util.ArrayList<>());
         if (datos.getTemporadaActual() != null) serie.setTemporadaActual(datos.getTemporadaActual());
         if (datos.getEpisodioActual() != null) serie.setEpisodioActual(datos.getEpisodioActual());
-        serie.setActualizadoEn(java.time.LocalDateTime.now());
+        serie.setActualizadoEn(java.time.LocalDateTime.now(java.time.ZoneOffset.UTC));
 
         return serieRepository.save(serie);
     }
@@ -144,7 +144,7 @@ public class SerieService {
         Serie serie = serieRepository.findByIdAndUsuarioId(id, usuarioActual.obtenerId())
                 .orElseThrow(() -> new IllegalArgumentException("No existe una serie con id: " + id));
         serie.setEstado(Serie.EstadoSerie.PENDIENTE);
-        serie.setActualizadoEn(java.time.LocalDateTime.now());
+        serie.setActualizadoEn(java.time.LocalDateTime.now(java.time.ZoneOffset.UTC));
         serieRepository.save(serie);
     }
 
@@ -155,7 +155,7 @@ public class SerieService {
         serie.setEstado(Serie.EstadoSerie.EN_PROCESO);
         if (serie.getTemporadaActual() == null) serie.setTemporadaActual(1);
         if (serie.getEpisodioActual() == null) serie.setEpisodioActual(1);
-        serie.setActualizadoEn(java.time.LocalDateTime.now());
+        serie.setActualizadoEn(java.time.LocalDateTime.now(java.time.ZoneOffset.UTC));
         serieRepository.save(serie);
     }
 
@@ -165,7 +165,7 @@ public class SerieService {
                 .orElseThrow(() -> new IllegalArgumentException("No existe una serie con id: " + id));
         if (temporada != null && temporada >= 1) serie.setTemporadaActual(temporada);
         if (episodio != null && episodio >= 1) serie.setEpisodioActual(episodio);
-        serie.setActualizadoEn(java.time.LocalDateTime.now());
+        serie.setActualizadoEn(java.time.LocalDateTime.now(java.time.ZoneOffset.UTC));
         serieRepository.save(serie);
     }
 

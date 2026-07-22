@@ -111,7 +111,7 @@ public class SincronizacionService {
                 local.setId(null);
                 local.setUsuarioId(yo);
                 if (local.getSyncId() == null) local.setSyncId(UUID.randomUUID());
-                if (local.getActualizadoEn() == null) local.setActualizadoEn(LocalDateTime.now());
+                if (local.getActualizadoEn() == null) local.setActualizadoEn(LocalDateTime.now(java.time.ZoneOffset.UTC));
                 Serie creada = serieRepository.save(local);
                 resultado.add(new ItemSincronizadoDTO<>(localId, creada));
             }
@@ -185,7 +185,7 @@ public class SincronizacionService {
                 local.setUsuarioId(yo);
                 local.setSagaId(null);
                 if (local.getSyncId() == null) local.setSyncId(UUID.randomUUID());
-                if (local.getActualizadoEn() == null) local.setActualizadoEn(LocalDateTime.now());
+                if (local.getActualizadoEn() == null) local.setActualizadoEn(LocalDateTime.now(java.time.ZoneOffset.UTC));
                 Pelicula creada = peliculaRepository.save(local);
                 resultado.add(new ItemSincronizadoDTO<>(localId, creada));
             }
@@ -258,7 +258,7 @@ public class SincronizacionService {
                 local.setId(null);
                 local.setUsuarioId(yo);
                 if (local.getSyncId() == null) local.setSyncId(UUID.randomUUID());
-                if (local.getActualizadoEn() == null) local.setActualizadoEn(LocalDateTime.now());
+                if (local.getActualizadoEn() == null) local.setActualizadoEn(LocalDateTime.now(java.time.ZoneOffset.UTC));
                 Manga creado = mangaRepository.save(local);
                 resultado.add(new ItemSincronizadoDTO<>(localId, creado));
             }
