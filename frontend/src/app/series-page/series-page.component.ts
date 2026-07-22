@@ -83,6 +83,7 @@ export class SeriesPageComponent implements OnInit {
   explorarGenerosActivos: string[] = [];
   explorarDetalle: ResultadoExplorar | null = null;
   explorarAgregando = false;
+  explorarError = '';
 
   get explorarFiltrados(): ResultadoExplorar[] {
     return this.explorarResultados;
@@ -104,9 +105,10 @@ export class SeriesPageComponent implements OnInit {
     if (this.explorarGenerosActivos.length === 0) { this.abrirExplorar(); return; }
     this.explorarPagina = 1;
     this.explorarCargando = true;
+    this.explorarError = '';
     this.explorarService.descubrirSeries(this.explorarGenerosActivos, 1).subscribe({
       next: (r) => { this.explorarResultados = r; this.explorarCargando = false; },
-      error: () => { this.explorarCargando = false; }
+      error: () => { this.explorarCargando = false; this.explorarError = this.mensajeErrorExplorar(); }
     });
   }
 
@@ -116,9 +118,10 @@ export class SeriesPageComponent implements OnInit {
     this.explorarGenerosActivos = [];
     this.explorarPagina = 1;
     this.explorarCargando = true;
+    this.explorarError = '';
     this.explorarService.trendingSeries(1).subscribe({
       next: (r) => { this.explorarResultados = r; this.explorarCargando = false; },
-      error: () => { this.explorarCargando = false; }
+      error: () => { this.explorarCargando = false; this.explorarError = this.mensajeErrorExplorar(); }
     });
   }
 
@@ -127,15 +130,17 @@ export class SeriesPageComponent implements OnInit {
     if (!q) { this.abrirExplorar(); return; }
     this.explorarPagina = 1;
     this.explorarCargando = true;
+    this.explorarError = '';
     this.explorarService.buscarSeries(q, 1).subscribe({
       next: (r) => { this.explorarResultados = r; this.explorarCargando = false; },
-      error: () => { this.explorarCargando = false; }
+      error: () => { this.explorarCargando = false; this.explorarError = this.mensajeErrorExplorar(); }
     });
   }
 
   cargarMasExplorar(): void {
     this.explorarPagina++;
     this.explorarCargandoMas = true;
+    this.explorarError = '';
     const q = this.explorarBusqueda.trim();
     const obs = this.explorarGenerosActivos.length
       ? this.explorarService.descubrirSeries(this.explorarGenerosActivos, this.explorarPagina)
@@ -144,8 +149,14 @@ export class SeriesPageComponent implements OnInit {
         : this.explorarService.trendingSeries(this.explorarPagina);
     obs.subscribe({
       next: (r) => { this.explorarResultados = [...this.explorarResultados, ...r]; this.explorarCargandoMas = false; },
-      error: () => { this.explorarPagina--; this.explorarCargandoMas = false; }
+      error: () => { this.explorarPagina--; this.explorarCargandoMas = false; this.explorarError = this.mensajeErrorExplorar(); }
     });
+  }
+
+  // TMDB puede fallar por caida/rate-limit — sin esto, el fallo se veia
+  // igual que "no hay resultados" y el usuario no sabia que era temporal.
+  private mensajeErrorExplorar(): string {
+    return 'No se pudo conectar con el buscador. Puede ser un problema temporal del servicio externo — inténtalo de nuevo en un momento.';
   }
 
   abrirDetalleExplorar(r: ResultadoExplorar): void {

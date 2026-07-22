@@ -85,6 +85,7 @@ export class MangasPageComponent implements OnInit {
   explorarGenerosActivos: string[] = [];
   explorarDetalle: ResultadoExplorar | null = null;
   explorarAgregando = false;
+  explorarError = '';
 
   get explorarFiltrados(): ResultadoExplorar[] {
     return this.explorarResultados;
@@ -106,9 +107,10 @@ export class MangasPageComponent implements OnInit {
     if (this.explorarGenerosActivos.length === 0) { this.abrirExplorar(); return; }
     this.explorarPagina = 1;
     this.explorarCargando = true;
+    this.explorarError = '';
     this.explorarService.descubrirMangas(this.explorarGenerosActivos, 1).subscribe({
       next: (r) => { this.explorarResultados = r; this.explorarCargando = false; },
-      error: () => { this.explorarCargando = false; }
+      error: () => { this.explorarCargando = false; this.explorarError = this.mensajeErrorExplorar(); }
     });
   }
 
@@ -118,9 +120,10 @@ export class MangasPageComponent implements OnInit {
     this.explorarGenerosActivos = [];
     this.explorarPagina = 1;
     this.explorarCargando = true;
+    this.explorarError = '';
     this.explorarService.topMangas(1).subscribe({
       next: (r) => { this.explorarResultados = r; this.explorarCargando = false; },
-      error: () => { this.explorarCargando = false; }
+      error: () => { this.explorarCargando = false; this.explorarError = this.mensajeErrorExplorar(); }
     });
   }
 
@@ -129,15 +132,17 @@ export class MangasPageComponent implements OnInit {
     if (!q) { this.abrirExplorar(); return; }
     this.explorarPagina = 1;
     this.explorarCargando = true;
+    this.explorarError = '';
     this.explorarService.buscarMangas(q, 1).subscribe({
       next: (r) => { this.explorarResultados = r; this.explorarCargando = false; },
-      error: () => { this.explorarCargando = false; }
+      error: () => { this.explorarCargando = false; this.explorarError = this.mensajeErrorExplorar(); }
     });
   }
 
   cargarMasExplorar(): void {
     this.explorarPagina++;
     this.explorarCargandoMas = true;
+    this.explorarError = '';
     const q = this.explorarBusqueda.trim();
     const obs = this.explorarGenerosActivos.length
       ? this.explorarService.descubrirMangas(this.explorarGenerosActivos, this.explorarPagina)
@@ -146,8 +151,15 @@ export class MangasPageComponent implements OnInit {
         : this.explorarService.topMangas(this.explorarPagina);
     obs.subscribe({
       next: (r) => { this.explorarResultados = [...this.explorarResultados, ...r]; this.explorarCargandoMas = false; },
-      error: () => { this.explorarPagina--; this.explorarCargandoMas = false; }
+      error: () => { this.explorarPagina--; this.explorarCargandoMas = false; this.explorarError = this.mensajeErrorExplorar(); }
     });
+  }
+
+  // Jikan (mangas) es una API no oficial que en ocasiones no puede conectar
+  // con MyAnimeList (o aplica rate-limit) — sin esto, un fallo se veía
+  // igual que "no hay resultados" y el usuario no sabía que era temporal.
+  private mensajeErrorExplorar(): string {
+    return 'No se pudo conectar con el buscador. Puede ser un problema temporal del servicio externo — inténtalo de nuevo en un momento.';
   }
 
   abrirDetalleExplorar(r: ResultadoExplorar): void {

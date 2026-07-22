@@ -395,7 +395,8 @@
         (click)="explorarGenerosActivos = []; abrirExplorar()">✕ Limpiar</button>
     </div>
     <div class="explorar-cargando" *ngIf="explorarCargando">Cargando...</div>
-    <div class="explorar-grid" *ngIf="!explorarCargando">
+    <div class="explorar-error" *ngIf="!explorarCargando && explorarError">{{ explorarError }}</div>
+    <div class="explorar-grid" *ngIf="!explorarCargando && !explorarError">
       <div class="explorar-card" *ngFor="let r of explorarFiltrados" (click)="abrirDetalleExplorar(r)">
         <div class="explorar-titulo-top">{{ r.titulo }}</div>
         <img *ngIf="r.imagenUrl" [src]="r.imagenUrl" [alt]="r.titulo" class="explorar-poster" />
