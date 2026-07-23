@@ -57,13 +57,38 @@
     <button [class.activo]="tabItem === 'MANGA'" (click)="cambiarTabItem('MANGA')">Mangas</button>
   </div>
 
-  <button class="btn-primary btn-nueva" (click)="abrirFormularioItem()">
-    {{ mostrarFormularioItem ? '✕ Cancelar' : '+ Añadir título' }}
-  </button>
-  <button class="btn-saga btn-nueva" *ngIf="tabItem === 'PELICULA'"
-    (click)="mostrarFormularioSagaGrupo = !mostrarFormularioSagaGrupo">
-    {{ mostrarFormularioSagaGrupo ? '✕ Cancelar' : '🎞️ Añadir saga' }}
-  </button>
+  <div class="barra-top">
+    <button class="btn-primary btn-nueva" (click)="abrirFormularioItem()">
+      {{ mostrarFormularioItem ? '✕ Cancelar' : '+ Añadir título' }}
+    </button>
+    <button class="btn-saga btn-nueva" *ngIf="tabItem === 'PELICULA'"
+      (click)="mostrarFormularioSagaGrupo = !mostrarFormularioSagaGrupo">
+      {{ mostrarFormularioSagaGrupo ? '✕ Cancelar' : '🎞️ Añadir saga' }}
+    </button>
+    <div class="buscador">
+      <span class="buscador-icono">🔍</span>
+      <input type="text" [(ngModel)]="busquedaItems" placeholder="Buscar título..." class="buscador-input" />
+      <button *ngIf="busquedaItems" class="buscador-clear" (click)="busquedaItems = ''">✕</button>
+    </div>
+    <button class="btn-filtrar" [class.activo]="generosSeleccionadosItems.length > 0"
+      (click)="mostrarFiltroItems = !mostrarFiltroItems">
+      🏷️ Filtrar{{ generosSeleccionadosItems.length > 0 ? ' (' + generosSeleccionadosItems.length + ')' : '' }}
+    </button>
+  </div>
+
+  <!-- Panel de filtro por géneros -->
+  <div class="filtro-panel" *ngIf="mostrarFiltroItems">
+    <div class="filtro-header">
+      <span class="filtro-label">Filtrar por género</span>
+      <button class="btn-limpiar-filtro" *ngIf="generosSeleccionadosItems.length > 0"
+        (click)="generosSeleccionadosItems = []">✕ Limpiar</button>
+    </div>
+    <div class="filtro-generos">
+      <span *ngFor="let g of generosDisponibles" class="filtro-chip"
+        [class.activo]="generosSeleccionadosItems.includes(g)"
+        (click)="toggleFiltroGeneroItem(g)">{{ g }}</span>
+    </div>
+  </div>
 
   <!-- Formulario nueva saga de grupo -->
   <div class="card formulario" *ngIf="mostrarFormularioSagaGrupo">
@@ -205,7 +230,7 @@
   </div>
 
   <div class="lista-items" (dragover)="onDragOverLista($event)" (drop)="onDropEnLista($event)">
-    <div class="item-grupo" *ngFor="let item of items"
+    <div class="item-grupo" *ngFor="let item of itemsFiltrados"
       [attr.draggable]="tabItem === 'PELICULA' ? true : null"
       (dragstart)="onDragStartItem(item, $event)">
       <div class="item-cabecera" (click)="abrirOpinion(item)">
@@ -238,5 +263,6 @@
       </div>
     </div>
     <div *ngIf="items.length === 0" class="hint">Todavía no hay títulos en esta lista.</div>
+    <div *ngIf="items.length > 0 && itemsFiltrados.length === 0" class="hint">Sin resultados.</div>
   </div>
 </div>

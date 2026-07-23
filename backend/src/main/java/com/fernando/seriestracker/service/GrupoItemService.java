@@ -30,7 +30,7 @@ public class GrupoItemService {
     @Transactional(readOnly = true)
     public List<GrupoItemDTO> listar(Long grupoId, TipoGrupoItem tipo) {
         grupoService.comprobarMiembro(grupoId);
-        return grupoItemRepository.findByGrupoIdAndTipo(grupoId, tipo).stream()
+        return grupoItemRepository.findByGrupoIdAndTipoAndSagaIdIsNull(grupoId, tipo).stream()
                 .map(this::aDTO)
                 .toList();
     }

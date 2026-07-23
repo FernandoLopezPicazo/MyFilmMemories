@@ -13,6 +13,10 @@ public interface GrupoItemRepository extends JpaRepository<GrupoItem, Long> {
 
     List<GrupoItem> findByGrupoIdAndTipo(Long grupoId, TipoGrupoItem tipo);
 
+    // Lista plana del grupo: excluye los que ya pertenecen a una saga
+    // (esos se muestran solo dentro de su saga, para no duplicarlos).
+    List<GrupoItem> findByGrupoIdAndTipoAndSagaIdIsNull(Long grupoId, TipoGrupoItem tipo);
+
     Optional<GrupoItem> findByIdAndGrupoId(Long id, Long grupoId);
 
     List<GrupoItem> findBySagaId(Long sagaId);

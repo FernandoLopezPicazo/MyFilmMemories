@@ -5,6 +5,23 @@ import {
 } from '../grupo.service';
 import { ExplorarService, ResultadoExplorar } from '../explorar.service';
 
+const GENEROS_SERIE = [
+  'Acción y aventura','Animación','Ciencia ficción y fantasía','Comedia','Crimen',
+  'Documental','Drama','Familia','Guerra y política','Infantil',
+  'Misterio','Reality','Suspenso','Terror','Western'
+];
+const GENEROS_PELICULA = [
+  'Acción', 'Aventura', 'Animación', 'Bélica', 'Ciencia Ficción', 'Comedia',
+  'Crimen', 'Documental', 'Drama', 'Fantasía', 'Historia', 'Misterio',
+  'Música', 'Romance', 'Suspenso', 'Terror', 'Western'
+];
+const GENEROS_MANGA = [
+  'Acción', 'Artes Marciales', 'Aventura', 'Ciencia Ficción', 'Comedia',
+  'Deportes', 'Drama', 'Ecchi', 'Fantasía', 'Harem', 'Horror', 'Isekai',
+  'Josei', 'Magia', 'Mecha', 'Misterio', 'Música', 'Psicológico', 'Romance',
+  'Seinen', 'Shoujo', 'Shounen', 'Slice of Life', 'Sobrenatural', 'Vampiros'
+];
+
 @Component({
   selector: 'app-grupos-page',
   templateUrl: './grupos-page.component.html',
@@ -20,6 +37,36 @@ export class GruposPageComponent implements OnInit {
   grupoSeleccionado: GrupoDetalle | null = null;
   tabItem: TipoGrupoItem = 'SERIE';
   items: GrupoItem[] = [];
+
+  // Búsqueda por nombre y filtro por género de la lista del grupo
+  busquedaItems = '';
+  generosSeleccionadosItems: string[] = [];
+  mostrarFiltroItems = false;
+
+  get itemsFiltrados(): GrupoItem[] {
+    let resultado = this.items;
+    const q = this.busquedaItems.trim().toLowerCase();
+    if (q) resultado = resultado.filter(i => i.titulo.toLowerCase().includes(q));
+    if (this.generosSeleccionadosItems.length > 0) {
+      resultado = resultado.filter(i =>
+        this.generosSeleccionadosItems.some(g => i.generos?.includes(g))
+      );
+    }
+    return resultado;
+  }
+
+  get generosDisponibles(): string[] {
+    return this.tabItem === 'SERIE' ? GENEROS_SERIE
+         : this.tabItem === 'PELICULA' ? GENEROS_PELICULA
+         : GENEROS_MANGA;
+  }
+
+  toggleFiltroGeneroItem(genero: string): void {
+    const idx = this.generosSeleccionadosItems.indexOf(genero);
+    if (idx >= 0) this.generosSeleccionadosItems.splice(idx, 1);
+    else this.generosSeleccionadosItems.push(genero);
+    this.generosSeleccionadosItems = [...this.generosSeleccionadosItems];
+  }
 
   mostrarFormularioItem = false;
   nuevoTitulo = '';
@@ -106,6 +153,9 @@ export class GruposPageComponent implements OnInit {
     this.itemAbierto = null;
     this.mostrarFormularioItem = false;
     this.resultadosExplorar = [];
+    this.busquedaItems = '';
+    this.generosSeleccionadosItems = [];
+    this.mostrarFiltroItems = false;
     this.cargarItems();
     if (tipo === 'PELICULA') this.cargarSagasGrupo();
   }
