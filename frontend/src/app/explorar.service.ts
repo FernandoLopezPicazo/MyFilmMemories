@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { Observable, map, catchError } from 'rxjs';
 import { environment } from '../environments/environment';
 
 export interface ResultadoExplorar {
@@ -11,7 +11,7 @@ export interface ResultadoExplorar {
   puntuacion: number;
   generos: string[];
   tipo: 'pelicula' | 'serie' | 'manga';
-  fuente: 'tmdb' | 'jikan';
+  fuente: 'tmdb' | 'jikan' | 'anilist';
 }
 
 @Injectable({ providedIn: 'root' })
@@ -21,6 +21,9 @@ export class ExplorarService {
   private readonly apiKey = environment.tmdbApiKey;
   private readonly imgUrl = environment.tmdbImageUrl;
   private readonly jikanUrl = 'https://api.jikan.moe/v4';
+  // Colchón cuando Jikan falla (caídas/rate-limit de MyAnimeList): AniList
+  // es otra API gratuita de anime/manga, sin key, más estable que Jikan.
+  private readonly anilistUrl = 'https://graphql.anilist.co';
 
   // Mapas de id de género TMDB → nombre
   private readonly generosPelicula: Record<number, string> = {
@@ -140,17 +143,23 @@ export class ExplorarService {
     };
   }
 
-  // ── MANGAS (Jikan / MyAnimeList) ───────────────────
+  // ── MANGAS (Jikan / MyAnimeList, con AniList como colchón) ──
   topMangas(page = 1): Observable<ResultadoExplorar[]> {
     return this.http.get<any>(`${this.jikanUrl}/top/manga`, {
       params: new HttpParams().set('limit', '20').set('page', page)
-    }).pipe(map(r => r.data.map((i: any) => this.mapManga(i))));
+    }).pipe(
+      map(r => r.data.map((i: any) => this.mapManga(i))),
+      catchError(() => this.topMangasAniList(page))
+    );
   }
 
   buscarMangas(query: string, page = 1): Observable<ResultadoExplorar[]> {
     return this.http.get<any>(`${this.jikanUrl}/manga`, {
       params: new HttpParams().set('q', query).set('limit', '20').set('page', page)
-    }).pipe(map(r => r.data.map((i: any) => this.mapManga(i))));
+    }).pipe(
+      map(r => r.data.map((i: any) => this.mapManga(i))),
+      catchError(() => this.buscarMangasAniList(query, page))
+    );
   }
 
   descubrirMangas(generos: string[], page = 1): Observable<ResultadoExplorar[]> {
@@ -158,7 +167,10 @@ export class ExplorarService {
     if (!ids) return this.topMangas(page);
     return this.http.get<any>(`${this.jikanUrl}/manga`, {
       params: new HttpParams().set('genres', ids).set('limit', '24').set('order_by', 'popularity').set('page', page)
-    }).pipe(map(r => r.data.map((i: any) => this.mapManga(i))));
+    }).pipe(
+      map(r => r.data.map((i: any) => this.mapManga(i))),
+      catchError(() => this.descubrirMangasAniList(generos, page))
+    );
   }
 
   private mapManga(i: any): ResultadoExplorar {
@@ -169,6 +181,67 @@ export class ExplorarService {
       imagenUrl: i.images?.jpg?.image_url || null,
       puntuacion: i.score || 0,
       generos: (i.genres || []).map((g: any) => this.jikanTraduccion[g.name] || g.name)
+    };
+  }
+
+  // ── MANGAS — AniList (colchón si Jikan falla) ──────
+  // AniList devuelve/acepta géneros en inglés, igual que Jikan — reutilizamos
+  // el mismo diccionario de traducción invertido en vez de mantener otro.
+  private readonly espanolAIngles: Record<string, string> = Object.fromEntries(
+    Object.entries(this.jikanTraduccion).map(([en, es]) => [es, en])
+  );
+
+  private readonly camposMediaAniList = `
+    id
+    title { romaji english }
+    description(asHtml: false)
+    coverImage { large }
+    averageScore
+    genres
+  `;
+
+  private consultarAniList(query: string, variables: Record<string, unknown>): Observable<ResultadoExplorar[]> {
+    return this.http.post<any>(this.anilistUrl, { query, variables })
+      .pipe(map(r => r.data.Page.media.map((i: any) => this.mapMangaAniList(i))));
+  }
+
+  private topMangasAniList(page = 1): Observable<ResultadoExplorar[]> {
+    const query = `query ($page: Int) {
+      Page(page: $page, perPage: 20) {
+        media(type: MANGA, sort: POPULARITY_DESC) { ${this.camposMediaAniList} }
+      }
+    }`;
+    return this.consultarAniList(query, { page });
+  }
+
+  private buscarMangasAniList(q: string, page = 1): Observable<ResultadoExplorar[]> {
+    const query = `query ($q: String, $page: Int) {
+      Page(page: $page, perPage: 20) {
+        media(type: MANGA, search: $q) { ${this.camposMediaAniList} }
+      }
+    }`;
+    return this.consultarAniList(query, { q, page });
+  }
+
+  private descubrirMangasAniList(generos: string[], page = 1): Observable<ResultadoExplorar[]> {
+    const ingles = generos.map(g => this.espanolAIngles[g]).filter(Boolean);
+    if (!ingles.length) return this.topMangasAniList(page);
+    const query = `query ($generos: [String], $page: Int) {
+      Page(page: $page, perPage: 24) {
+        media(type: MANGA, genre_in: $generos, sort: POPULARITY_DESC) { ${this.camposMediaAniList} }
+      }
+    }`;
+    return this.consultarAniList(query, { generos: ingles, page });
+  }
+
+  private mapMangaAniList(i: any): ResultadoExplorar {
+    return {
+      id: i.id, tipo: 'manga', fuente: 'anilist',
+      titulo: i.title?.english || i.title?.romaji,
+      descripcion: this.truncar((i.description || '').replace(/<[^>]+>/g, '')),
+      imagenUrl: i.coverImage?.large || null,
+      puntuacion: i.averageScore ? Math.round(i.averageScore) / 10 : 0,
+      generos: (i.genres || []).map((g: string) => this.jikanTraduccion[g] || g)
     };
   }
 }
