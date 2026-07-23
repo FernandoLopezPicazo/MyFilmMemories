@@ -140,6 +140,10 @@ public class PeliculaService {
         pelicula.setNota2(datos.getNota2());
         pelicula.setGeneros(datos.getGeneros() != null ? datos.getGeneros() : new java.util.ArrayList<>());
         if (datos.getDuracionMinutos() != null) pelicula.setDuracionMinutos(datos.getDuracionMinutos());
+        pelicula.setEnEmision(datos.isEnEmision());
+        pelicula.setFrecuencia(datos.getFrecuencia());
+        pelicula.setDiaSemana(datos.getDiaSemana());
+        pelicula.setSemanaDelMes(datos.getSemanaDelMes());
         pelicula.setActualizadoEn(java.time.LocalDateTime.now(java.time.ZoneOffset.UTC));
 
         return peliculaRepository.save(pelicula);

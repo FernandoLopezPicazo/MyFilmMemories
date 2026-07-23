@@ -367,6 +367,34 @@
       </div>
     </ng-container><!-- /VISTA -->
 
+    <!-- Horario / programación (independiente del estado de la serie) -->
+    <div class="programacion-selector">
+      <label class="programacion-toggle">
+        <input type="checkbox" [(ngModel)]="serieEditando.enEmision" />
+        📅 En emisión
+      </label>
+      <ng-container *ngIf="serieEditando.enEmision">
+        <div class="programacion-fila">
+          <span class="programacion-label">Frecuencia:</span>
+          <span *ngFor="let f of FRECUENCIAS" class="genero-tag"
+            [class.activo]="serieEditando.frecuencia === f.valor"
+            (click)="serieEditando.frecuencia = f.valor">{{ f.etiqueta }}</span>
+        </div>
+        <div class="programacion-fila">
+          <span class="programacion-label">Día:</span>
+          <span *ngFor="let d of DIAS_SEMANA" class="genero-tag"
+            [class.activo]="serieEditando.diaSemana === d.valor"
+            (click)="serieEditando.diaSemana = d.valor">{{ d.etiqueta }}</span>
+        </div>
+        <div class="programacion-fila" *ngIf="serieEditando.frecuencia === 'MENSUAL'">
+          <span class="programacion-label">Semana del mes:</span>
+          <span *ngFor="let s of SEMANAS_MES" class="genero-tag"
+            [class.activo]="serieEditando.semanaDelMes === s"
+            (click)="serieEditando.semanaDelMes = s">{{ s }}ª</span>
+        </div>
+      </ng-container>
+    </div>
+
     <div class="modal-actions">
       <button class="btn-primary" (click)="guardarEdicion()">Guardar</button>
       <button class="btn-secondary" (click)="serieEditando = null">Cancelar</button>

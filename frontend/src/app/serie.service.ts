@@ -24,6 +24,10 @@ export interface Serie {
   temporadaActual?: number;
   episodioActual?: number;
   ocultoParaAmigos?: boolean;
+  enEmision?: boolean;
+  frecuencia?: 'SEMANAL' | 'MENSUAL';
+  diaSemana?: 'LUNES' | 'MARTES' | 'MIERCOLES' | 'JUEVES' | 'VIERNES' | 'SABADO' | 'DOMINGO';
+  semanaDelMes?: number;
 }
 
 @Injectable({ providedIn: 'root' })

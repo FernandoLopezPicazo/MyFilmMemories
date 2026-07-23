@@ -398,6 +398,34 @@
       </div>
     </ng-container><!-- /VISTA -->
 
+    <!-- Horario / programación (independiente del estado de la película) -->
+    <div class="programacion-selector">
+      <label class="programacion-toggle">
+        <input type="checkbox" [(ngModel)]="peliculaEditando.enEmision" />
+        📅 En emisión
+      </label>
+      <ng-container *ngIf="peliculaEditando.enEmision">
+        <div class="programacion-fila">
+          <span class="programacion-label">Frecuencia:</span>
+          <span *ngFor="let f of FRECUENCIAS" class="genero-tag"
+            [class.activo]="peliculaEditando.frecuencia === f.valor"
+            (click)="peliculaEditando.frecuencia = f.valor">{{ f.etiqueta }}</span>
+        </div>
+        <div class="programacion-fila">
+          <span class="programacion-label">Día:</span>
+          <span *ngFor="let d of DIAS_SEMANA" class="genero-tag"
+            [class.activo]="peliculaEditando.diaSemana === d.valor"
+            (click)="peliculaEditando.diaSemana = d.valor">{{ d.etiqueta }}</span>
+        </div>
+        <div class="programacion-fila" *ngIf="peliculaEditando.frecuencia === 'MENSUAL'">
+          <span class="programacion-label">Semana del mes:</span>
+          <span *ngFor="let s of SEMANAS_MES" class="genero-tag"
+            [class.activo]="peliculaEditando.semanaDelMes === s"
+            (click)="peliculaEditando.semanaDelMes = s">{{ s }}ª</span>
+        </div>
+      </ng-container>
+    </div>
+
     <div class="modal-actions">
       <button class="btn-primary" (click)="guardarEdicion()">Guardar</button>
       <button class="btn-secondary" (click)="peliculaEditando = null">Cancelar</button>

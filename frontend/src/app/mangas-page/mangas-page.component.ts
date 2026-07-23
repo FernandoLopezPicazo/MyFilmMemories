@@ -75,6 +75,19 @@ export class MangasPageComponent implements OnInit {
 
   readonly GENEROS = GENEROS_MANGA;
 
+  // ── HORARIO ────────────────────────────────────────
+  readonly FRECUENCIAS: { valor: NonNullable<Manga['frecuencia']>; etiqueta: string }[] = [
+    { valor: 'SEMANAL', etiqueta: 'Semanal' },
+    { valor: 'MENSUAL', etiqueta: 'Mensual' }
+  ];
+  readonly DIAS_SEMANA: { valor: NonNullable<Manga['diaSemana']>; etiqueta: string }[] = [
+    { valor: 'LUNES', etiqueta: 'Lunes' }, { valor: 'MARTES', etiqueta: 'Martes' },
+    { valor: 'MIERCOLES', etiqueta: 'Miércoles' }, { valor: 'JUEVES', etiqueta: 'Jueves' },
+    { valor: 'VIERNES', etiqueta: 'Viernes' }, { valor: 'SABADO', etiqueta: 'Sábado' },
+    { valor: 'DOMINGO', etiqueta: 'Domingo' }
+  ];
+  readonly SEMANAS_MES = [1, 2, 3, 4, 5];
+
   // ── EXPLORAR ───────────────────────────────────────
   mostrarExplorar = false;
   explorarResultados: ResultadoExplorar[] = [];
@@ -174,7 +187,10 @@ export class MangasPageComponent implements OnInit {
       descripcion: r.descripcion,
       imagenUrl: r.imagenUrl || undefined,
       generos: r.generos,
-      estado: 'PENDIENTE'
+      estado: 'PENDIENTE',
+      // Jikan/AniList dicen si sigue publicándose, pero no el día de la
+      // semana — el usuario lo rellena a mano si quiere que aparezca en el horario.
+      enEmision: r.enEmisionSugerido ?? false
     }).subscribe({
       next: () => {
         this.explorarDetalle = null;

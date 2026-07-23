@@ -45,4 +45,7 @@ public interface PeliculaRepository extends JpaRepository<Pelicula, Long> {
 
     // Para ver la colección de un amigo: solo lo que no haya marcado como oculto
     List<Pelicula> findByUsuarioIdAndOcultoParaAmigosFalse(UUID usuarioId);
+
+    // Para el horario: películas marcadas en emisión
+    List<Pelicula> findByUsuarioIdAndEnEmisionTrue(UUID usuarioId);
 }

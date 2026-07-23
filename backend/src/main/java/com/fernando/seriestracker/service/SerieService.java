@@ -134,6 +134,10 @@ public class SerieService {
         serie.setGeneros(datos.getGeneros() != null ? datos.getGeneros() : new java.util.ArrayList<>());
         if (datos.getTemporadaActual() != null) serie.setTemporadaActual(datos.getTemporadaActual());
         if (datos.getEpisodioActual() != null) serie.setEpisodioActual(datos.getEpisodioActual());
+        serie.setEnEmision(datos.isEnEmision());
+        serie.setFrecuencia(datos.getFrecuencia());
+        serie.setDiaSemana(datos.getDiaSemana());
+        serie.setSemanaDelMes(datos.getSemanaDelMes());
         serie.setActualizadoEn(java.time.LocalDateTime.now(java.time.ZoneOffset.UTC));
 
         return serieRepository.save(serie);

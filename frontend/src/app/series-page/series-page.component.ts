@@ -73,6 +73,19 @@ export class SeriesPageComponent implements OnInit {
 
   readonly GENEROS = GENEROS_SERIE;
 
+  // ── HORARIO ────────────────────────────────────────
+  readonly FRECUENCIAS: { valor: NonNullable<Serie['frecuencia']>; etiqueta: string }[] = [
+    { valor: 'SEMANAL', etiqueta: 'Semanal' },
+    { valor: 'MENSUAL', etiqueta: 'Mensual' }
+  ];
+  readonly DIAS_SEMANA: { valor: NonNullable<Serie['diaSemana']>; etiqueta: string }[] = [
+    { valor: 'LUNES', etiqueta: 'Lunes' }, { valor: 'MARTES', etiqueta: 'Martes' },
+    { valor: 'MIERCOLES', etiqueta: 'Miércoles' }, { valor: 'JUEVES', etiqueta: 'Jueves' },
+    { valor: 'VIERNES', etiqueta: 'Viernes' }, { valor: 'SABADO', etiqueta: 'Sábado' },
+    { valor: 'DOMINGO', etiqueta: 'Domingo' }
+  ];
+  readonly SEMANAS_MES = [1, 2, 3, 4, 5];
+
   // ── EXPLORAR ───────────────────────────────────────
   mostrarExplorar = false;
   explorarResultados: ResultadoExplorar[] = [];
@@ -166,20 +179,43 @@ export class SeriesPageComponent implements OnInit {
 
   agregarDesdeExplorar(r: ResultadoExplorar): void {
     this.explorarAgregando = true;
-    this.serieService.crear({
+    const datosBase = {
       titulo: r.titulo,
       descripcion: r.descripcion,
       imagenUrl: r.imagenUrl || undefined,
       generos: r.generos,
-      estado: 'PENDIENTE'
-    }).subscribe({
-      next: () => {
-        this.explorarDetalle = null;
-        this.explorarAgregando = false;
-        this.cargarSeries();
+      estado: 'PENDIENTE' as const
+    };
+    const crearSerie = (extra: Partial<Serie> = {}) => {
+      this.serieService.crear({ ...datosBase, ...extra }).subscribe({
+        next: () => {
+          this.explorarDetalle = null;
+          this.explorarAgregando = false;
+          this.cargarSeries();
+        },
+        error: () => { this.explorarAgregando = false; }
+      });
+    };
+    // Intenta auto-rellenar el horario con la fecha del próximo episodio
+    // de TMDB; si falla o no hay próximo episodio, se añade sin programar
+    // (el usuario la rellena a mano si quiere).
+    this.explorarService.detalleSerie(r.id).subscribe({
+      next: (detalle) => {
+        const fecha = detalle?.next_episode_to_air?.air_date;
+        if (fecha) {
+          crearSerie({ enEmision: true, frecuencia: 'SEMANAL', diaSemana: this.diaSemanaDesdeFecha(fecha) });
+        } else {
+          crearSerie();
+        }
       },
-      error: () => { this.explorarAgregando = false; }
+      error: () => crearSerie()
     });
+  }
+
+  private diaSemanaDesdeFecha(fechaISO: string): Serie['diaSemana'] {
+    const dias: NonNullable<Serie['diaSemana']>[] =
+      ['DOMINGO', 'LUNES', 'MARTES', 'MIERCOLES', 'JUEVES', 'VIERNES', 'SABADO'];
+    return dias[new Date(fechaISO + 'T00:00:00').getDay()];
   }
 
   constructor(private serieService: SerieService, private explorarService: ExplorarService) {}

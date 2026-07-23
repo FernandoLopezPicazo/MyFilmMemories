@@ -186,6 +186,34 @@ textarea { resize: vertical; min-height: 80px; }
   padding: 2px 7px; border-radius: 20px; white-space: nowrap;
 }
 .generos-selector { margin-top: 6px; }
+
+.programacion-selector {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid #eee;
+}
+.programacion-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #333;
+  cursor: pointer;
+}
+.programacion-fila {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+.programacion-label {
+  font-size: 0.8rem;
+  color: #777;
+  margin-right: 4px;
+  flex-shrink: 0;
+}
 .btn-generos-toggle { font-size: 0.82rem; padding: 6px 12px; width: 100%; text-align: left; }
 .generos-lista {
   display: flex; flex-wrap: wrap; gap: 6px;
@@ -645,6 +673,9 @@ button:hover { opacity: 0.85; }
 
 /* Géneros */
 :host-context(html.dark) .generos-lista { background: var(--bg-card-alt); border-color: var(--border); }
+:host-context(html.dark) .programacion-selector { border-color: var(--border); }
+:host-context(html.dark) .programacion-toggle { color: var(--text-primary); }
+:host-context(html.dark) .programacion-label { color: var(--text-muted); }
 :host-context(html.dark) .genero-tag { background: var(--bg-card); color: var(--text-primary); }
 :host-context(html.dark) .genero-tag.activo { background: var(--acento); color: white; }
 

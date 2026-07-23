@@ -100,6 +100,10 @@ public class MangaService {
         if (datos.getCapituloActual() != null) manga.setCapituloActual(datos.getCapituloActual());
         if (datos.getUrlLectura() != null) manga.setUrlLectura(datos.getUrlLectura());
         manga.setGeneros(datos.getGeneros() != null ? datos.getGeneros() : new java.util.ArrayList<>());
+        manga.setEnEmision(datos.isEnEmision());
+        manga.setFrecuencia(datos.getFrecuencia());
+        manga.setDiaSemana(datos.getDiaSemana());
+        manga.setSemanaDelMes(datos.getSemanaDelMes());
         manga.setActualizadoEn(java.time.LocalDateTime.now(java.time.ZoneOffset.UTC));
         return mangaRepository.save(manga);
     }

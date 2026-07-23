@@ -83,6 +83,19 @@ export class PeliculasPageComponent implements OnInit {
 
   readonly GENEROS = GENEROS_PELICULA;
 
+  // ── HORARIO ────────────────────────────────────────
+  readonly FRECUENCIAS: { valor: NonNullable<Pelicula['frecuencia']>; etiqueta: string }[] = [
+    { valor: 'SEMANAL', etiqueta: 'Semanal' },
+    { valor: 'MENSUAL', etiqueta: 'Mensual' }
+  ];
+  readonly DIAS_SEMANA: { valor: NonNullable<Pelicula['diaSemana']>; etiqueta: string }[] = [
+    { valor: 'LUNES', etiqueta: 'Lunes' }, { valor: 'MARTES', etiqueta: 'Martes' },
+    { valor: 'MIERCOLES', etiqueta: 'Miércoles' }, { valor: 'JUEVES', etiqueta: 'Jueves' },
+    { valor: 'VIERNES', etiqueta: 'Viernes' }, { valor: 'SABADO', etiqueta: 'Sábado' },
+    { valor: 'DOMINGO', etiqueta: 'Domingo' }
+  ];
+  readonly SEMANAS_MES = [1, 2, 3, 4, 5];
+
   // ── EXPLORAR ───────────────────────────────────────
   mostrarExplorar = false;
   explorarResultados: ResultadoExplorar[] = [];

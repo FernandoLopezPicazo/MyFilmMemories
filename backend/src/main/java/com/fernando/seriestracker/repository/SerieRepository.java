@@ -37,4 +37,7 @@ public interface SerieRepository extends JpaRepository<Serie, Long> {
 
     // Para ver la colección de un amigo: solo lo que no haya marcado como oculto
     List<Serie> findByUsuarioIdAndOcultoParaAmigosFalse(UUID usuarioId);
+
+    // Para el horario: series marcadas en emisión
+    List<Serie> findByUsuarioIdAndEnEmisionTrue(UUID usuarioId);
 }

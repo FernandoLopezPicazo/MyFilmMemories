@@ -12,6 +12,7 @@ import { BackupPageComponent } from './backup-page/backup-page.component';
 import { LoginComponent } from './login/login.component';
 import { AmigosPageComponent } from './amigos-page/amigos-page.component';
 import { GruposPageComponent } from './grupos-page/grupos-page.component';
+import { HorarioPageComponent } from './horario-page/horario-page.component';
 import { IconComponent } from './shared/icon/icon.component';
 import { AppRoutingModule } from './app-routing.module';
 import { AuthInterceptor } from './auth.interceptor';
@@ -19,7 +20,8 @@ import { AuthInterceptor } from './auth.interceptor';
 @NgModule({
   declarations: [
     AppComponent, SeriesPageComponent, PeliculasPageComponent, MangasPageComponent,
-    BackupPageComponent, LoginComponent, AmigosPageComponent, GruposPageComponent, IconComponent
+    BackupPageComponent, LoginComponent, AmigosPageComponent, GruposPageComponent,
+    HorarioPageComponent, IconComponent
   ],
   imports: [
     BrowserModule,

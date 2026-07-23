@@ -92,7 +92,35 @@ public class Manga {
     @Column(name = "genero")
     private List<String> generos = new ArrayList<>();
 
+    // ── Horario (Fase 6) ───────────────────────────────
+    // nullable=true a nivel JPA (aunque el default en código siempre lo
+    // rellena) porque H2 en dev usa ddl-auto=update: añadir una columna
+    // NOT NULL sin default falla si la tabla ya tiene filas. En Postgres
+    // la migración V9 sí la crea con DEFAULT false.
+    @Column(name = "en_emision", nullable = true)
+    private boolean enEmision = false;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = true, length = 20)
+    private Frecuencia frecuencia;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "dia_semana", nullable = true, length = 20)
+    private DiaSemana diaSemana;
+
+    // 1-5, solo relevante cuando frecuencia == MENSUAL
+    @Column(name = "semana_del_mes", nullable = true)
+    private Integer semanaDelMes;
+
     public enum EstadoManga {
         PENDIENTE, EN_PROCESO, FINALIZADO
+    }
+
+    public enum Frecuencia {
+        SEMANAL, MENSUAL
+    }
+
+    public enum DiaSemana {
+        LUNES, MARTES, MIERCOLES, JUEVES, VIERNES, SABADO, DOMINGO
     }
 }

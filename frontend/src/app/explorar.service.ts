@@ -12,6 +12,10 @@ export interface ResultadoExplorar {
   generos: string[];
   tipo: 'pelicula' | 'serie' | 'manga';
   fuente: 'tmdb' | 'jikan' | 'anilist';
+  // Solo mangas: si la fuente indica que sigue publicándose, para
+  // sugerir "en emisión" al añadirlo (el día/frecuencia los pone el
+  // usuario a mano — ni Jikan ni AniList dan el día de la semana).
+  enEmisionSugerido?: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -132,6 +136,14 @@ export class ExplorarService {
     }).pipe(map(r => r.results.map((i: any) => this.mapSerie(i))));
   }
 
+  // Detalle completo de una serie (para el horario): trae `status` y
+  // `next_episode_to_air.air_date`, que no vienen en las listas de arriba.
+  detalleSerie(id: number): Observable<any> {
+    return this.http.get<any>(`${this.tmdbUrl}/tv/${id}`, {
+      params: new HttpParams().set('api_key', this.apiKey).set('language', 'es-ES')
+    });
+  }
+
   private mapSerie(i: any): ResultadoExplorar {
     return {
       id: i.id, tipo: 'serie', fuente: 'tmdb',
@@ -180,7 +192,8 @@ export class ExplorarService {
       descripcion: this.truncar(i.synopsis),
       imagenUrl: i.images?.jpg?.image_url || null,
       puntuacion: i.score || 0,
-      generos: (i.genres || []).map((g: any) => this.jikanTraduccion[g.name] || g.name)
+      generos: (i.genres || []).map((g: any) => this.jikanTraduccion[g.name] || g.name),
+      enEmisionSugerido: i.status === 'Publishing'
     };
   }
 
@@ -198,6 +211,7 @@ export class ExplorarService {
     coverImage { large }
     averageScore
     genres
+    status
   `;
 
   private consultarAniList(query: string, variables: Record<string, unknown>): Observable<ResultadoExplorar[]> {
@@ -241,7 +255,8 @@ export class ExplorarService {
       descripcion: this.truncar((i.description || '').replace(/<[^>]+>/g, '')),
       imagenUrl: i.coverImage?.large || null,
       puntuacion: i.averageScore ? Math.round(i.averageScore) / 10 : 0,
-      generos: (i.genres || []).map((g: string) => this.jikanTraduccion[g] || g)
+      generos: (i.genres || []).map((g: string) => this.jikanTraduccion[g] || g),
+      enEmisionSugerido: i.status === 'RELEASING'
     };
   }
 }

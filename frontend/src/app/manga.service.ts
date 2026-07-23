@@ -22,6 +22,10 @@ export interface Manga {
   fechaFinalizado?: string;
   generos?: string[];
   ocultoParaAmigos?: boolean;
+  enEmision?: boolean;
+  frecuencia?: 'SEMANAL' | 'MENSUAL';
+  diaSemana?: 'LUNES' | 'MARTES' | 'MIERCOLES' | 'JUEVES' | 'VIERNES' | 'SABADO' | 'DOMINGO';
+  semanaDelMes?: number;
 }
 
 @Injectable({ providedIn: 'root' })

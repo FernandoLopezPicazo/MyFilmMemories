@@ -32,6 +32,10 @@ export interface Pelicula {
   ocultoParaAmigos?: boolean;
   sagaId?: number;
   orden?: number;
+  enEmision?: boolean;
+  frecuencia?: 'SEMANAL' | 'MENSUAL';
+  diaSemana?: 'LUNES' | 'MARTES' | 'MIERCOLES' | 'JUEVES' | 'VIERNES' | 'SABADO' | 'DOMINGO';
+  semanaDelMes?: number;
 }
 
 @Injectable({ providedIn: 'root' })

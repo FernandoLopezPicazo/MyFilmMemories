@@ -44,6 +44,13 @@ import { Component, Input } from '@angular/core';
         <path d="M12 6.2v13.7" />
       </ng-container>
 
+      <!-- Horario: calendario simple -->
+      <ng-container *ngIf="name === 'horario'">
+        <rect x="3.5" y="5" width="17" height="15" rx="2" />
+        <path d="M3.5 9.5h17" />
+        <path d="M8 3v3.5M16 3v3.5" />
+      </ng-container>
+
       <!-- Compartir: dos flechas en bucle (intercambio import/export) -->
       <ng-container *ngIf="name === 'compartir'">
         <path d="M4 8.5h11.5a3.5 3.5 0 0 1 3.5 3.5v1" />

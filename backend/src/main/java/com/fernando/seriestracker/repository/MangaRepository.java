@@ -22,4 +22,7 @@ public interface MangaRepository extends JpaRepository<Manga, Long> {
 
     // Para ver la colección de un amigo: solo lo que no haya marcado como oculto
     List<Manga> findByUsuarioIdAndOcultoParaAmigosFalse(UUID usuarioId);
+
+    // Para el horario: mangas marcados en emisión
+    List<Manga> findByUsuarioIdAndEnEmisionTrue(UUID usuarioId);
 }
