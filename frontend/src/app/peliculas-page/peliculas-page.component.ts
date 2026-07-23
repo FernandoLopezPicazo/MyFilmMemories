@@ -31,6 +31,8 @@ export class PeliculasPageComponent implements OnInit {
   // Película de saga que se está marcando como vista
   peliculaSagaSeleccionada: Pelicula | null = null;
   sagaIdDeSeleccionada: number | null = null;
+  // Arrastrar y soltar sobre una saga (vincular / reordenar)
+  sagaIdDragSobre: number | null = null;
 
   // Formulario nueva película (solo título)
   tituloNueva = '';
@@ -416,10 +418,14 @@ export class PeliculasPageComponent implements OnInit {
     });
   }
 
-  // ── DRAG & DROP (solo 2 estados) ──────────────────
+  // ── DRAG & DROP ────────────────────────────────────
+  // El origen viaja como 'PENDIENTE' | 'VISTA' (columnas sueltas) o
+  // 'SAGA:<sagaId>' (fila dentro de una saga) para que cualquier zona de
+  // destino sepa si tiene que desvincular de una saga antes de aplicar
+  // su propia lógica.
   onDragStart(pelicula: Pelicula, event: DragEvent): void {
     event.dataTransfer!.setData('peliculaId', pelicula.id!.toString());
-    event.dataTransfer!.setData('estadoOrigen', pelicula.estado);
+    event.dataTransfer!.setData('estadoOrigen', pelicula.sagaId != null ? `SAGA:${pelicula.sagaId}` : pelicula.estado);
     event.dataTransfer!.effectAllowed = 'move';
   }
 
@@ -443,18 +449,98 @@ export class PeliculasPageComponent implements OnInit {
     this.dragSobrePendiente = this.dragSobreVista = false;
     const id = parseInt(event.dataTransfer!.getData('peliculaId'), 10);
     const origen = event.dataTransfer!.getData('estadoOrigen');
-    if (!id || origen === destino) return;
+    const vieneDeSaga = origen.startsWith('SAGA:');
+    if (!id || (!vieneDeSaga && origen === destino)) return;
 
-    if (destino === 'PENDIENTE') {
-      this.peliculaService.marcarComoPendiente(id).subscribe({
-        next: () => this.cargarPeliculas(),
+    const continuar = () => {
+      if (destino === 'PENDIENTE') {
+        this.peliculaService.marcarComoPendiente(id).subscribe({
+          next: () => this.cargarPeliculas(),
+          error: (e) => this.error = 'Error: ' + (e.error?.error || e.status)
+        });
+      } else {
+        // VISTA → abrir formulario completo
+        const todas = [...this.pendientes, ...this.vistas];
+        const pelicula = todas.find(p => p.id === id);
+        if (pelicula) this.abrirModalVista(pelicula);
+      }
+    };
+
+    if (vieneDeSaga) {
+      this.peliculaService.quitarPeliculaDeSaga(id).subscribe({
+        next: () => { this.cargarSagas(); continuar(); },
         error: (e) => this.error = 'Error: ' + (e.error?.error || e.status)
       });
     } else {
-      // VISTA → abrir formulario completo
-      const todas = [...this.pendientes, ...this.vistas];
-      const pelicula = todas.find(p => p.id === id);
-      if (pelicula) this.abrirModalVista(pelicula);
+      continuar();
+    }
+  }
+
+  // ── DRAG & DROP: vincular a saga (soltar sobre la tarjeta) ──
+  onDragOverSaga(event: DragEvent, sagaId: number): void {
+    event.preventDefault();
+    event.dataTransfer!.dropEffect = 'move';
+    this.sagaIdDragSobre = sagaId;
+  }
+
+  onDragLeaveSaga(event: DragEvent, sagaId: number): void {
+    const zona = event.currentTarget as HTMLElement;
+    const dest = event.relatedTarget as Node;
+    if (dest && zona.contains(dest)) return;
+    if (this.sagaIdDragSobre === sagaId) this.sagaIdDragSobre = null;
+  }
+
+  onDropEnSaga(event: DragEvent, sagaId: number): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.sagaIdDragSobre = null;
+    const id = parseInt(event.dataTransfer!.getData('peliculaId'), 10);
+    const origen = event.dataTransfer!.getData('estadoOrigen');
+    if (!id || origen === `SAGA:${sagaId}`) return; // ya está en esta saga
+
+    this.peliculaService.vincularPeliculaASaga(sagaId, id).subscribe({
+      next: () => { this.cargarSagas(); this.cargarPeliculas(); },
+      error: (e) => this.error = 'Error: ' + (e.error?.error || e.status)
+    });
+  }
+
+  // ── DRAG & DROP: reordenar dentro de una saga ──
+  onDragOverSagaFila(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    event.dataTransfer!.dropEffect = 'move';
+  }
+
+  onDropEnSagaFila(event: DragEvent, sagaId: number, peliculaDestinoId: number): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.sagaIdDragSobre = null;
+    const id = parseInt(event.dataTransfer!.getData('peliculaId'), 10);
+    const origen = event.dataTransfer!.getData('estadoOrigen');
+    if (!id || id === peliculaDestinoId) return;
+
+    const saga = this.sagas.find(s => s.id === sagaId);
+    if (!saga) return;
+
+    const idsActuales = (saga.peliculas || []).map(p => p.id!).filter(pid => pid !== id);
+    const posicion = idsActuales.indexOf(peliculaDestinoId);
+    idsActuales.splice(posicion < 0 ? idsActuales.length : posicion, 0, id);
+
+    const aplicarOrden = () => {
+      this.peliculaService.reordenarSaga(sagaId, idsActuales).subscribe({
+        next: () => { this.cargarSagas(); this.cargarPeliculas(); },
+        error: (e) => this.error = 'Error: ' + (e.error?.error || e.status)
+      });
+    };
+
+    if (origen === `SAGA:${sagaId}`) {
+      aplicarOrden();
+    } else {
+      // Viene de fuera de esta saga: primero vincular, luego aplicar el orden completo
+      this.peliculaService.vincularPeliculaASaga(sagaId, id).subscribe({
+        next: () => aplicarOrden(),
+        error: (e) => this.error = 'Error: ' + (e.error?.error || e.status)
+      });
     }
   }
 

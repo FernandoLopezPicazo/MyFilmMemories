@@ -53,6 +53,23 @@ public class SagaController {
         return ResponseEntity.noContent().build();
     }
 
+    // Vincular una película YA EXISTENTE (suelta o de otra saga) a esta saga
+    @PutMapping("/{sagaId}/peliculas/{peliculaId}")
+    public ResponseEntity<Pelicula> vincularExistente(
+            @PathVariable Long sagaId,
+            @PathVariable Long peliculaId) {
+        return ResponseEntity.ok(sagaService.vincularExistente(sagaId, peliculaId));
+    }
+
+    // Reordenar manualmente las películas de la saga (arrastrar y soltar)
+    @PutMapping("/{sagaId}/orden")
+    public ResponseEntity<Void> reordenar(
+            @PathVariable Long sagaId,
+            @RequestBody Map<String, List<Long>> body) {
+        sagaService.reordenar(sagaId, body.getOrDefault("ordenIds", List.of()));
+        return ResponseEntity.noContent().build();
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, String>> handleIllegalArgument(IllegalArgumentException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", ex.getMessage()));

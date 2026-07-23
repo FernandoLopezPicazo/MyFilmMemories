@@ -30,6 +30,8 @@ export interface Pelicula {
   fechaVista?: string;
   duracionMinutos?: number; // Duración en minutos
   ocultoParaAmigos?: boolean;
+  sagaId?: number;
+  orden?: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -90,6 +92,14 @@ export class PeliculaService {
 
   quitarPeliculaDeSaga(peliculaId: number): Observable<void> {
     return this.http.delete<void>(`${this.sagasUrl}/peliculas/${peliculaId}`);
+  }
+
+  vincularPeliculaASaga(sagaId: number, peliculaId: number): Observable<Pelicula> {
+    return this.http.put<Pelicula>(`${this.sagasUrl}/${sagaId}/peliculas/${peliculaId}`, {});
+  }
+
+  reordenarSaga(sagaId: number, ordenIds: number[]): Observable<void> {
+    return this.http.put<void>(`${this.sagasUrl}/${sagaId}/orden`, { ordenIds });
   }
 
   subirImagen(archivo: File): Observable<{ url: string }> {

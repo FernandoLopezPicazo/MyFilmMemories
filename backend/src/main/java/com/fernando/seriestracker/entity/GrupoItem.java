@@ -56,6 +56,11 @@ public class GrupoItem {
     @Column(name = "saga_id", nullable = true)
     private Long sagaId;
 
+    // Posición manual dentro de su saga (null = sin ordenar / no pertenece
+    // a ninguna saga). Se reasigna al arrastrar para reordenar.
+    @Column(name = "orden", nullable = true)
+    private Integer orden;
+
     // A diferencia de las listas personales, este estado es COMPARTIDO por
     // todo el grupo (no por miembro): si alguien marca la película como
     // vista, se marca vista para todos. Solo se usa/expone en el contexto

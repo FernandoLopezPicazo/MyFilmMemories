@@ -46,6 +46,7 @@ export interface GrupoItem {
   generos: string[];
   opiniones: OpinionGrupo[];
   sagaId?: number;
+  orden?: number;
   estado: 'PENDIENTE' | 'VISTA';
 }
 
@@ -127,12 +128,22 @@ export class GrupoService {
     return this.http.delete<void>(`${this.url}/${grupoId}/sagas/${sagaId}`);
   }
 
-  agregarItemASagaGrupo(grupoId: number, sagaId: number, titulo: string): Observable<GrupoItem> {
-    return this.http.post<GrupoItem>(`${this.url}/${grupoId}/sagas/${sagaId}/items`, { titulo });
+  agregarItemASagaGrupo(grupoId: number, sagaId: number, titulo: string, descripcion?: string,
+                        imagenUrl?: string | null, generos?: string[]): Observable<GrupoItem> {
+    return this.http.post<GrupoItem>(`${this.url}/${grupoId}/sagas/${sagaId}/items`,
+        { titulo, descripcion, imagenUrl, generos });
   }
 
   quitarItemDeSagaGrupo(grupoId: number, itemId: number): Observable<void> {
     return this.http.delete<void>(`${this.url}/${grupoId}/sagas/items/${itemId}`);
+  }
+
+  vincularItemASagaGrupo(grupoId: number, sagaId: number, itemId: number): Observable<GrupoItem> {
+    return this.http.put<GrupoItem>(`${this.url}/${grupoId}/sagas/${sagaId}/items/${itemId}`, {});
+  }
+
+  reordenarSagaGrupo(grupoId: number, sagaId: number, ordenIds: number[]): Observable<void> {
+    return this.http.put<void>(`${this.url}/${grupoId}/sagas/${sagaId}/orden`, { ordenIds });
   }
 
   marcarVistaGrupoSaga(grupoId: number, itemId: number): Observable<void> {

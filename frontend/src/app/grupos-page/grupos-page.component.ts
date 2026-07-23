@@ -45,6 +45,15 @@ export class GruposPageComponent implements OnInit {
   sagasGrupoExpandidas = new Set<number>();
   tituloItemEnSaga: { [sagaId: number]: string } = {};
 
+  // Buscador TMDB para añadir directamente dentro de una saga
+  busquedaExplorarSaga: { [sagaId: number]: string } = {};
+  resultadosExplorarSaga: { [sagaId: number]: ResultadoExplorar[] } = {};
+  cargandoExplorarSaga: { [sagaId: number]: boolean } = {};
+  mostrarBusquedaManualSaga: { [sagaId: number]: boolean } = {};
+
+  // Arrastrar y soltar sobre una saga (vincular / reordenar)
+  sagaIdDragSobre: number | null = null;
+
   constructor(private grupoService: GrupoService, private explorarService: ExplorarService, public auth: AuthService) {}
 
   ngOnInit(): void {
@@ -149,6 +158,119 @@ export class GruposPageComponent implements OnInit {
         this.cargarSagasGrupo();
       }
     });
+  }
+
+  // ── BUSCADOR TMDB DENTRO DE UNA SAGA ───────────────
+  buscarExplorarEnSaga(sagaId: number): void {
+    const q = (this.busquedaExplorarSaga[sagaId] || '').trim();
+    if (!q) { this.resultadosExplorarSaga[sagaId] = []; return; }
+    this.cargandoExplorarSaga[sagaId] = true;
+    this.explorarService.buscarPeliculas(q).subscribe({
+      next: (r) => { this.resultadosExplorarSaga[sagaId] = r; this.cargandoExplorarSaga[sagaId] = false; },
+      error: () => { this.cargandoExplorarSaga[sagaId] = false; }
+    });
+  }
+
+  agregarDesdeExplorarEnSaga(sagaId: number, r: ResultadoExplorar): void {
+    if (!this.grupoSeleccionado) return;
+    this.grupoService.agregarItemASagaGrupo(this.grupoSeleccionado.id, sagaId, r.titulo, r.descripcion,
+        r.imagenUrl, r.generos).subscribe(() => {
+      this.busquedaExplorarSaga[sagaId] = '';
+      this.resultadosExplorarSaga[sagaId] = [];
+      this.cargarSagasGrupo();
+    });
+  }
+
+  // ── DRAG & DROP: vincular item existente a saga ────
+  // El origen viaja como 'SUELTO' (lista plana del grupo) o
+  // 'SAGA:<sagaId>' (fila dentro de una saga).
+  onDragStartItem(item: GrupoItem, event: DragEvent): void {
+    event.dataTransfer!.setData('itemId', item.id!.toString());
+    event.dataTransfer!.setData('origenItem', item.sagaId != null ? `SAGA:${item.sagaId}` : 'SUELTO');
+    event.dataTransfer!.effectAllowed = 'move';
+  }
+
+  onDragOverLista(event: DragEvent): void {
+    if (this.tabItem !== 'PELICULA') return;
+    event.preventDefault();
+    event.dataTransfer!.dropEffect = 'move';
+  }
+
+  onDropEnLista(event: DragEvent): void {
+    if (this.tabItem !== 'PELICULA' || !this.grupoSeleccionado) return;
+    event.preventDefault();
+    const id = parseInt(event.dataTransfer!.getData('itemId'), 10);
+    const origen = event.dataTransfer!.getData('origenItem');
+    if (!id || !origen.startsWith('SAGA:')) return;
+
+    this.grupoService.quitarItemDeSagaGrupo(this.grupoSeleccionado.id, id).subscribe({
+      next: () => { this.cargarItems(); this.cargarSagasGrupo(); }
+    });
+  }
+
+  onDragOverSagaGrupo(event: DragEvent, sagaId: number): void {
+    event.preventDefault();
+    event.dataTransfer!.dropEffect = 'move';
+    this.sagaIdDragSobre = sagaId;
+  }
+
+  onDragLeaveSagaGrupo(event: DragEvent, sagaId: number): void {
+    const zona = event.currentTarget as HTMLElement;
+    const dest = event.relatedTarget as Node;
+    if (dest && zona.contains(dest)) return;
+    if (this.sagaIdDragSobre === sagaId) this.sagaIdDragSobre = null;
+  }
+
+  onDropEnSagaGrupo(event: DragEvent, sagaId: number): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.sagaIdDragSobre = null;
+    if (!this.grupoSeleccionado) return;
+    const id = parseInt(event.dataTransfer!.getData('itemId'), 10);
+    const origen = event.dataTransfer!.getData('origenItem');
+    if (!id || origen === `SAGA:${sagaId}`) return; // ya está en esta saga
+
+    this.grupoService.vincularItemASagaGrupo(this.grupoSeleccionado.id, sagaId, id).subscribe({
+      next: () => { this.cargarSagasGrupo(); this.cargarItems(); }
+    });
+  }
+
+  // ── DRAG & DROP: reordenar dentro de una saga de grupo ──
+  onDragOverSagaFilaGrupo(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+    event.dataTransfer!.dropEffect = 'move';
+  }
+
+  onDropEnSagaFilaGrupo(event: DragEvent, sagaId: number, itemDestinoId: number): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.sagaIdDragSobre = null;
+    if (!this.grupoSeleccionado) return;
+    const id = parseInt(event.dataTransfer!.getData('itemId'), 10);
+    const origen = event.dataTransfer!.getData('origenItem');
+    if (!id || id === itemDestinoId) return;
+
+    const saga = this.sagasGrupo.find(s => s.id === sagaId);
+    if (!saga) return;
+
+    const idsActuales = (saga.items || []).map(i => i.id!).filter(iid => iid !== id);
+    const posicion = idsActuales.indexOf(itemDestinoId);
+    idsActuales.splice(posicion < 0 ? idsActuales.length : posicion, 0, id);
+
+    const aplicarOrden = () => {
+      this.grupoService.reordenarSagaGrupo(this.grupoSeleccionado!.id, sagaId, idsActuales).subscribe({
+        next: () => { this.cargarSagasGrupo(); this.cargarItems(); }
+      });
+    };
+
+    if (origen === `SAGA:${sagaId}`) {
+      aplicarOrden();
+    } else {
+      this.grupoService.vincularItemASagaGrupo(this.grupoSeleccionado.id, sagaId, id).subscribe({
+        next: () => aplicarOrden()
+      });
+    }
   }
 
   quitarItemDeSaga(itemId: number, evento: Event): void {

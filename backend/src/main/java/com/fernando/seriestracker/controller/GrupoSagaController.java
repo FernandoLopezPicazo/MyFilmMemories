@@ -35,14 +35,39 @@ public class GrupoSagaController {
         return ResponseEntity.noContent().build();
     }
 
-    // Añadir una película nueva directamente a la saga del grupo
+    // Añadir una película nueva directamente a la saga del grupo. Acepta
+    // opcionalmente descripcion/imagenUrl/generos (resultado del buscador
+    // TMDB) además del alta manual con solo título.
     @PostMapping("/{sagaId}/items")
     public ResponseEntity<GrupoItem> agregarItem(
             @PathVariable Long grupoId,
             @PathVariable Long sagaId,
-            @RequestBody Map<String, String> body) {
-        GrupoItem item = grupoSagaService.agregarItem(grupoId, sagaId, body.get("titulo"));
+            @RequestBody Map<String, Object> body) {
+        GrupoItem item = grupoSagaService.agregarItem(grupoId, sagaId,
+                (String) body.get("titulo"),
+                (String) body.get("descripcion"),
+                (String) body.get("imagenUrl"),
+                generos(body));
         return ResponseEntity.status(HttpStatus.CREATED).body(item);
+    }
+
+    // Vincular un item YA EXISTENTE (suelto o de otra saga) a esta saga
+    @PutMapping("/{sagaId}/items/{itemId}")
+    public ResponseEntity<GrupoItem> vincularExistente(
+            @PathVariable Long grupoId,
+            @PathVariable Long sagaId,
+            @PathVariable Long itemId) {
+        return ResponseEntity.ok(grupoSagaService.vincularExistente(grupoId, sagaId, itemId));
+    }
+
+    // Reordenar manualmente los items de la saga (arrastrar y soltar)
+    @PutMapping("/{sagaId}/orden")
+    public ResponseEntity<Void> reordenar(
+            @PathVariable Long grupoId,
+            @PathVariable Long sagaId,
+            @RequestBody Map<String, List<Long>> body) {
+        grupoSagaService.reordenar(grupoId, sagaId, body.getOrDefault("ordenIds", List.of()));
+        return ResponseEntity.noContent().build();
     }
 
     // Quitar un item de la saga (pasa a ser título suelto del grupo)
@@ -50,6 +75,11 @@ public class GrupoSagaController {
     public ResponseEntity<Void> quitarItem(@PathVariable Long grupoId, @PathVariable Long itemId) {
         grupoSagaService.quitarItem(grupoId, itemId);
         return ResponseEntity.noContent().build();
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<String> generos(Map<String, Object> body) {
+        return (List<String>) body.get("generos");
     }
 
     // Marcar como vista: compartido para todo el grupo

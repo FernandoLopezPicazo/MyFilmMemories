@@ -52,7 +52,11 @@
       <span class="sagas-toggle">{{ seccionSagasAbierta ? '▲' : '▼' }}</span>
     </div>
     <ng-container *ngIf="seccionSagasAbierta">
-    <div class="saga-card" *ngFor="let saga of sagas">
+    <div class="saga-card" *ngFor="let saga of sagas"
+      [class.saga-drag-sobre]="sagaIdDragSobre === saga.id"
+      (dragover)="onDragOverSaga($event, saga.id!)"
+      (dragleave)="onDragLeaveSaga($event, saga.id!)"
+      (drop)="onDropEnSaga($event, saga.id!)">
       <!-- Cabecera de la saga -->
       <div class="saga-header" (click)="toggleSaga(saga.id!)">
         <div class="saga-header-izq">
@@ -71,7 +75,11 @@
       <!-- Contenido expandible -->
       <div class="saga-body" *ngIf="sagasExpandidas.has(saga.id!)">
         <!-- Lista de películas -->
-        <div class="saga-peli-row" *ngFor="let peli of saga.peliculas" [class.peli-vista]="peli.estado === 'VISTA'">
+        <div class="saga-peli-row" *ngFor="let peli of saga.peliculas" [class.peli-vista]="peli.estado === 'VISTA'"
+          draggable="true"
+          (dragstart)="onDragStart(peli, $event)"
+          (dragover)="onDragOverSagaFila($event)"
+          (drop)="onDropEnSagaFila($event, saga.id!, peli.id!)">
           <img *ngIf="peli.imagenUrl" [src]="imagenReal(peli.imagenUrl)" class="saga-peli-img" />
           <div *ngIf="!peli.imagenUrl" class="saga-peli-img-ph">🎬</div>
           <div class="saga-peli-info">

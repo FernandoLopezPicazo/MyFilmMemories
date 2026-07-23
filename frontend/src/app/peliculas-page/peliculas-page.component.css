@@ -853,7 +853,13 @@ button:hover { opacity: 0.85; }
   margin-bottom: 12px;
   overflow: hidden;
   border-left: 4px solid #7c3aed;
+  transition: box-shadow 0.15s, border-color 0.15s;
 }
+.saga-card.saga-drag-sobre {
+  box-shadow: 0 0 0 2px #7c3aed, 0 4px 12px rgba(124,58,237,0.25);
+}
+
+.saga-peli-row[draggable="true"] { cursor: grab; }
 
 .saga-header {
   display: flex;

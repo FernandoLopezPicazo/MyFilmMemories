@@ -82,7 +82,11 @@
       <span class="sagas-toggle">{{ seccionSagasGrupoAbierta ? '▲' : '▼' }}</span>
     </div>
     <ng-container *ngIf="seccionSagasGrupoAbierta">
-    <div class="saga-card" *ngFor="let saga of sagasGrupo">
+    <div class="saga-card" *ngFor="let saga of sagasGrupo"
+      [class.saga-drag-sobre]="sagaIdDragSobre === saga.id"
+      (dragover)="onDragOverSagaGrupo($event, saga.id!)"
+      (dragleave)="onDragLeaveSagaGrupo($event, saga.id!)"
+      (drop)="onDropEnSagaGrupo($event, saga.id!)">
       <!-- Cabecera de la saga -->
       <div class="saga-header" (click)="toggleSagaGrupo(saga.id!)">
         <div class="saga-header-izq">
@@ -101,7 +105,11 @@
       <!-- Contenido expandible -->
       <div class="saga-body" *ngIf="sagasGrupoExpandidas.has(saga.id!)">
         <!-- Lista de películas -->
-        <div class="saga-peli-row" *ngFor="let item of saga.items" [class.peli-vista]="item.estado === 'VISTA'">
+        <div class="saga-peli-row" *ngFor="let item of saga.items" [class.peli-vista]="item.estado === 'VISTA'"
+          draggable="true"
+          (dragstart)="onDragStartItem(item, $event)"
+          (dragover)="onDragOverSagaFilaGrupo($event)"
+          (drop)="onDropEnSagaFilaGrupo($event, saga.id!, item.id)">
           <img *ngIf="item.imagenUrl" [src]="item.imagenUrl" class="saga-peli-img" />
           <div *ngIf="!item.imagenUrl" class="saga-peli-img-ph">🎬</div>
           <div class="saga-peli-info">
@@ -118,15 +126,43 @@
 
         <!-- Sin películas -->
         <div class="saga-vacia" *ngIf="!saga.items?.length">
-          Aún no hay películas en esta saga
+          Aún no hay películas en esta saga — arrastra una suelta aquí o búscala abajo
         </div>
 
-        <!-- Añadir película a la saga -->
-        <div class="saga-add-peli">
-          <input type="text" [(ngModel)]="tituloItemEnSaga[saga.id!]"
-            placeholder="Título de la nueva película..."
-            (keyup.enter)="agregarItemASaga(saga.id!)" />
-          <button class="btn-primary btn-sm" (click)="agregarItemASaga(saga.id!)">+ Añadir</button>
+        <!-- Añadir película a la saga: buscador TMDB (con alternativa manual) -->
+        <div class="saga-add-peli-explorar" (click)="$event.stopPropagation()">
+          <ng-container *ngIf="!mostrarBusquedaManualSaga[saga.id!]">
+            <div class="campos-simple">
+              <input type="text" [(ngModel)]="busquedaExplorarSaga[saga.id!]"
+                placeholder="Buscar película (TMDB)..."
+                (keyup.enter)="buscarExplorarEnSaga(saga.id!)" />
+              <button class="btn-primary btn-sm" (click)="buscarExplorarEnSaga(saga.id!)">Buscar</button>
+            </div>
+            <div class="resultados-explorar resultados-explorar-saga"
+              *ngIf="resultadosExplorarSaga[saga.id!]?.length">
+              <div class="resultado-card" *ngFor="let r of resultadosExplorarSaga[saga.id!]"
+                (click)="agregarDesdeExplorarEnSaga(saga.id!, r)">
+                <img *ngIf="r.imagenUrl" [src]="r.imagenUrl" [alt]="r.titulo" />
+                <div class="resultado-info">
+                  <h4>{{ r.titulo }}</h4>
+                </div>
+              </div>
+            </div>
+            <div class="hint" *ngIf="cargandoExplorarSaga[saga.id!]">Buscando...</div>
+            <button class="btn-manual" (click)="mostrarBusquedaManualSaga[saga.id!] = true">
+              ¿No lo encuentras? Añadir manualmente
+            </button>
+          </ng-container>
+
+          <ng-container *ngIf="mostrarBusquedaManualSaga[saga.id!]">
+            <div class="campos-simple">
+              <input type="text" [(ngModel)]="tituloItemEnSaga[saga.id!]"
+                placeholder="Título de la nueva película..."
+                (keyup.enter)="agregarItemASaga(saga.id!)" />
+              <button class="btn-primary btn-sm" (click)="agregarItemASaga(saga.id!)">+ Añadir</button>
+            </div>
+            <button class="btn-manual" (click)="mostrarBusquedaManualSaga[saga.id!] = false">◀ Volver al buscador</button>
+          </ng-container>
         </div>
       </div>
     </div>
@@ -168,8 +204,10 @@
     </ng-container>
   </div>
 
-  <div class="lista-items">
-    <div class="item-grupo" *ngFor="let item of items">
+  <div class="lista-items" (dragover)="onDragOverLista($event)" (drop)="onDropEnLista($event)">
+    <div class="item-grupo" *ngFor="let item of items"
+      [attr.draggable]="tabItem === 'PELICULA' ? true : null"
+      (dragstart)="onDragStartItem(item, $event)">
       <div class="item-cabecera" (click)="abrirOpinion(item)">
         <img *ngIf="item.imagenUrl" [src]="item.imagenUrl" [alt]="item.titulo" class="item-imagen" />
         <h3>{{ item.titulo }}</h3>

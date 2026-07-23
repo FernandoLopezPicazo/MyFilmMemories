@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,9 +25,11 @@ public class SagaService {
     public List<Saga> obtenerTodas() {
         UUID usuarioId = usuarioActual.obtenerId();
         List<Saga> sagas = sagaRepository.findByUsuarioId(usuarioId);
-        // Rellenamos el campo @Transient con las películas de cada saga
+        // Rellenamos el campo @Transient con las películas de cada saga,
+        // en su orden manual (las sin orden asignado van al final).
         for (Saga saga : sagas) {
             List<Pelicula> peliculas = peliculaRepository.findBySagaIdAndUsuarioId(saga.getId(), usuarioId);
+            peliculas.sort(Comparator.comparing(Pelicula::getOrden, Comparator.nullsLast(Comparator.naturalOrder())));
             saga.setPeliculas(peliculas);
         }
         return sagas;
@@ -54,6 +57,7 @@ public class SagaService {
         List<Pelicula> peliculas = peliculaRepository.findBySagaIdAndUsuarioId(sagaId, usuarioId);
         for (Pelicula p : peliculas) {
             p.setSagaId(null);
+            p.setOrden(null);
             peliculaRepository.save(p);
         }
         sagaRepository.deleteById(saga.getId());
@@ -69,9 +73,47 @@ public class SagaService {
         nueva.setTitulo(titulo);
         nueva.setEstado(Pelicula.EstadoPelicula.PENDIENTE);
         nueva.setSagaId(saga.getId());
+        nueva.setOrden(siguienteOrden(sagaId));
         Pelicula guardada = peliculaRepository.save(nueva);
         recalcularEstado(sagaId);
         return guardada;
+    }
+
+    // Vincula una película YA EXISTENTE (suelta o de otra saga) a esta saga,
+    // añadiéndola al final. A diferencia de agregarPelicula(), no crea nada.
+    @Transactional
+    public Pelicula vincularExistente(Long sagaId, Long peliculaId) {
+        UUID usuarioId = usuarioActual.obtenerId();
+        Saga saga = sagaRepository.findByIdAndUsuarioId(sagaId, usuarioId)
+                .orElseThrow(() -> new IllegalArgumentException("No existe la saga con id: " + sagaId));
+        Pelicula pelicula = peliculaRepository.findByIdAndUsuarioId(peliculaId, usuarioId)
+                .orElseThrow(() -> new IllegalArgumentException("No existe la película con id: " + peliculaId));
+
+        Long sagaAnterior = pelicula.getSagaId();
+        pelicula.setSagaId(saga.getId());
+        pelicula.setOrden(siguienteOrden(sagaId));
+        Pelicula guardada = peliculaRepository.save(pelicula);
+
+        recalcularEstado(sagaId);
+        if (sagaAnterior != null && !sagaAnterior.equals(sagaId)) recalcularEstado(sagaAnterior);
+        return guardada;
+    }
+
+    // Reasigna el orden manual de las películas de una saga según el array
+    // de ids recibido (posición = índice). Ids que no pertenezcan a esta
+    // saga se ignoran.
+    @Transactional
+    public void reordenar(Long sagaId, List<Long> ordenIds) {
+        UUID usuarioId = usuarioActual.obtenerId();
+        sagaRepository.findByIdAndUsuarioId(sagaId, usuarioId)
+                .orElseThrow(() -> new IllegalArgumentException("No existe la saga con id: " + sagaId));
+
+        for (int i = 0; i < ordenIds.size(); i++) {
+            Pelicula pelicula = peliculaRepository.findByIdAndUsuarioId(ordenIds.get(i), usuarioId).orElse(null);
+            if (pelicula == null || !sagaId.equals(pelicula.getSagaId())) continue;
+            pelicula.setOrden(i);
+            peliculaRepository.save(pelicula);
+        }
     }
 
     @Transactional
@@ -80,8 +122,18 @@ public class SagaService {
                 .orElseThrow(() -> new IllegalArgumentException("No existe la película con id: " + peliculaId));
         Long sagaId = pelicula.getSagaId();
         pelicula.setSagaId(null);
+        pelicula.setOrden(null);
         peliculaRepository.save(pelicula);
         if (sagaId != null) recalcularEstado(sagaId);
+    }
+
+    private Integer siguienteOrden(Long sagaId) {
+        return peliculaRepository.findBySagaId(sagaId).stream()
+                .map(Pelicula::getOrden)
+                .filter(o -> o != null)
+                .max(Integer::compareTo)
+                .map(max -> max + 1)
+                .orElse(0);
     }
 
     // Recalcula el estado de la saga: FINALIZADA si todas sus películas son VISTA,

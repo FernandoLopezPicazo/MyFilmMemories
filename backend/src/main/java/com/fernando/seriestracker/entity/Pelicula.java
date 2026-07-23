@@ -76,6 +76,11 @@ public class Pelicula {
     @Column(name = "saga_id", nullable = true)
     private Long sagaId;
 
+    // Posición manual dentro de su saga (null = sin ordenar / no pertenece
+    // a ninguna saga). Se reasigna al arrastrar para reordenar.
+    @Column(name = "orden", nullable = true)
+    private Integer orden;
+
     // Si es true, este título no aparece cuando un amigo consulta tu colección.
     @Column(name = "oculto_para_amigos", nullable = false)
     private boolean ocultoParaAmigos = false;
