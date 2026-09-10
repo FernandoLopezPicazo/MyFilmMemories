@@ -526,10 +526,14 @@ h1 { margin-bottom: 20px; }
 /* ── RESPONSIVE ──────────────────────────────────── */
 @media (max-width: 768px) {
   .barra-top { flex-wrap: wrap; gap: 8px; }
-  .btn-nueva { flex: 1 1 47%; }
-  .btn-saga { flex: 1 1 47%; }
+  /* Fila propia cada uno: con flex:1 compartiendo fila, el ancho real de un
+     emoji puede variar según la fuente del sistema (más ancho en Windows) y
+     white-space:nowrap le impide encogerse, cortando el botón fuera de la
+     pantalla en vez de ajustarse. A ancho completo nunca desborda. */
+  .btn-nueva { flex: 1 1 100%; min-width: 0; }
+  .btn-saga { flex: 1 1 100%; min-width: 0; }
   .buscador { max-width: 100%; flex: 1 1 100%; margin-left: 0; }
-  .btn-explorar, .btn-filtrar { flex: 1; }
+  .btn-explorar, .btn-filtrar { flex: 1 1 100%; min-width: 0; }
 
   .saga-header-izq { gap: 6px; }
   .saga-peli-acc { flex-direction: column; }

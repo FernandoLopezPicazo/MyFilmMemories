@@ -470,7 +470,11 @@ h1 { margin-bottom: 20px; }
   .barra-top { flex-wrap: wrap; gap: 8px; }
   .btn-nueva { flex: 1 1 100%; }
   .buscador { max-width: 100%; flex: 1 1 100%; margin-left: 0; }
-  .btn-explorar, .btn-filtrar { flex: 1; }
+  /* Fila propia cada uno: con flex:1 compartiendo fila, el ancho real de un
+     emoji puede variar según la fuente del sistema (más ancho en Windows) y
+     white-space:nowrap le impide encogerse, cortando el botón fuera de la
+     pantalla en vez de ajustarse. A ancho completo nunca desborda. */
+  .btn-explorar, .btn-filtrar { flex: 1 1 100%; min-width: 0; }
 
   .progreso-inline { flex-wrap: wrap; }
   .url-inline input { font-size: 0.85rem; }

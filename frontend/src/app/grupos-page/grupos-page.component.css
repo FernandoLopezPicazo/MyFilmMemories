@@ -309,7 +309,9 @@ h1 { margin-bottom: 20px; }
 /* ── Responsive ───────────────────────────────────── */
 @media (max-width: 700px) {
   .tabs { flex-wrap: wrap; }
-  .btn-nueva, .btn-saga.btn-nueva { flex: 1; text-align: center; min-width: 140px; }
+  /* Fila propia cada uno (mismo motivo que en peliculas-page: un botón con
+     emoji puede medir más de lo esperado y desbordar si comparte fila). */
+  .btn-nueva, .btn-saga.btn-nueva { flex: 1 1 100%; text-align: center; min-width: 0; }
 
   .campos-simple, .invitar-fila .campos-simple { flex-direction: column; }
   .lista-miembros { gap: 6px; }

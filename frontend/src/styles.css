@@ -367,7 +367,11 @@ html.dark .btn-proceso { color: #c4b5fd; }
     padding: 22px 18px calc(18px + env(safe-area-inset-bottom));
     animation: slide-up var(--t-base);
   }
-  .modal-actions button { flex: 1; }
+  /* Fila propia cada uno, no 50/50: un botón con emoji + texto largo (p.ej.
+     "✅ Guardar y marcar como vista") puede medir más de lo esperado según
+     la fuente de emojis del sistema, y compartiendo flex:1 eso desborda la
+     pantalla en vez de encogerse. Apilados a ancho completo nunca desborda. */
+  .modal-actions button { flex: 1 1 100%; min-width: 0; }
 
   .explorar-overlay { padding: 0; }
 }
