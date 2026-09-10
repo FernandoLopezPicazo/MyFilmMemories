@@ -451,22 +451,28 @@ h1 { margin-bottom: 20px; }
      pantalla en vez de ajustarse. A ancho completo nunca desborda. */
   .btn-explorar, .btn-filtrar { flex: 1 1 100%; min-width: 0; }
 
-  /* Tablero en móvil: las tres columnas se deslizan horizontalmente
-     con "snap" (una columna por pantalla, como pestañas deslizables). */
+  /* Tablero en móvil: las columnas ocupan la pantalla entera y se pasa de
+     una a otra deslizando (swipe), como pestañas — nunca se ve un trozo de
+     la siguiente. scroll-snap-align:start + flex-basis:100% (en vez del
+     88% con "peek" anterior) asegura que solo hay una visible cada vez. */
   .columnas {
     display: flex;
-    gap: 12px;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
     margin: 0 -14px;
-    padding: 0 14px 8px;
     scrollbar-width: none;
   }
   .columnas::-webkit-scrollbar { display: none; }
   .seccion {
-    flex: 0 0 88%;
-    scroll-snap-align: center;
+    /* 100% del ancho de pantalla menos el margen a cada lado (14px), para
+       que el margen cuente como parte del "hueco" de una diapositiva y la
+       siguiente columna arranque justo donde termina la visible: cero
+       peek, sin desbordar (28px = 2×14px ya restados del flex-basis). */
+    flex: 0 0 calc(100% - 28px);
+    margin: 0 14px;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
     max-height: calc(100vh - var(--nav-h) - var(--bottom-nav-h) - 150px);
     overflow-y: auto;
     scrollbar-width: none;
