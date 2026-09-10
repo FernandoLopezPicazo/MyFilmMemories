@@ -1,124 +1,70 @@
-.container { max-width: 900px; margin: 0 auto; padding: 28px; }
+/* ═══════════════════════════════════════════════════════════════
+   PÁGINA AMIGOS — migrada al sistema de diseño (ver REDISENO.md).
+   .card, .btn-primary, .btn-danger y .error vienen de src/styles.css.
+   ═══════════════════════════════════════════════════════════════ */
 
-h1 { font-size: 1.6rem; margin-bottom: 20px; color: var(--text-primary); }
+/* Página de lista simple: más estrecha que el ancho por defecto. */
+.container { max-width: 760px; }
 
-.card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 20px;
-}
+h1 { margin-bottom: 20px; }
 
-.card h2, .seccion h2 {
-  font-size: 1.05rem;
-  color: var(--text-primary);
-  margin-bottom: 14px;
-}
+.buscador-card { margin-bottom: 24px; animation: pop-in var(--t-base); }
+.card h2, .seccion h2 { margin-bottom: 14px; color: var(--text-secondary); }
 
-.seccion { margin-bottom: 28px; }
+.seccion { margin-bottom: 26px; }
 
 .campos-simple { display: flex; gap: 10px; }
+.campos-simple input { flex: 1; }
 
-.campos-simple input {
-  flex: 1;
-  padding: 10px 12px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: var(--bg-input);
-  color: var(--text-primary);
-}
+.mensaje-ok { margin-top: 10px; color: var(--success); font-size: 0.85rem; font-weight: 500; }
 
-.btn-primary {
-  padding: 10px 16px;
-  border-radius: 8px;
-  border: none;
-  background: var(--acento);
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
-}
-.btn-primary:disabled { opacity: 0.6; cursor: default; }
-
-.btn-danger {
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: transparent;
-  color: #dc4444;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.error {
-  margin-top: 10px;
-  color: #dc4444;
-  font-size: 0.85rem;
-}
-
-.mensaje-ok {
-  margin-top: 10px;
-  color: #2fa860;
-  font-size: 0.85rem;
-}
-
+/* ── Filas (solicitudes / amigos) ─────────────────── */
 .fila-solicitud, .fila-amigo {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  gap: 10px;
+  padding: 13px 16px;
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--radius);
   margin-bottom: 8px;
-  color: var(--text-primary);
+  transition: box-shadow var(--t-fast), border-color var(--t-fast);
 }
-
 .fila-amigo { cursor: pointer; }
-.fila-amigo:hover { background: var(--bg-card-alt); }
+.fila-amigo:hover { box-shadow: var(--shadow-sm); border-color: var(--border-strong); }
 
-.acciones { display: flex; gap: 8px; }
+.acciones { display: flex; gap: 8px; flex-shrink: 0; }
 
 .btn-ver {
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: 1px solid var(--acento);
-  background: transparent;
+  background: var(--acento-soft);
   color: var(--acento);
-  font-weight: 600;
-  cursor: pointer;
 }
+.btn-ver:hover:not(:disabled) { background: var(--acento-soft-2); }
 
-.pendiente-tag {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  font-style: italic;
-}
-
+.pendiente-tag { font-size: 0.8rem; color: var(--text-muted); font-style: italic; }
 .hint { color: var(--text-muted); font-size: 0.9rem; }
 
 .btn-volver {
   background: none;
-  border: none;
   color: var(--acento);
-  font-weight: 600;
-  cursor: pointer;
-  margin-bottom: 16px;
   padding: 0;
+  margin-bottom: 16px;
+  font-weight: 700;
 }
+.btn-volver:hover { opacity: 0.8; }
 
-.tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+/* ── Pestañas de colección ────────────────────────── */
+.tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
 .tabs button {
-  padding: 8px 16px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
   background: var(--bg-card);
+  border: 1px solid var(--border);
   color: var(--text-secondary);
-  cursor: pointer;
-  font-weight: 600;
 }
-.tabs button.activo { background: var(--acento); color: white; border-color: var(--acento); }
+.tabs button:hover { background: var(--bg-card-alt); }
+.tabs button.activo { background: var(--acento); color: #fff; border-color: var(--acento); }
 
+/* ── Grid de colección de un amigo ────────────────── */
 .grid-coleccion {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -128,32 +74,30 @@ h1 { font-size: 1.6rem; margin-bottom: 20px; color: var(--text-primary); }
 .mini-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--radius);
   padding: 14px;
+  transition: box-shadow var(--t-fast);
 }
-.mini-card h3 { font-size: 0.95rem; color: var(--text-primary); margin-bottom: 8px; }
+.mini-card:hover { box-shadow: var(--shadow-sm); }
+.mini-card h3 { font-size: 0.95rem; margin-bottom: 8px; }
 
 .estado-tag {
   display: inline-block;
-  font-size: 0.75rem;
-  padding: 3px 8px;
-  border-radius: 20px;
-  background: var(--bg-card-alt);
-  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: var(--radius-pill);
+  background: var(--acento-soft);
+  color: var(--acento);
   margin-right: 6px;
 }
-
-.nota-tag { font-size: 0.8rem; color: var(--text-secondary); }
+.nota-tag { font-size: 0.8rem; color: var(--warning); font-weight: 600; }
 
 /* ── Responsive ───────────────────────────────────── */
 @media (max-width: 700px) {
-  .container { margin: 16px auto; padding: 0 12px; }
-  h1 { font-size: 1.4rem; margin-bottom: 16px; }
-
   .campos-simple { flex-direction: column; }
-  .tabs { flex-wrap: wrap; }
 
-  .fila-solicitud, .fila-amigo { flex-wrap: wrap; gap: 8px; }
+  .fila-solicitud, .fila-amigo { flex-wrap: wrap; }
   .acciones { width: 100%; }
   .acciones button { flex: 1; }
 

@@ -1,9 +1,10 @@
-# Rediseño visual — guía de continuación
+# Rediseño visual — historial
 
-> Estado: **base hecha** (sistema de diseño + navegación + página Series como
-> referencia). Falta migrar el resto de páginas siguiendo el patrón de Series.
-> Este documento es autocontenido: con él y los ficheros que cita se puede
-> continuar sin más contexto.
+> Estado: **completo**. Las 9 páginas (Series, Películas, Mangas, Horario,
+> Amigos, Grupos, Login, Compartir/Backup + navegación) están migradas al
+> sistema de diseño de `styles.css` y verificadas en claro/oscuro/móvil.
+> Este documento queda como referencia de las convenciones usadas, por si
+> se añade una página nueva o hay que retocar algo.
 
 ## Objetivo
 Interfaz más moderna y cómoda, **sin tocar funcionalidad ni HTML** (salvo que
@@ -52,21 +53,31 @@ que elige el usuario (`ThemeService`).
 6. Compila (`cd frontend && npx ng build --configuration electron`) y revisa
    en el navegador **claro + oscuro + móvil** (DevTools, 390 px de ancho).
 
-## Pendiente, por prioridad
+## Páginas migradas
 
-1. `peliculas-page.component.css` (1.100 líneas) — igual que Series pero
-   además tiene **sagas** (`.saga-card`, arrastre de películas a sagas):
-   respeta las clases de drag & drop (`.drag-sobre`, `.drop-zone`).
-2. `mangas-page.component.css` (700 líneas) — tiene progreso por capítulo
-   (`.btn-step`, `.cap-valor`, `.btn-abrir-url`); estílalos como
-   `.btn-flecha` / `.progreso-valor` de Series.
-3. `grupos-page.component.css` (500 líneas) y `amigos-page.component.css`.
-4. `login.component.css` — tarjeta centrada con `.card` y `--shadow-lg`.
-5. `backup-page.component.css` y `horario-page.component.css` (esta última
-   ya usa tokens; solo revisar móvil).
-6. Extra opcional: en `shared/icon/icon.component.ts` subir el tamaño de los
-   iconos de la barra inferior (hoy `[size]="18"` en `app.component.html`)
-   a 22 px en móvil — requiere tocar HTML o usar `transform: scale()` en CSS.
+Todas siguiendo el patrón de Series descrito arriba:
+
+- `series-page` — referencia original.
+- `peliculas-page` — además sagas (`.saga-card`, drag & drop entre sagas).
+- `mangas-page` — mantiene su propia identidad en ámbar (`var(--warning)`
+  como "acento" local) en vez de `var(--acento)`, para distinguirse de
+  Series/Películas; progreso por capítulo (`.btn-step`, `.cap-valor`).
+- `grupos-page` y `amigos-page` — páginas de lista más estrechas
+  (`.container { max-width: ... }` local, ver más abajo); grupos comparte
+  el look de sagas de películas.
+- `login.component` — ya usaba casi todo en tokens, solo se ajustaron
+  radios/sombras a la escala compartida.
+- `backup-page` (Compartir) y `horario-page` — idem, ajustes menores.
+
+## Pendiente / extra opcional
+
+- En `shared/icon/icon.component.ts`, subir el tamaño de los iconos de la
+  barra inferior (hoy `[size]="18"` en `app.component.html`) a 22 px en
+  móvil — requeriría tocar HTML o usar `transform: scale()` en CSS.
+- Nota para páginas de lista estrechas (Amigos/Grupos): el `.container`
+  global es de 1300px; si una página nueva necesita un ancho menor, añade
+  solo `.container { max-width: Npx; }` en su CSS local (gana por
+  encapsulación de Angular) en vez de redefinir todo el bloque.
 
 ## Cosas que NO hay que hacer
 - No renombrar `--acento`, `--color-pendiente`, `--color-proceso`,

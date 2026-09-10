@@ -1,3 +1,10 @@
+/* ═══════════════════════════════════════════════════════════════
+   PÁGINA LOGIN — migrada al sistema de diseño (ver REDISENO.md).
+   Ya usaba bastantes tokens; se ajustan radios/sombras/color de
+   error a los tokens compartidos y se quita el bloque dark-mode
+   (el color de error ya sale del token).
+   ═══════════════════════════════════════════════════════════════ */
+
 .login-page {
   min-height: 100vh;
   display: flex;
@@ -10,11 +17,12 @@
 .login-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: var(--radius-xl);
   padding: 36px;
   width: 100%;
   max-width: 380px;
-  box-shadow: 0 8px 32px var(--shadow);
+  box-shadow: var(--shadow-lg);
+  animation: pop-in var(--t-base);
 }
 
 .login-brand {
@@ -32,22 +40,14 @@
 }
 .brand-accent { color: var(--acento); }
 
-h1 {
-  font-size: 1.4rem;
-  color: var(--text-primary);
-  margin-bottom: 4px;
-}
+h1 { font-size: 1.4rem; margin-bottom: 4px; }
 .login-subtitulo {
   font-size: 0.88rem;
   color: var(--text-muted);
   margin-bottom: 24px;
 }
 
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
+form { display: flex; flex-direction: column; gap: 6px; }
 
 label {
   font-size: 0.85rem;
@@ -56,53 +56,33 @@ label {
   margin-top: 10px;
 }
 
-input {
-  padding: 10px 14px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--bg-input);
-  color: var(--text-primary);
-  font-size: 0.95rem;
-  outline: none;
-  transition: border-color 0.15s;
-}
-input:focus { border-color: var(--acento); }
-
 .error {
-  background: #fee2e2;
-  color: #b91c1c;
+  background: var(--danger-soft);
+  color: var(--danger);
   padding: 8px 12px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   font-size: 0.85rem;
   margin-top: 12px;
 }
 
 .btn-login {
   margin-top: 18px;
-  padding: 11px;
-  border: none;
-  border-radius: 8px;
+  width: 100%;
+  padding: 12px;
   background: var(--acento);
-  color: white;
+  color: #fff;
   font-size: 0.95rem;
   font-weight: 700;
-  cursor: pointer;
-  transition: opacity 0.15s;
 }
-.btn-login:hover:not(:disabled) { opacity: 0.88; }
-.btn-login:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-login:hover:not(:disabled) { background: var(--acento-hover); }
 
 .btn-cambiar-modo {
   margin-top: 18px;
   width: 100%;
   background: none;
-  border: none;
   color: var(--acento);
   font-size: 0.85rem;
   font-weight: 600;
-  cursor: pointer;
   text-align: center;
 }
 .btn-cambiar-modo:hover { text-decoration: underline; }
-
-:host-context(html.dark) .error { background: #3b1a1a; color: #fca5a5; }
