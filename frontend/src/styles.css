@@ -1,65 +1,383 @@
-/* ── Variables de tema ────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════
+   SISTEMA DE DISEÑO — MyFilmMemories
+   ───────────────────────────────────────────────────────────────
+   Este fichero es la única fuente de verdad para colores, radios,
+   sombras, tipografía y los componentes base (botones, chips,
+   inputs, tarjetas, modales). Las páginas NO deben usar colores
+   hexadecimales propios: siempre var(--token).
+
+   Ver docs de traspaso: REDISENO.md (raíz del repo).
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── 1. TOKENS ────────────────────────────────────────────────── */
 :root {
+  /* Acento y colores de columna: los sobrescribe ThemeService en
+     tiempo de ejecución (paleta elegida por el usuario). No renombrar. */
+  --acento:           #4f46e5;
   --color-pendiente:  #e0e7ff;
   --color-proceso:    #dbeafe;
   --color-finalizado: #dcfce7;
-  --acento:           #4f46e5;
 
-  --bg-page:          #f0f2f5;
-  --bg-nav:           #ffffff;
+  /* Derivados del acento (se recalculan solos al cambiar --acento) */
+  --acento-soft:      color-mix(in srgb, var(--acento) 12%, transparent);
+  --acento-soft-2:    color-mix(in srgb, var(--acento) 22%, transparent);
+  --acento-hover:     color-mix(in srgb, var(--acento) 88%, black);
+  --acento-ring:      color-mix(in srgb, var(--acento) 35%, transparent);
+
+  /* Semánticos */
+  --success:          #16a34a;
+  --danger:           #dc2626;
+  --warning:          #f59e0b;
+  --info:             #7c3aed;
+  --teal:             #0d9488;
+  --success-soft:     color-mix(in srgb, var(--success) 14%, transparent);
+  --danger-soft:      color-mix(in srgb, var(--danger) 12%, transparent);
+  --warning-soft:     color-mix(in srgb, var(--warning) 16%, transparent);
+  --info-soft:        color-mix(in srgb, var(--info) 14%, transparent);
+  --teal-soft:        color-mix(in srgb, var(--teal) 14%, transparent);
+
+  /* Superficies */
+  --bg-page:          #f4f5f9;
+  --bg-nav:           rgba(255, 255, 255, 0.86);
   --bg-card:          #ffffff;
-  --bg-card-alt:      #f8fafc;
+  --bg-card-alt:      #f6f7fb;
   --bg-panel:         #ffffff;
   --bg-input:         #ffffff;
+  --bg-overlay:       rgba(15, 18, 32, 0.55);
 
-  --text-primary:     #1a1a2e;
-  --text-secondary:   #555;
-  --text-muted:       #888;
-  --border:           #e5e7eb;
-  --shadow:           rgba(0,0,0,0.08);
+  /* Texto y bordes */
+  --text-primary:     #111827;
+  --text-secondary:   #4b5563;
+  --text-muted:       #9aa3b5;
+  --border:           #e6e8ef;
+  --border-strong:    #d3d7e2;
+
+  /* Sombras (suaves, en capas) */
+  --shadow:           rgba(17, 24, 39, 0.08);
+  --shadow-sm:        0 1px 2px rgba(17, 24, 39, 0.05), 0 1px 1px rgba(17, 24, 39, 0.03);
+  --shadow-md:        0 4px 14px rgba(17, 24, 39, 0.08), 0 1px 3px rgba(17, 24, 39, 0.05);
+  --shadow-lg:        0 18px 48px rgba(17, 24, 39, 0.16), 0 4px 12px rgba(17, 24, 39, 0.08);
+
+  /* Forma y ritmo */
+  --radius-sm:        8px;
+  --radius:           12px;
+  --radius-lg:        18px;
+  --radius-xl:        24px;
+  --radius-pill:      999px;
+  --nav-h:            60px;
+  --bottom-nav-h:     62px;
+  --container-w:      1300px;
+
+  /* Tipografía */
+  --font:             'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  /* Transiciones */
+  --t-fast:           0.15s ease;
+  --t-base:           0.22s ease;
+
+  color-scheme: light;
 }
 
 html.dark {
-  --bg-page:          #0f172a;
-  --bg-nav:           #1e293b;
-  --bg-card:          #1e293b;
-  --bg-card-alt:      #172033;
-  --bg-panel:         #1e293b;
-  --bg-input:         #0f172a;
+  --bg-page:          #0b0f1a;
+  --bg-nav:           rgba(17, 22, 36, 0.86);
+  --bg-card:          #141a2a;
+  --bg-card-alt:      #1b2235;
+  --bg-panel:         #151b2c;
+  --bg-input:         #0f1422;
+  --bg-overlay:       rgba(0, 0, 0, 0.72);
 
-  --text-primary:     #f1f5f9;
-  --text-secondary:   #94a3b8;
-  --text-muted:       #64748b;
-  --border:           #334155;
-  --shadow:           rgba(0,0,0,0.4);
+  --text-primary:     #f3f4f6;
+  --text-secondary:   #a3adc2;
+  --text-muted:       #6b7590;
+  --border:           #232b3f;
+  --border-strong:    #2f3950;
+
+  --shadow:           rgba(0, 0, 0, 0.45);
+  --shadow-sm:        0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-md:        0 4px 14px rgba(0, 0, 0, 0.35), 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-lg:        0 18px 48px rgba(0, 0, 0, 0.55), 0 4px 12px rgba(0, 0, 0, 0.4);
+
+  --acento-hover:     color-mix(in srgb, var(--acento) 85%, white);
 
   --color-pendiente:  #1e3a5f;
   --color-proceso:    #1a3a4a;
   --color-finalizado: #14352a;
+
+  color-scheme: dark;
 }
 
-/* ── Reset base ───────────────────────────────────────────── */
-* { box-sizing: border-box; margin: 0; padding: 0; }
+/* ── 2. RESET Y BASE ──────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { -webkit-text-size-adjust: 100%; }
 
 body {
-  font-family: 'Segoe UI', sans-serif;
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.5;
   background: var(--bg-page);
   color: var(--text-primary);
-  transition: background 0.3s, color 0.3s;
+  -webkit-font-smoothing: antialiased;
+  transition: background var(--t-base), color var(--t-base);
 }
 
+h1, h2, h3, h4 { line-height: 1.25; letter-spacing: -0.01em; color: var(--text-primary); }
+h1 { font-size: 1.85rem; font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: 1.1rem;  font-weight: 700; }
+h3 { font-size: 1rem;    font-weight: 700; }
+h4 { font-size: 0.9rem;  font-weight: 600; }
+
+a { color: var(--acento); }
+img { max-width: 100%; display: block; }
+
+button, input, textarea, select { font: inherit; color: inherit; }
+
+/* Anillo de foco accesible (teclado), sin ensuciar el clic con ratón */
+:focus-visible { outline: 2px solid var(--acento-ring); outline-offset: 2px; }
+
+/* ── 3. INPUTS ────────────────────────────────────────────────── */
 input, textarea, select {
+  width: 100%;
   background: var(--bg-input);
   color: var(--text-primary);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+}
+input:focus, textarea:focus, select:focus {
+  border-color: var(--acento);
+  box-shadow: 0 0 0 3px var(--acento-soft);
+}
+input::placeholder, textarea::placeholder { color: var(--text-muted); }
+textarea { resize: vertical; min-height: 84px; }
+input[type="checkbox"], input[type="radio"] { width: auto; accent-color: var(--acento); }
+
+/* ── 4. BOTONES ───────────────────────────────────────────────── */
+button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 16px;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--t-fast), color var(--t-fast),
+              transform var(--t-fast), box-shadow var(--t-fast), opacity var(--t-fast);
+}
+button:active:not(:disabled) { transform: translateY(1px); }
+button:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.btn-primary   { background: var(--acento);  color: #fff; box-shadow: 0 1px 2px var(--acento-ring); }
+.btn-primary:hover:not(:disabled)   { background: var(--acento-hover); }
+
+.btn-success   { background: var(--success); color: #fff; }
+.btn-success:hover:not(:disabled)   { filter: brightness(1.08); }
+
+.btn-danger    { background: var(--danger-soft); color: var(--danger); }
+.btn-danger:hover:not(:disabled)    { background: var(--danger); color: #fff; }
+
+.btn-secondary { background: var(--bg-card-alt); color: var(--text-primary); border: 1px solid var(--border); }
+.btn-secondary:hover:not(:disabled) { background: var(--border); }
+
+.btn-edit      { background: var(--warning-soft); color: #b45309; }
+.btn-edit:hover:not(:disabled)      { background: var(--warning); color: #fff; }
+html.dark .btn-edit { color: #fbbf24; }
+
+.btn-proceso   { background: var(--info-soft); color: var(--info); }
+.btn-proceso:hover:not(:disabled)   { background: var(--info); color: #fff; }
+html.dark .btn-proceso { color: #c4b5fd; }
+
+.btn-explorar  { background: var(--teal); color: #fff; }
+.btn-explorar:hover:not(:disabled)  { filter: brightness(1.08); }
+
+.btn-filtrar   { background: var(--acento-soft); color: var(--acento); border: 1px solid transparent; }
+.btn-filtrar:hover:not(:disabled)   { background: var(--acento-soft-2); }
+.btn-filtrar.activo { background: var(--acento); color: #fff; }
+
+.btn-cargar-mas { background: var(--teal); color: #fff; padding: 10px 28px; }
+.btn-cargar-mas:hover:not(:disabled) { filter: brightness(1.08); }
+
+/* Botón "fantasma" (solo texto/icono) */
+.btn-ghost { background: transparent; color: var(--text-secondary); }
+.btn-ghost:hover:not(:disabled) { background: var(--bg-card-alt); color: var(--text-primary); }
+
+/* Botón redondo de icono (cerrar modales, etc.) */
+.btn-icono {
+  width: 34px; height: 34px; padding: 0;
+  border-radius: 50%;
+  background: var(--bg-card-alt);
+  color: var(--text-secondary);
+}
+.btn-icono:hover:not(:disabled) { background: var(--border); color: var(--text-primary); }
+
+/* ── 5. CHIPS ─────────────────────────────────────────────────── */
+/* Chip informativo (géneros en tarjetas) */
+.genero-chip {
+  display: inline-block;
+  background: var(--acento-soft);
+  color: var(--acento);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
 }
 
-input::placeholder { color: var(--text-muted); }
+/* Chip seleccionable (selectores de género/día, filtros) */
+.genero-tag, .filtro-chip, .explorar-etiqueta {
+  display: inline-block;
+  background: var(--bg-card-alt);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--t-fast), color var(--t-fast), border-color var(--t-fast);
+}
+.genero-tag:hover, .filtro-chip:hover, .explorar-etiqueta:hover {
+  background: var(--acento-soft);
+  color: var(--acento);
+  border-color: transparent;
+}
+.genero-tag.activo, .filtro-chip.activo, .explorar-etiqueta.activa {
+  background: var(--acento);
+  color: #fff;
+  border-color: var(--acento);
+}
 
-/* ── Scrollbar global ─────────────────────────────────────── */
+/* Badge de estado */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  background: var(--acento-soft);
+  color: var(--acento);
+  width: fit-content;
+}
+.badge-vista   { background: var(--success-soft); color: var(--success); }
+.badge-proceso { background: var(--info-soft);    color: var(--info); }
+
+/* ── 6. SUPERFICIES ───────────────────────────────────────────── */
+.container {
+  max-width: var(--container-w);
+  margin: 32px auto;
+  padding: 0 24px;
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  box-shadow: var(--shadow-sm);
+}
+
+.error {
+  background: var(--danger-soft);
+  color: var(--danger);
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+
+.sin-datos, .empty { font-size: 0.82rem; color: var(--text-muted); font-style: italic; }
+
+/* ── 7. MODALES ───────────────────────────────────────────────── */
+.modal-overlay, .explorar-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-overlay);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 100;
+  animation: fade-in var(--t-fast);
+}
+.explorar-overlay { z-index: 200; }
+
+.modal {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 28px;
+  width: 360px;
+  max-width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: var(--shadow-lg);
+  animation: pop-in var(--t-base);
+}
+.modal h3 { font-size: 1.2rem; }
+.modal label { font-size: 0.9rem; color: var(--text-secondary); }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; margin-top: 4px; }
+
+.modal-cerrar, .explorar-cerrar {
+  position: absolute;
+  top: 14px; right: 14px;
+  width: 32px; height: 32px; padding: 0;
+  border-radius: 50%;
+  background: var(--bg-card-alt);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  z-index: 1;
+}
+.modal-cerrar:hover, .explorar-cerrar:hover { background: var(--border); color: var(--text-primary); }
+
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes pop-in  { from { opacity: 0; transform: translateY(8px) scale(0.98); } to { opacity: 1; transform: none; } }
+@keyframes slide-up { from { transform: translateY(100%); } to { transform: none; } }
+
+/* ── 8. MÓVIL (≤ 768px) ───────────────────────────────────────── */
+@media (max-width: 768px) {
+  body { padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom)); }
+
+  .container { margin: 16px auto; padding: 0 14px; }
+  h1 { font-size: 1.45rem; }
+
+  /* Modales como "bottom sheet": deslizan desde abajo, ocupan el ancho */
+  .modal-overlay { align-items: flex-end; padding: 0; }
+  .modal {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 92vh;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    border-bottom: none;
+    padding: 22px 18px calc(18px + env(safe-area-inset-bottom));
+    animation: slide-up var(--t-base);
+  }
+  .modal-actions button { flex: 1; }
+
+  .explorar-overlay { padding: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+/* ── 9. SCROLLBAR ─────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }

@@ -10,6 +10,17 @@ que arranca todo con doble clic (incluye JRE embebido — no requiere tener Java
 
 > ⚖️ Código publicado solo como portfolio. Ver [LICENSE.txt](LICENSE.txt).
 
+## 🌐 Versión web
+
+**https://my-film-memories.vercel.app**
+
+Backend (Render) y base de datos/auth (Supabase) están en el plan gratuito:
+- El backend se duerme tras 15 min sin uso y arranca solo con la primera petición (~1 min).
+- El proyecto de Supabase se **pausa tras ~1 semana de inactividad** y no se despierta
+  solo: si la web se queda colgada en "Despertando servidor..." o el login no responde,
+  entra en [supabase.com/dashboard](https://supabase.com/dashboard) y dale a
+  **Restore/Resume** en el proyecto `olacmlyndgtetyhamgod` (no se pierden datos).
+
 ## ✨ Funcionalidades
 
 - **Catálogo personal** de películas, series y mangas con fichas, portadas y estado de visionado.
