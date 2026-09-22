@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { AuthService } from '../auth.service';
 import {
   GrupoService, Grupo, GrupoDetalle, GrupoInvitacion, GrupoItem, TipoGrupoItem, GrupoSaga
@@ -23,9 +23,11 @@ const GENEROS_MANGA = [
 ];
 
 @Component({
-  selector: 'app-grupos-page',
-  templateUrl: './grupos-page.component.html',
-  styleUrls: ['./grupos-page.component.css']
+    selector: 'app-grupos-page',
+    templateUrl: './grupos-page.component.html',
+    styleUrls: ['./grupos-page.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class GruposPageComponent implements OnInit {
 

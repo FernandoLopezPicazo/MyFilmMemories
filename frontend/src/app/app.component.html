@@ -24,53 +24,63 @@
     <a routerLink="/backup" routerLinkActive="activa">
       <app-icon name="compartir" [size]="18" class="nav-icon"></app-icon> Compartir
     </a>
-    <ng-container *ngIf="auth.habilitado && auth.haySesion">
+    @if (auth.habilitado && auth.haySesion) {
       <a routerLink="/amigos" routerLinkActive="activa">
         <app-icon name="amigos" [size]="18" class="nav-icon"></app-icon> Amigos
       </a>
       <a routerLink="/grupos" routerLinkActive="activa">
         <app-icon name="grupos" [size]="18" class="nav-icon"></app-icon> Grupos
       </a>
-    </ng-container>
+    }
   </div>
 
   <div class="nav-acciones">
-    <div class="backend-status" *ngIf="auth.requiereLogin && (backend.estado$ | async) as estadoBackend" [class.listo]="estadoBackend === 'listo'">
-      <span class="backend-status-punto"></span>
-      {{ estadoBackend === 'listo' ? 'Servidor activo' : 'Despertando servidor…' }}
-    </div>
-
-    <div class="usuario-wrapper" *ngIf="auth.habilitado && auth.haySesion">
-      <button class="btn-usuario" (click)="mostrarMenuUsuario = !mostrarMenuUsuario">
-        <app-icon name="brand" [size]="16"></app-icon>
-        {{ auth.email }}
-      </button>
-      <div class="usuario-panel" *ngIf="mostrarMenuUsuario" (click)="$event.stopPropagation()">
-        <div class="usuario-email">{{ auth.email }}</div>
-        <button class="btn-cerrar-sesion" (click)="cerrarSesion()">Cerrar sesión</button>
+    @if (auth.requiereLogin && (backend.estado$ | async); as estadoBackend) {
+      <div class="backend-status" [class.listo]="estadoBackend === 'listo'">
+        <span class="backend-status-punto"></span>
+        {{ estadoBackend === 'listo' ? 'Servidor activo' : 'Despertando servidor…' }}
       </div>
-    </div>
+    }
+
+    @if (auth.habilitado && auth.haySesion) {
+      <div class="usuario-wrapper">
+        <button class="btn-usuario" (click)="mostrarMenuUsuario = !mostrarMenuUsuario">
+          <app-icon name="brand" [size]="16"></app-icon>
+          {{ auth.email }}
+        </button>
+        @if (mostrarMenuUsuario) {
+          <div class="usuario-panel" (click)="$event.stopPropagation()">
+            <div class="usuario-email">{{ auth.email }}</div>
+            <button class="btn-cerrar-sesion" (click)="cerrarSesion()">Cerrar sesión</button>
+          </div>
+        }
+      </div>
+    }
 
     <div class="paleta-wrapper">
       <button class="btn-tema" title="Color de tarjetas" (click)="mostrarPaleta = !mostrarPaleta">
         <app-icon name="paleta" [size]="18"></app-icon>
       </button>
-      <div class="paleta-panel" *ngIf="mostrarPaleta" (click)="$event.stopPropagation()">
-        <div class="paleta-titulo">Color de tarjetas</div>
-        <div class="paleta-opciones">
-          <button *ngFor="let e of esquemas"
-            class="paleta-opcion"
-            [class.activo]="theme.esquema.nombre === e.nombre"
-            (click)="seleccionarEsquema(e)">
-            <span class="paleta-muestras">
-              <span [style.background]="theme.dark ? e.pendienteOscuro : e.pendiente"></span>
-              <span [style.background]="theme.dark ? e.procesoOscuro : e.proceso"></span>
-              <span [style.background]="theme.dark ? e.finalizadoOscuro : e.finalizado"></span>
-            </span>
-            <span class="paleta-nombre">{{ e.nombre }}</span>
-          </button>
+      @if (mostrarPaleta) {
+        <div class="paleta-panel" (click)="$event.stopPropagation()">
+          <div class="paleta-titulo">Color de tarjetas</div>
+          <div class="paleta-opciones">
+            @for (e of esquemas; track e) {
+              <button
+                class="paleta-opcion"
+                [class.activo]="theme.esquema.nombre === e.nombre"
+                (click)="seleccionarEsquema(e)">
+                <span class="paleta-muestras">
+                  <span [style.background]="theme.dark ? e.pendienteOscuro : e.pendiente"></span>
+                  <span [style.background]="theme.dark ? e.procesoOscuro : e.proceso"></span>
+                  <span [style.background]="theme.dark ? e.finalizadoOscuro : e.finalizado"></span>
+                </span>
+                <span class="paleta-nombre">{{ e.nombre }}</span>
+              </button>
+            }
+          </div>
         </div>
-      </div>
+      }
     </div>
     <button class="btn-tema" (click)="theme.toggleDark()" [title]="theme.dark ? 'Modo claro' : 'Modo oscuro'">
       <app-icon [name]="theme.dark ? 'sol' : 'luna'" [size]="18"></app-icon>

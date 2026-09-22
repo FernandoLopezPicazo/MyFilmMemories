@@ -2,23 +2,43 @@
   <h1>🗓️ Horario</h1>
   <p class="subtitulo">Lo que tienes marcado "en emisión", mezclando series, películas y mangas.</p>
 
-  <div class="error" *ngIf="error">{{ error }}</div>
-  <div class="hint" *ngIf="cargando">Cargando...</div>
+  @if (error) {
+    <div class="error">{{ error }}</div>
+  }
+  @if (cargando) {
+    <div class="hint">Cargando...</div>
+  }
 
-  <div class="semana" *ngIf="!cargando">
-    <div class="dia-columna" *ngFor="let dia of dias" [class.dia-hoy]="dia.esHoy">
-      <div class="dia-cabecera">{{ dia.etiqueta }}</div>
-      <div class="dia-items" *ngIf="dia.items.length > 0">
-        <div class="item-horario" *ngFor="let item of dia.items">
-          <img *ngIf="item.imagenUrl" [src]="item.imagenUrl" [alt]="item.titulo" class="item-imagen" />
-          <div *ngIf="!item.imagenUrl" class="item-imagen-ph">{{ ICONO_TIPO[item.tipo] }}</div>
-          <div class="item-info">
-            <span class="item-titulo">{{ ICONO_TIPO[item.tipo] }} {{ item.titulo }}</span>
-            <span class="item-frecuencia" *ngIf="item.frecuencia === 'MENSUAL'">Mensual · semana {{ item.semanaDelMes }}</span>
-          </div>
+  @if (!cargando) {
+    <div class="semana">
+      @for (dia of dias; track dia) {
+        <div class="dia-columna" [class.dia-hoy]="dia.esHoy">
+          <div class="dia-cabecera">{{ dia.etiqueta }}</div>
+          @if (dia.items.length > 0) {
+            <div class="dia-items">
+              @for (item of dia.items; track item) {
+                <div class="item-horario">
+                  @if (item.imagenUrl) {
+                    <img [src]="item.imagenUrl" [alt]="item.titulo" class="item-imagen" />
+                  }
+                  @if (!item.imagenUrl) {
+                    <div class="item-imagen-ph">{{ ICONO_TIPO[item.tipo] }}</div>
+                  }
+                  <div class="item-info">
+                    <span class="item-titulo">{{ ICONO_TIPO[item.tipo] }} {{ item.titulo }}</span>
+                    @if (item.frecuencia === 'MENSUAL') {
+                      <span class="item-frecuencia">Mensual · semana {{ item.semanaDelMes }}</span>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+          @if (dia.items.length === 0) {
+            <div class="dia-vacio">Nada este día</div>
+          }
         </div>
-      </div>
-      <div class="dia-vacio" *ngIf="dia.items.length === 0">Nada este día</div>
+      }
     </div>
-  </div>
+  }
 </div>

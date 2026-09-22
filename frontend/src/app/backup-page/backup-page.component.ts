@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -24,9 +24,11 @@ interface ItemImport<T> {
 }
 
 @Component({
-  selector: 'app-backup-page',
-  templateUrl: './backup-page.component.html',
-  styleUrls: ['./backup-page.component.css']
+    selector: 'app-backup-page',
+    templateUrl: './backup-page.component.html',
+    styleUrls: ['./backup-page.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class BackupPageComponent {
 

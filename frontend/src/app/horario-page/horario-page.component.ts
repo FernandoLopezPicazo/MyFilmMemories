@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { HorarioService, ItemProgramado } from '../horario.service';
 
 const DIAS_ORDEN: ItemProgramado['diaSemana'][] =
@@ -21,9 +21,11 @@ interface DiaHorario {
 }
 
 @Component({
-  selector: 'app-horario-page',
-  templateUrl: './horario-page.component.html',
-  styleUrls: ['./horario-page.component.css']
+    selector: 'app-horario-page',
+    templateUrl: './horario-page.component.html',
+    styleUrls: ['./horario-page.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class HorarioPageComponent implements OnInit {
 

@@ -13,174 +13,209 @@
     <button class="backup-tab" [class.activo]="modoVista === 'import'" (click)="modoVista = 'import'">
       ⬇️ Importar
     </button>
-    <button *ngIf="auth.habilitado" class="backup-tab" [class.activo]="modoVista === 'sincronizar'"
-      (click)="modoVista = 'sincronizar'">
-      ☁️ Sincronizar
-    </button>
+    @if (auth.habilitado) {
+      <button class="backup-tab" [class.activo]="modoVista === 'sincronizar'"
+        (click)="modoVista = 'sincronizar'">
+        ☁️ Sincronizar
+      </button>
+    }
   </div>
 
   <!-- ════════════ EXPORTAR ════════════ -->
-  <div *ngIf="modoVista === 'export'" class="backup-panel">
-
-    <p class="panel-desc">Selecciona qué quieres incluir en el archivo de exportación.</p>
-
-    <!-- Series -->
-    <div class="categoria-bloque">
-      <label class="categoria-titulo">
-        <input type="checkbox" [(ngModel)]="exportSeries" /> 📺 Series
-      </label>
-      <div class="estados-grid" *ngIf="exportSeries">
-        <label><input type="checkbox" [(ngModel)]="exportSeriesPendiente" /> Pendientes</label>
-        <label><input type="checkbox" [(ngModel)]="exportSeriesProceso"   /> En proceso</label>
-        <label><input type="checkbox" [(ngModel)]="exportSeriesVista"     /> Vistas</label>
+  @if (modoVista === 'export') {
+    <div class="backup-panel">
+      <p class="panel-desc">Selecciona qué quieres incluir en el archivo de exportación.</p>
+      <!-- Series -->
+      <div class="categoria-bloque">
+        <label class="categoria-titulo">
+          <input type="checkbox" [(ngModel)]="exportSeries" /> 📺 Series
+        </label>
+        @if (exportSeries) {
+          <div class="estados-grid">
+            <label><input type="checkbox" [(ngModel)]="exportSeriesPendiente" /> Pendientes</label>
+            <label><input type="checkbox" [(ngModel)]="exportSeriesProceso"   /> En proceso</label>
+            <label><input type="checkbox" [(ngModel)]="exportSeriesVista"     /> Vistas</label>
+          </div>
+        }
       </div>
-    </div>
-
-    <!-- Películas -->
-    <div class="categoria-bloque">
-      <label class="categoria-titulo">
-        <input type="checkbox" [(ngModel)]="exportPeliculas" /> 🎬 Películas
-      </label>
-      <div class="estados-grid" *ngIf="exportPeliculas">
-        <label><input type="checkbox" [(ngModel)]="exportPeliculasPendiente" /> Pendientes</label>
-        <label><input type="checkbox" [(ngModel)]="exportPeliculasVista"     /> Vistas</label>
+      <!-- Películas -->
+      <div class="categoria-bloque">
+        <label class="categoria-titulo">
+          <input type="checkbox" [(ngModel)]="exportPeliculas" /> 🎬 Películas
+        </label>
+        @if (exportPeliculas) {
+          <div class="estados-grid">
+            <label><input type="checkbox" [(ngModel)]="exportPeliculasPendiente" /> Pendientes</label>
+            <label><input type="checkbox" [(ngModel)]="exportPeliculasVista"     /> Vistas</label>
+          </div>
+        }
       </div>
-    </div>
-
-    <!-- Mangas -->
-    <div class="categoria-bloque">
-      <label class="categoria-titulo">
-        <input type="checkbox" [(ngModel)]="exportMangas" /> 📖 Mangas
-      </label>
-      <div class="estados-grid" *ngIf="exportMangas">
-        <label><input type="checkbox" [(ngModel)]="exportMangasPendiente"   /> Pendientes</label>
-        <label><input type="checkbox" [(ngModel)]="exportMangasProceso"     /> En proceso</label>
-        <label><input type="checkbox" [(ngModel)]="exportMangasFinalizados" /> Finalizados</label>
+      <!-- Mangas -->
+      <div class="categoria-bloque">
+        <label class="categoria-titulo">
+          <input type="checkbox" [(ngModel)]="exportMangas" /> 📖 Mangas
+        </label>
+        @if (exportMangas) {
+          <div class="estados-grid">
+            <label><input type="checkbox" [(ngModel)]="exportMangasPendiente"   /> Pendientes</label>
+            <label><input type="checkbox" [(ngModel)]="exportMangasProceso"     /> En proceso</label>
+            <label><input type="checkbox" [(ngModel)]="exportMangasFinalizados" /> Finalizados</label>
+          </div>
+        }
       </div>
+      @if (exportError) {
+        <div class="error">{{ exportError }}</div>
+      }
+      <button class="btn-accion btn-exportar" (click)="exportar()" [disabled]="exportando">
+        {{ exportando ? 'Exportando...' : '⬇️ Descargar backup.json' }}
+      </button>
     </div>
-
-    <div class="error" *ngIf="exportError">{{ exportError }}</div>
-
-    <button class="btn-accion btn-exportar" (click)="exportar()" [disabled]="exportando">
-      {{ exportando ? 'Exportando...' : '⬇️ Descargar backup.json' }}
-    </button>
-  </div>
+  }
 
   <!-- ════════════ IMPORTAR ════════════ -->
-  <div *ngIf="modoVista === 'import'" class="backup-panel">
-
-    <p class="panel-desc">Selecciona un archivo <code>.json</code> exportado desde MyFilmMemories.</p>
-
-    <!-- Zona de selección de archivo -->
-    <input #fileInput type="file" accept=".json" (change)="onArchivoSeleccionado($event)" class="file-input-hidden" />
-    <div class="zona-archivo" [class.cargado]="!!archivoNombre" (click)="abrirSelectorArchivo()">
-      <span *ngIf="!archivoNombre">📂 Haz clic para seleccionar un archivo</span>
-      <span *ngIf="archivoNombre">📄 {{ archivoNombre }}</span>
-    </div>
-
-    <div class="error" *ngIf="importError">{{ importError }}</div>
-
-    <!-- Resultado de importación anterior -->
-    <div class="import-resultado" *ngIf="importOk > 0">
-      ✅ {{ importOk }} elemento{{ importOk !== 1 ? 's' : '' }} importado{{ importOk !== 1 ? 's' : '' }} correctamente.
-      <span *ngIf="importSaltados > 0"> · {{ importSaltados }} saltado{{ importSaltados !== 1 ? 's' : '' }}.</span>
-    </div>
-
-    <!-- Preview del archivo cargado -->
-    <div *ngIf="backupCargado" class="preview-container">
-
-      <div class="preview-header">
-        <span>Archivo del {{ backupCargado.fecha | date:'dd/MM/yyyy HH:mm' }}</span>
-        <span class="preview-total">{{ totalSeleccionados() }} seleccionado{{ totalSeleccionados() !== 1 ? 's' : '' }}</span>
+  @if (modoVista === 'import') {
+    <div class="backup-panel">
+      <p class="panel-desc">Selecciona un archivo <code>.json</code> exportado desde MyFilmMemories.</p>
+      <!-- Zona de selección de archivo -->
+      <input #fileInput type="file" accept=".json" (change)="onArchivoSeleccionado($event)" class="file-input-hidden" />
+      <div class="zona-archivo" [class.cargado]="!!archivoNombre" (click)="abrirSelectorArchivo()">
+        @if (!archivoNombre) {
+          <span>📂 Haz clic para seleccionar un archivo</span>
+        }
+        @if (archivoNombre) {
+          <span>📄 {{ archivoNombre }}</span>
+        }
       </div>
-
-      <!-- Series -->
-      <div class="preview-seccion" *ngIf="importSeries.length > 0">
-        <div class="preview-seccion-titulo">📺 Series ({{ importSeries.length }})</div>
-        <div class="preview-item" *ngFor="let x of importSeries" [class.duplicado]="x.duplicado">
-          <label class="preview-check">
-            <input type="checkbox" [(ngModel)]="x.seleccionado" />
-            <span class="preview-titulo">{{ x.item.titulo }}</span>
-          </label>
-          <span class="estado-badge estado-{{ x.item.estado | lowercase }}">{{ estadoLabel(x.item.estado) }}</span>
-          <span class="duplicado-badge" *ngIf="x.duplicado">⚠️ Ya existe</span>
+      @if (importError) {
+        <div class="error">{{ importError }}</div>
+      }
+      <!-- Resultado de importación anterior -->
+      @if (importOk > 0) {
+        <div class="import-resultado">
+          ✅ {{ importOk }} elemento{{ importOk !== 1 ? 's' : '' }} importado{{ importOk !== 1 ? 's' : '' }} correctamente.
+          @if (importSaltados > 0) {
+            <span> · {{ importSaltados }} saltado{{ importSaltados !== 1 ? 's' : '' }}.</span>
+          }
         </div>
-      </div>
-
-      <!-- Películas -->
-      <div class="preview-seccion" *ngIf="importPeliculas.length > 0">
-        <div class="preview-seccion-titulo">🎬 Películas ({{ importPeliculas.length }})</div>
-        <div class="preview-item" *ngFor="let x of importPeliculas" [class.duplicado]="x.duplicado">
-          <label class="preview-check">
-            <input type="checkbox" [(ngModel)]="x.seleccionado" />
-            <span class="preview-titulo">{{ x.item.titulo }}</span>
-          </label>
-          <span class="estado-badge estado-{{ x.item.estado | lowercase }}">{{ estadoLabel(x.item.estado) }}</span>
-          <span class="duplicado-badge" *ngIf="x.duplicado">⚠️ Ya existe</span>
+      }
+      <!-- Preview del archivo cargado -->
+      @if (backupCargado) {
+        <div class="preview-container">
+          <div class="preview-header">
+            <span>Archivo del {{ backupCargado.fecha | date:'dd/MM/yyyy HH:mm' }}</span>
+            <span class="preview-total">{{ totalSeleccionados() }} seleccionado{{ totalSeleccionados() !== 1 ? 's' : '' }}</span>
+          </div>
+          <!-- Series -->
+          @if (importSeries.length > 0) {
+            <div class="preview-seccion">
+              <div class="preview-seccion-titulo">📺 Series ({{ importSeries.length }})</div>
+              @for (x of importSeries; track x) {
+                <div class="preview-item" [class.duplicado]="x.duplicado">
+                  <label class="preview-check">
+                    <input type="checkbox" [(ngModel)]="x.seleccionado" />
+                    <span class="preview-titulo">{{ x.item.titulo }}</span>
+                  </label>
+                  <span class="estado-badge estado-{{ x.item.estado | lowercase }}">{{ estadoLabel(x.item.estado) }}</span>
+                  @if (x.duplicado) {
+                    <span class="duplicado-badge">⚠️ Ya existe</span>
+                  }
+                </div>
+              }
+            </div>
+          }
+          <!-- Películas -->
+          @if (importPeliculas.length > 0) {
+            <div class="preview-seccion">
+              <div class="preview-seccion-titulo">🎬 Películas ({{ importPeliculas.length }})</div>
+              @for (x of importPeliculas; track x) {
+                <div class="preview-item" [class.duplicado]="x.duplicado">
+                  <label class="preview-check">
+                    <input type="checkbox" [(ngModel)]="x.seleccionado" />
+                    <span class="preview-titulo">{{ x.item.titulo }}</span>
+                  </label>
+                  <span class="estado-badge estado-{{ x.item.estado | lowercase }}">{{ estadoLabel(x.item.estado) }}</span>
+                  @if (x.duplicado) {
+                    <span class="duplicado-badge">⚠️ Ya existe</span>
+                  }
+                </div>
+              }
+            </div>
+          }
+          <!-- Mangas -->
+          @if (importMangas.length > 0) {
+            <div class="preview-seccion">
+              <div class="preview-seccion-titulo">📖 Mangas ({{ importMangas.length }})</div>
+              @for (x of importMangas; track x) {
+                <div class="preview-item" [class.duplicado]="x.duplicado">
+                  <label class="preview-check">
+                    <input type="checkbox" [(ngModel)]="x.seleccionado" />
+                    <span class="preview-titulo">{{ x.item.titulo }}</span>
+                  </label>
+                  <span class="estado-badge estado-{{ x.item.estado | lowercase }}">{{ estadoLabel(x.item.estado) }}</span>
+                  @if (x.duplicado) {
+                    <span class="duplicado-badge">⚠️ Ya existe</span>
+                  }
+                </div>
+              }
+            </div>
+          }
+          <button class="btn-accion btn-importar"
+            (click)="importar()"
+            [disabled]="importando || totalSeleccionados() === 0">
+            {{ importando ? 'Importando...' : '⬆️ Importar ' + totalSeleccionados() + ' elemento' + (totalSeleccionados() !== 1 ? 's' : '') }}
+          </button>
         </div>
-      </div>
+      }
+    </div>
+  }
 
-      <!-- Mangas -->
-      <div class="preview-seccion" *ngIf="importMangas.length > 0">
-        <div class="preview-seccion-titulo">📖 Mangas ({{ importMangas.length }})</div>
-        <div class="preview-item" *ngFor="let x of importMangas" [class.duplicado]="x.duplicado">
-          <label class="preview-check">
-            <input type="checkbox" [(ngModel)]="x.seleccionado" />
-            <span class="preview-titulo">{{ x.item.titulo }}</span>
-          </label>
-          <span class="estado-badge estado-{{ x.item.estado | lowercase }}">{{ estadoLabel(x.item.estado) }}</span>
-          <span class="duplicado-badge" *ngIf="x.duplicado">⚠️ Ya existe</span>
+  @if (modoVista === 'sincronizar') {
+    <div class="backup-panel">
+      <p class="backup-subtitulo" style="margin-bottom: 20px;">
+        Sube y baja tu colección con tu cuenta de la nube. Los borrados no se
+        sincronizan — si quitas un título, tendrás que borrarlo también en el
+        otro sitio si quieres que desaparezca de los dos.
+      </p>
+      @if (!auth.haySesion) {
+        <div class="card" style="max-width: 420px;">
+          <h3 style="margin-bottom: 14px;">Inicia sesión para sincronizar</h3>
+          <div class="campos-simple" style="display:flex; flex-direction: column; gap: 10px;">
+            <input type="email" [(ngModel)]="emailLogin" placeholder="tu@email.com"
+              (keyup.enter)="iniciarSesionSincronizacion()" />
+            <input type="password" [(ngModel)]="passwordLogin" placeholder="Contraseña"
+              (keyup.enter)="iniciarSesionSincronizacion()" />
+            <button class="btn-accion btn-importar" [disabled]="loginCargando"
+              (click)="iniciarSesionSincronizacion()">
+              {{ loginCargando ? 'Entrando...' : 'Entrar' }}
+            </button>
+            @if (loginError) {
+              <div class="error">{{ loginError }}</div>
+            }
+          </div>
         </div>
-      </div>
-
-      <button class="btn-accion btn-importar"
-        (click)="importar()"
-        [disabled]="importando || totalSeleccionados() === 0">
-        {{ importando ? 'Importando...' : '⬆️ Importar ' + totalSeleccionados() + ' elemento' + (totalSeleccionados() !== 1 ? 's' : '') }}
-      </button>
+      }
+      @if (auth.haySesion) {
+        <div>
+          <p style="margin-bottom: 14px;">Conectado como <b>{{ auth.email }}</b></p>
+          <button class="btn-accion btn-importar" [disabled]="sincronizando" (click)="sincronizarAhora()">
+            {{ sincronizando ? 'Sincronizando...' : '☁️ Sincronizar ahora' }}
+          </button>
+          @if (sincronizacionError) {
+            <div class="error">{{ sincronizacionError }}</div>
+          }
+          @if (ultimoResultadoSincronizacion) {
+            <div style="margin-top: 16px;">
+              <p>✅ Sincronización completa:</p>
+              <ul>
+                <li>Series: {{ ultimoResultadoSincronizacion.series }} título(s) en total</li>
+                <li>Películas: {{ ultimoResultadoSincronizacion.peliculas }} título(s) en total</li>
+                <li>Mangas: {{ ultimoResultadoSincronizacion.mangas }} título(s) en total</li>
+              </ul>
+            </div>
+          }
+        </div>
+      }
     </div>
-
-  </div>
-
-  <div *ngIf="modoVista === 'sincronizar'" class="backup-panel">
-    <p class="backup-subtitulo" style="margin-bottom: 20px;">
-      Sube y baja tu colección con tu cuenta de la nube. Los borrados no se
-      sincronizan — si quitas un título, tendrás que borrarlo también en el
-      otro sitio si quieres que desaparezca de los dos.
-    </p>
-
-    <div *ngIf="!auth.haySesion" class="card" style="max-width: 420px;">
-      <h3 style="margin-bottom: 14px;">Inicia sesión para sincronizar</h3>
-      <div class="campos-simple" style="display:flex; flex-direction: column; gap: 10px;">
-        <input type="email" [(ngModel)]="emailLogin" placeholder="tu@email.com"
-               (keyup.enter)="iniciarSesionSincronizacion()" />
-        <input type="password" [(ngModel)]="passwordLogin" placeholder="Contraseña"
-               (keyup.enter)="iniciarSesionSincronizacion()" />
-        <button class="btn-accion btn-importar" [disabled]="loginCargando"
-                (click)="iniciarSesionSincronizacion()">
-          {{ loginCargando ? 'Entrando...' : 'Entrar' }}
-        </button>
-        <div class="error" *ngIf="loginError">{{ loginError }}</div>
-      </div>
-    </div>
-
-    <div *ngIf="auth.haySesion">
-      <p style="margin-bottom: 14px;">Conectado como <b>{{ auth.email }}</b></p>
-      <button class="btn-accion btn-importar" [disabled]="sincronizando" (click)="sincronizarAhora()">
-        {{ sincronizando ? 'Sincronizando...' : '☁️ Sincronizar ahora' }}
-      </button>
-
-      <div class="error" *ngIf="sincronizacionError">{{ sincronizacionError }}</div>
-
-      <div *ngIf="ultimoResultadoSincronizacion" style="margin-top: 16px;">
-        <p>✅ Sincronización completa:</p>
-        <ul>
-          <li>Series: {{ ultimoResultadoSincronizacion.series }} título(s) en total</li>
-          <li>Películas: {{ ultimoResultadoSincronizacion.peliculas }} título(s) en total</li>
-          <li>Mangas: {{ ultimoResultadoSincronizacion.mangas }} título(s) en total</li>
-        </ul>
-      </div>
-    </div>
-  </div>
+  }
 
 </div>

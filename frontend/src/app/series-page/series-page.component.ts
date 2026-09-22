@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Serie, SerieService } from '../serie.service';
 import { ExplorarService, ResultadoExplorar } from '../explorar.service';
 
@@ -9,9 +9,11 @@ const GENEROS_SERIE = [
 ];
 
 @Component({
-  selector: 'app-series-page',
-  templateUrl: './series-page.component.html',
-  styleUrls: ['./series-page.component.css']
+    selector: 'app-series-page',
+    templateUrl: './series-page.component.html',
+    styleUrls: ['./series-page.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class SeriesPageComponent implements OnInit {
 

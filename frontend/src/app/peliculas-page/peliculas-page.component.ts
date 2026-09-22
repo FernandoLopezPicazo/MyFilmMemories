@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Pelicula, PeliculaService, Saga } from '../pelicula.service';
 import { ExplorarService, ResultadoExplorar } from '../explorar.service';
 
@@ -9,9 +9,11 @@ const GENEROS_PELICULA = [
 ];
 
 @Component({
-  selector: 'app-peliculas-page',
-  templateUrl: './peliculas-page.component.html',
-  styleUrls: ['./peliculas-page.component.css']
+    selector: 'app-peliculas-page',
+    templateUrl: './peliculas-page.component.html',
+    styleUrls: ['./peliculas-page.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class PeliculasPageComponent implements OnInit {
 

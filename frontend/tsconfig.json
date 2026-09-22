@@ -2,7 +2,6 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "baseUrl": "./",
     "outDir": "./dist/out-tsc",
     "forceConsistentCasingInFileNames": true,
     "strict": true,
@@ -12,17 +11,19 @@
     "noFallthroughCasesInSwitch": true,
     "sourceMap": true,
     "declaration": false,
-    "downlevelIteration": true,
+    // Los .d.ts de @supabase/auth-js incluyen tipos propios de WebAuthn
+    // incompatibles con los .d.ts de DOM más estrictos de TypeScript 6
+    // (no usamos passkeys/WebAuthn en la app, es solo un choque de tipos
+    // entre librerías de terceros). skipLibCheck deja de comprobar la
+    // consistencia interna de los .d.ts de node_modules — no afecta a la
+    // comprobación de tipos de nuestro propio código.
+    "skipLibCheck": true,
     "experimentalDecorators": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "importHelpers": true,
     "target": "ES2022",
     "module": "ES2022",
-    "useDefineForClassFields": false,
-    "lib": [
-      "ES2022",
-      "dom"
-    ]
+    "useDefineForClassFields": false
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

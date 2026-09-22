@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { AmigoService, Amigo, SolicitudAmistad } from '../amigo.service';
 import { Serie } from '../serie.service';
 import { Pelicula } from '../pelicula.service';
@@ -7,9 +7,11 @@ import { Manga } from '../manga.service';
 type TabColeccion = 'series' | 'peliculas' | 'mangas';
 
 @Component({
-  selector: 'app-amigos-page',
-  templateUrl: './amigos-page.component.html',
-  styleUrls: ['./amigos-page.component.css']
+    selector: 'app-amigos-page',
+    templateUrl: './amigos-page.component.html',
+    styleUrls: ['./amigos-page.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class AmigosPageComponent implements OnInit {
 

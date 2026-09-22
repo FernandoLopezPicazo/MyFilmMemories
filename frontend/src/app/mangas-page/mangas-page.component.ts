@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Manga, MangaService } from '../manga.service';
 import { ExplorarService, ResultadoExplorar } from '../explorar.service';
 
@@ -10,9 +10,11 @@ const GENEROS_MANGA = [
 ];
 
 @Component({
-  selector: 'app-mangas-page',
-  templateUrl: './mangas-page.component.html',
-  styleUrls: ['./mangas-page.component.css']
+    selector: 'app-mangas-page',
+    templateUrl: './mangas-page.component.html',
+    styleUrls: ['./mangas-page.component.css'],
+    changeDetection: ChangeDetectionStrategy.Eager,
+    standalone: false
 })
 export class MangasPageComponent implements OnInit {
 

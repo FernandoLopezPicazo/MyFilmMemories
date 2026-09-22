@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
@@ -17,22 +17,16 @@ import { IconComponent } from './shared/icon/icon.component';
 import { AppRoutingModule } from './app-routing.module';
 import { AuthInterceptor } from './auth.interceptor';
 
-@NgModule({
-  declarations: [
-    AppComponent, SeriesPageComponent, PeliculasPageComponent, MangasPageComponent,
-    BackupPageComponent, LoginComponent, AmigosPageComponent, GruposPageComponent,
-    HorarioPageComponent, IconComponent
-  ],
-  imports: [
-    BrowserModule,
-    CommonModule,
-    HttpClientModule,
-    FormsModule,
-    AppRoutingModule
-  ],
-  providers: [
-    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
-  ],
-  bootstrap: [AppComponent]
-})
+@NgModule({ declarations: [
+        AppComponent, SeriesPageComponent, PeliculasPageComponent, MangasPageComponent,
+        BackupPageComponent, LoginComponent, AmigosPageComponent, GruposPageComponent,
+        HorarioPageComponent, IconComponent
+    ],
+    bootstrap: [AppComponent], imports: [BrowserModule,
+        CommonModule,
+        FormsModule,
+        AppRoutingModule], providers: [
+        { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+        provideHttpClient(withXhr(), withInterceptorsFromDi())
+    ] })
 export class AppModule {}

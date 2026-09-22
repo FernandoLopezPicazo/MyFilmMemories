@@ -17,7 +17,9 @@
       <label>Contraseña</label>
       <input type="password" [(ngModel)]="password" name="password" placeholder="••••••••" autocomplete="current-password" />
 
-      <div class="error" *ngIf="error">{{ error }}</div>
+      @if (error) {
+        <div class="error">{{ error }}</div>
+      }
 
       <button type="submit" class="btn-login" [disabled]="cargando">
         {{ cargando ? 'Cargando...' : (modo === 'entrar' ? 'Entrar' : 'Crear cuenta') }}

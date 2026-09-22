@@ -1,268 +1,341 @@
-<div class="container" *ngIf="!grupoSeleccionado">
-  <h1>👨‍👩‍👧‍👦 Grupos</h1>
-
-  <div class="error" *ngIf="error">{{ error }}</div>
-
-  <div class="seccion" *ngIf="invitaciones.length > 0">
-    <h2>📥 Invitaciones recibidas ({{ invitaciones.length }})</h2>
-    <div class="fila-solicitud" *ngFor="let inv of invitaciones">
-      <span><b>{{ inv.nombreGrupo }}</b> — invitado por {{ inv.deEmail }}</span>
-      <div class="acciones">
-        <button class="btn-primary" (click)="aceptarInvitacion(inv)">Aceptar</button>
-        <button class="btn-danger" (click)="rechazarInvitacion(inv)">Rechazar</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>Crear grupo</h2>
-    <div class="campos-simple">
-      <input type="text" [(ngModel)]="nombreNuevoGrupo" placeholder="Nombre del grupo"
-             (keyup.enter)="crearGrupo()" />
-      <button class="btn-primary" (click)="crearGrupo()">Crear</button>
-    </div>
-  </div>
-
-  <div class="seccion">
-    <h2>Mis grupos ({{ grupos.length }})</h2>
-    <div *ngIf="grupos.length === 0" class="hint">Todavía no perteneces a ningún grupo.</div>
-    <div class="fila-amigo" *ngFor="let g of grupos" (click)="abrirGrupo(g)">
-      <span>{{ g.nombre }}</span>
-      <span class="miembros-tag">{{ g.numeroMiembros }} miembro(s)</span>
-    </div>
-  </div>
-</div>
-
-<div class="container" *ngIf="grupoSeleccionado">
-  <button class="btn-volver" (click)="volverALista()">◀ Volver a grupos</button>
-  <h1>{{ grupoSeleccionado.nombre }}</h1>
-
-  <div class="card">
-    <h2>Miembros ({{ grupoSeleccionado.miembros.length }})</h2>
-    <div class="lista-miembros">
-      <span class="miembro-chip" *ngFor="let m of grupoSeleccionado.miembros">{{ m.email }}</span>
-    </div>
-    <div class="campos-simple invitar-fila">
-      <input type="email" [(ngModel)]="emailInvitar" placeholder="Email de un amigo para invitar"
-             (keyup.enter)="invitar()" />
-      <button class="btn-primary" (click)="invitar()">Invitar</button>
-    </div>
-    <div class="error" *ngIf="error">{{ error }}</div>
-    <button class="btn-salir" (click)="salirDelGrupo()">Salir del grupo</button>
-  </div>
-
-  <div class="tabs">
-    <button [class.activo]="tabItem === 'SERIE'" (click)="cambiarTabItem('SERIE')">Series</button>
-    <button [class.activo]="tabItem === 'PELICULA'" (click)="cambiarTabItem('PELICULA')">Películas</button>
-    <button [class.activo]="tabItem === 'MANGA'" (click)="cambiarTabItem('MANGA')">Mangas</button>
-  </div>
-
-  <div class="barra-top">
-    <button class="btn-primary btn-nueva" (click)="abrirFormularioItem()">
-      {{ mostrarFormularioItem ? '✕ Cancelar' : '+ Añadir título' }}
-    </button>
-    <button class="btn-saga btn-nueva" *ngIf="tabItem === 'PELICULA'"
-      (click)="mostrarFormularioSagaGrupo = !mostrarFormularioSagaGrupo">
-      {{ mostrarFormularioSagaGrupo ? '✕ Cancelar' : '🎞️ Añadir saga' }}
-    </button>
-    <div class="buscador">
-      <span class="buscador-icono">🔍</span>
-      <input type="text" [(ngModel)]="busquedaItems" placeholder="Buscar título..." class="buscador-input" />
-      <button *ngIf="busquedaItems" class="buscador-clear" (click)="busquedaItems = ''">✕</button>
-    </div>
-    <button class="btn-filtrar" [class.activo]="generosSeleccionadosItems.length > 0"
-      (click)="mostrarFiltroItems = !mostrarFiltroItems">
-      🏷️ Filtrar{{ generosSeleccionadosItems.length > 0 ? ' (' + generosSeleccionadosItems.length + ')' : '' }}
-    </button>
-  </div>
-
-  <!-- Panel de filtro por géneros -->
-  <div class="filtro-panel" *ngIf="mostrarFiltroItems">
-    <div class="filtro-header">
-      <span class="filtro-label">Filtrar por género</span>
-      <button class="btn-limpiar-filtro" *ngIf="generosSeleccionadosItems.length > 0"
-        (click)="generosSeleccionadosItems = []">✕ Limpiar</button>
-    </div>
-    <div class="filtro-generos">
-      <span *ngFor="let g of generosDisponibles" class="filtro-chip"
-        [class.activo]="generosSeleccionadosItems.includes(g)"
-        (click)="toggleFiltroGeneroItem(g)">{{ g }}</span>
-    </div>
-  </div>
-
-  <!-- Formulario nueva saga de grupo -->
-  <div class="card formulario" *ngIf="mostrarFormularioSagaGrupo">
-    <h2>Nueva saga</h2>
-    <div class="campos-simple">
-      <input type="text" [(ngModel)]="tituloNuevaSagaGrupo" placeholder="Nombre de la saga *"
-        (keyup.enter)="crearSagaGrupo()" autofocus />
-      <button class="btn-saga" (click)="crearSagaGrupo()">Crear saga</button>
-    </div>
-  </div>
-
-  <!-- ── SAGAS DE GRUPO ──────────────────────────────── -->
-  <div class="sagas-seccion" *ngIf="tabItem === 'PELICULA' && sagasGrupo.length > 0">
-    <div class="sagas-titulo-bar" (click)="seccionSagasGrupoAbierta = !seccionSagasGrupoAbierta">
-      <h2 class="sagas-titulo">🎞️ Sagas ({{ sagasGrupo.length }})</h2>
-      <span class="sagas-toggle">{{ seccionSagasGrupoAbierta ? '▲' : '▼' }}</span>
-    </div>
-    <ng-container *ngIf="seccionSagasGrupoAbierta">
-    <div class="saga-card" *ngFor="let saga of sagasGrupo"
-      [class.saga-drag-sobre]="sagaIdDragSobre === saga.id"
-      (dragover)="onDragOverSagaGrupo($event, saga.id!)"
-      (dragleave)="onDragLeaveSagaGrupo($event, saga.id!)"
-      (drop)="onDropEnSagaGrupo($event, saga.id!)">
-      <!-- Cabecera de la saga -->
-      <div class="saga-header" (click)="toggleSagaGrupo(saga.id!)">
-        <div class="saga-header-izq">
-          <span class="saga-nombre">{{ saga.titulo }}</span>
-          <span class="saga-badge" [class.badge-finalizada]="saga.estado === 'FINALIZADA'">
-            {{ saga.estado === 'FINALIZADA' ? '✅ Finalizada' : '🎬 En proceso' }}
-          </span>
-          <span class="saga-contador">{{ contarVistasGrupo(saga) }}/{{ saga.items?.length ?? 0 }} vistas</span>
-        </div>
-        <div class="saga-header-der">
-          <span class="saga-toggle">{{ sagasGrupoExpandidas.has(saga.id!) ? '▲' : '▼' }}</span>
-          <button class="btn-danger btn-saga-del" (click)="$event.stopPropagation(); eliminarSagaGrupo(saga.id!)">✕</button>
-        </div>
-      </div>
-
-      <!-- Contenido expandible -->
-      <div class="saga-body" *ngIf="sagasGrupoExpandidas.has(saga.id!)">
-        <!-- Lista de películas -->
-        <div class="saga-peli-row" *ngFor="let item of saga.items" [class.peli-vista]="item.estado === 'VISTA'"
-          draggable="true"
-          (dragstart)="onDragStartItem(item, $event)"
-          (dragover)="onDragOverSagaFilaGrupo($event)"
-          (drop)="onDropEnSagaFilaGrupo($event, saga.id!, item.id)">
-          <img *ngIf="item.imagenUrl" [src]="item.imagenUrl" class="saga-peli-img" />
-          <div *ngIf="!item.imagenUrl" class="saga-peli-img-ph">🎬</div>
-          <div class="saga-peli-info">
-            <span class="saga-peli-titulo">{{ item.titulo }}</span>
-          </div>
-          <div class="saga-peli-acc">
-            <button *ngIf="item.estado === 'PENDIENTE'" class="btn-success btn-sm"
-              (click)="marcarVistaEnSaga(item, $event)">✓ Vista</button>
-            <button *ngIf="item.estado === 'VISTA'" class="btn-secondary btn-sm"
-              (click)="deshacerVistaEnSaga(item, $event)">↩ Pendiente</button>
-            <button class="btn-danger btn-sm" (click)="quitarItemDeSaga(item.id, $event)">✕</button>
-          </div>
-        </div>
-
-        <!-- Sin películas -->
-        <div class="saga-vacia" *ngIf="!saga.items?.length">
-          Aún no hay películas en esta saga — arrastra una suelta aquí o búscala abajo
-        </div>
-
-        <!-- Añadir película a la saga: buscador TMDB (con alternativa manual) -->
-        <div class="saga-add-peli-explorar" (click)="$event.stopPropagation()">
-          <ng-container *ngIf="!mostrarBusquedaManualSaga[saga.id!]">
-            <div class="campos-simple">
-              <input type="text" [(ngModel)]="busquedaExplorarSaga[saga.id!]"
-                placeholder="Buscar película (TMDB)..."
-                (keyup.enter)="buscarExplorarEnSaga(saga.id!)" />
-              <button class="btn-primary btn-sm" (click)="buscarExplorarEnSaga(saga.id!)">Buscar</button>
+@if (!grupoSeleccionado) {
+  <div class="container">
+    <h1>👨‍👩‍👧‍👦 Grupos</h1>
+    @if (error) {
+      <div class="error">{{ error }}</div>
+    }
+    @if (invitaciones.length > 0) {
+      <div class="seccion">
+        <h2>📥 Invitaciones recibidas ({{ invitaciones.length }})</h2>
+        @for (inv of invitaciones; track inv) {
+          <div class="fila-solicitud">
+            <span><b>{{ inv.nombreGrupo }}</b> — invitado por {{ inv.deEmail }}</span>
+            <div class="acciones">
+              <button class="btn-primary" (click)="aceptarInvitacion(inv)">Aceptar</button>
+              <button class="btn-danger" (click)="rechazarInvitacion(inv)">Rechazar</button>
             </div>
-            <div class="resultados-explorar resultados-explorar-saga"
-              *ngIf="resultadosExplorarSaga[saga.id!]?.length">
-              <div class="resultado-card" *ngFor="let r of resultadosExplorarSaga[saga.id!]"
-                (click)="agregarDesdeExplorarEnSaga(saga.id!, r)">
-                <img *ngIf="r.imagenUrl" [src]="r.imagenUrl" [alt]="r.titulo" />
-                <div class="resultado-info">
-                  <h4>{{ r.titulo }}</h4>
+          </div>
+        }
+      </div>
+    }
+    <div class="card">
+      <h2>Crear grupo</h2>
+      <div class="campos-simple">
+        <input type="text" [(ngModel)]="nombreNuevoGrupo" placeholder="Nombre del grupo"
+          (keyup.enter)="crearGrupo()" />
+        <button class="btn-primary" (click)="crearGrupo()">Crear</button>
+      </div>
+    </div>
+    <div class="seccion">
+      <h2>Mis grupos ({{ grupos.length }})</h2>
+      @if (grupos.length === 0) {
+        <div class="hint">Todavía no perteneces a ningún grupo.</div>
+      }
+      @for (g of grupos; track g) {
+        <div class="fila-amigo" (click)="abrirGrupo(g)">
+          <span>{{ g.nombre }}</span>
+          <span class="miembros-tag">{{ g.numeroMiembros }} miembro(s)</span>
+        </div>
+      }
+    </div>
+  </div>
+}
+
+@if (grupoSeleccionado) {
+  <div class="container">
+    <button class="btn-volver" (click)="volverALista()">◀ Volver a grupos</button>
+    <h1>{{ grupoSeleccionado.nombre }}</h1>
+    <div class="card">
+      <h2>Miembros ({{ grupoSeleccionado.miembros.length }})</h2>
+      <div class="lista-miembros">
+        @for (m of grupoSeleccionado.miembros; track m) {
+          <span class="miembro-chip">{{ m.email }}</span>
+        }
+      </div>
+      <div class="campos-simple invitar-fila">
+        <input type="email" [(ngModel)]="emailInvitar" placeholder="Email de un amigo para invitar"
+          (keyup.enter)="invitar()" />
+        <button class="btn-primary" (click)="invitar()">Invitar</button>
+      </div>
+      @if (error) {
+        <div class="error">{{ error }}</div>
+      }
+      <button class="btn-salir" (click)="salirDelGrupo()">Salir del grupo</button>
+    </div>
+    <div class="tabs">
+      <button [class.activo]="tabItem === 'SERIE'" (click)="cambiarTabItem('SERIE')">Series</button>
+      <button [class.activo]="tabItem === 'PELICULA'" (click)="cambiarTabItem('PELICULA')">Películas</button>
+      <button [class.activo]="tabItem === 'MANGA'" (click)="cambiarTabItem('MANGA')">Mangas</button>
+    </div>
+    <div class="barra-top">
+      <button class="btn-primary btn-nueva" (click)="abrirFormularioItem()">
+        {{ mostrarFormularioItem ? '✕ Cancelar' : '+ Añadir título' }}
+      </button>
+      @if (tabItem === 'PELICULA') {
+        <button class="btn-saga btn-nueva"
+          (click)="mostrarFormularioSagaGrupo = !mostrarFormularioSagaGrupo">
+          {{ mostrarFormularioSagaGrupo ? '✕ Cancelar' : '🎞️ Añadir saga' }}
+        </button>
+      }
+      <div class="buscador">
+        <span class="buscador-icono">🔍</span>
+        <input type="text" [(ngModel)]="busquedaItems" placeholder="Buscar título..." class="buscador-input" />
+        @if (busquedaItems) {
+          <button class="buscador-clear" (click)="busquedaItems = ''">✕</button>
+        }
+      </div>
+      <button class="btn-filtrar" [class.activo]="generosSeleccionadosItems.length > 0"
+        (click)="mostrarFiltroItems = !mostrarFiltroItems">
+        🏷️ Filtrar{{ generosSeleccionadosItems.length > 0 ? ' (' + generosSeleccionadosItems.length + ')' : '' }}
+      </button>
+    </div>
+    <!-- Panel de filtro por géneros -->
+    @if (mostrarFiltroItems) {
+      <div class="filtro-panel">
+        <div class="filtro-header">
+          <span class="filtro-label">Filtrar por género</span>
+          @if (generosSeleccionadosItems.length > 0) {
+            <button class="btn-limpiar-filtro"
+            (click)="generosSeleccionadosItems = []">✕ Limpiar</button>
+          }
+        </div>
+        <div class="filtro-generos">
+          @for (g of generosDisponibles; track g) {
+            <span class="filtro-chip"
+              [class.activo]="generosSeleccionadosItems.includes(g)"
+            (click)="toggleFiltroGeneroItem(g)">{{ g }}</span>
+          }
+        </div>
+      </div>
+    }
+    <!-- Formulario nueva saga de grupo -->
+    @if (mostrarFormularioSagaGrupo) {
+      <div class="card formulario">
+        <h2>Nueva saga</h2>
+        <div class="campos-simple">
+          <input type="text" [(ngModel)]="tituloNuevaSagaGrupo" placeholder="Nombre de la saga *"
+            (keyup.enter)="crearSagaGrupo()" autofocus />
+          <button class="btn-saga" (click)="crearSagaGrupo()">Crear saga</button>
+        </div>
+      </div>
+    }
+    <!-- ── SAGAS DE GRUPO ──────────────────────────────── -->
+    @if (tabItem === 'PELICULA' && sagasGrupo.length > 0) {
+      <div class="sagas-seccion">
+        <div class="sagas-titulo-bar" (click)="seccionSagasGrupoAbierta = !seccionSagasGrupoAbierta">
+          <h2 class="sagas-titulo">🎞️ Sagas ({{ sagasGrupo.length }})</h2>
+          <span class="sagas-toggle">{{ seccionSagasGrupoAbierta ? '▲' : '▼' }}</span>
+        </div>
+        @if (seccionSagasGrupoAbierta) {
+          @for (saga of sagasGrupo; track saga) {
+            <div class="saga-card"
+              [class.saga-drag-sobre]="sagaIdDragSobre === saga.id"
+              (dragover)="onDragOverSagaGrupo($event, saga.id!)"
+              (dragleave)="onDragLeaveSagaGrupo($event, saga.id!)"
+              (drop)="onDropEnSagaGrupo($event, saga.id!)">
+              <!-- Cabecera de la saga -->
+              <div class="saga-header" (click)="toggleSagaGrupo(saga.id!)">
+                <div class="saga-header-izq">
+                  <span class="saga-nombre">{{ saga.titulo }}</span>
+                  <span class="saga-badge" [class.badge-finalizada]="saga.estado === 'FINALIZADA'">
+                    {{ saga.estado === 'FINALIZADA' ? '✅ Finalizada' : '🎬 En proceso' }}
+                  </span>
+                  <span class="saga-contador">{{ contarVistasGrupo(saga) }}/{{ saga.items?.length ?? 0 }} vistas</span>
+                </div>
+                <div class="saga-header-der">
+                  <span class="saga-toggle">{{ sagasGrupoExpandidas.has(saga.id!) ? '▲' : '▼' }}</span>
+                  <button class="btn-danger btn-saga-del" (click)="$event.stopPropagation(); eliminarSagaGrupo(saga.id!)">✕</button>
                 </div>
               </div>
+              <!-- Contenido expandible -->
+              @if (sagasGrupoExpandidas.has(saga.id!)) {
+                <div class="saga-body">
+                  <!-- Lista de películas -->
+                  @for (item of saga.items; track item) {
+                    <div class="saga-peli-row" [class.peli-vista]="item.estado === 'VISTA'"
+                      draggable="true"
+                      (dragstart)="onDragStartItem(item, $event)"
+                      (dragover)="onDragOverSagaFilaGrupo($event)"
+                      (drop)="onDropEnSagaFilaGrupo($event, saga.id!, item.id)">
+                      @if (item.imagenUrl) {
+                        <img [src]="item.imagenUrl" class="saga-peli-img" />
+                      }
+                      @if (!item.imagenUrl) {
+                        <div class="saga-peli-img-ph">🎬</div>
+                      }
+                      <div class="saga-peli-info">
+                        <span class="saga-peli-titulo">{{ item.titulo }}</span>
+                      </div>
+                      <div class="saga-peli-acc">
+                        @if (item.estado === 'PENDIENTE') {
+                          <button class="btn-success btn-sm"
+                          (click)="marcarVistaEnSaga(item, $event)">✓ Vista</button>
+                        }
+                        @if (item.estado === 'VISTA') {
+                          <button class="btn-secondary btn-sm"
+                          (click)="deshacerVistaEnSaga(item, $event)">↩ Pendiente</button>
+                        }
+                        <button class="btn-danger btn-sm" (click)="quitarItemDeSaga(item.id, $event)">✕</button>
+                      </div>
+                    </div>
+                  }
+                  <!-- Sin películas -->
+                  @if (!saga.items?.length) {
+                    <div class="saga-vacia">
+                      Aún no hay películas en esta saga — arrastra una suelta aquí o búscala abajo
+                    </div>
+                  }
+                  <!-- Añadir película a la saga: buscador TMDB (con alternativa manual) -->
+                  <div class="saga-add-peli-explorar" (click)="$event.stopPropagation()">
+                    @if (!mostrarBusquedaManualSaga[saga.id!]) {
+                      <div class="campos-simple">
+                        <input type="text" [(ngModel)]="busquedaExplorarSaga[saga.id!]"
+                          placeholder="Buscar película (TMDB)..."
+                          (keyup.enter)="buscarExplorarEnSaga(saga.id!)" />
+                        <button class="btn-primary btn-sm" (click)="buscarExplorarEnSaga(saga.id!)">Buscar</button>
+                      </div>
+                      @if (resultadosExplorarSaga[saga.id!]?.length) {
+                        <div class="resultados-explorar resultados-explorar-saga"
+                          >
+                          @for (r of resultadosExplorarSaga[saga.id!]; track r) {
+                            <div class="resultado-card"
+                              (click)="agregarDesdeExplorarEnSaga(saga.id!, r)">
+                              @if (r.imagenUrl) {
+                                <img [src]="r.imagenUrl" [alt]="r.titulo" />
+                              }
+                              <div class="resultado-info">
+                                <h4>{{ r.titulo }}</h4>
+                              </div>
+                            </div>
+                          }
+                        </div>
+                      }
+                      @if (cargandoExplorarSaga[saga.id!]) {
+                        <div class="hint">Buscando...</div>
+                      }
+                      <button class="btn-manual" (click)="mostrarBusquedaManualSaga[saga.id!] = true">
+                        ¿No lo encuentras? Añadir manualmente
+                      </button>
+                    }
+                    @if (mostrarBusquedaManualSaga[saga.id!]) {
+                      <div class="campos-simple">
+                        <input type="text" [(ngModel)]="tituloItemEnSaga[saga.id!]"
+                          placeholder="Título de la nueva película..."
+                          (keyup.enter)="agregarItemASaga(saga.id!)" />
+                        <button class="btn-primary btn-sm" (click)="agregarItemASaga(saga.id!)">+ Añadir</button>
+                      </div>
+                      <button class="btn-manual" (click)="mostrarBusquedaManualSaga[saga.id!] = false">◀ Volver al buscador</button>
+                    }
+                  </div>
+                </div>
+              }
             </div>
-            <div class="hint" *ngIf="cargandoExplorarSaga[saga.id!]">Buscando...</div>
-            <button class="btn-manual" (click)="mostrarBusquedaManualSaga[saga.id!] = true">
-              ¿No lo encuentras? Añadir manualmente
-            </button>
-          </ng-container>
-
-          <ng-container *ngIf="mostrarBusquedaManualSaga[saga.id!]">
-            <div class="campos-simple">
-              <input type="text" [(ngModel)]="tituloItemEnSaga[saga.id!]"
-                placeholder="Título de la nueva película..."
-                (keyup.enter)="agregarItemASaga(saga.id!)" />
-              <button class="btn-primary btn-sm" (click)="agregarItemASaga(saga.id!)">+ Añadir</button>
-            </div>
-            <button class="btn-manual" (click)="mostrarBusquedaManualSaga[saga.id!] = false">◀ Volver al buscador</button>
-          </ng-container>
-        </div>
+          }
+        }
       </div>
-    </div>
-    </ng-container>
-  </div>
-
-  <div class="card formulario" *ngIf="mostrarFormularioItem">
-    <ng-container *ngIf="!mostrarBusquedaManual">
-      <div class="campos-simple">
-        <input type="text" [(ngModel)]="busquedaExplorar" placeholder="Buscar título (TMDB/MyAnimeList)..."
-               (keyup.enter)="buscarExplorarGrupo()" />
-        <button class="btn-primary" (click)="buscarExplorarGrupo()">Buscar</button>
-      </div>
-
-      <div class="resultados-explorar" *ngIf="resultadosExplorar.length > 0">
-        <div class="resultado-card" *ngFor="let r of resultadosExplorar" (click)="agregarDesdeExplorar(r)">
-          <img *ngIf="r.imagenUrl" [src]="r.imagenUrl" [alt]="r.titulo" />
-          <div class="resultado-info">
-            <h4>{{ r.titulo }}</h4>
-            <span class="resultado-generos" *ngIf="r.generos.length">{{ r.generos.join(', ') }}</span>
+    }
+    @if (mostrarFormularioItem) {
+      <div class="card formulario">
+        @if (!mostrarBusquedaManual) {
+          <div class="campos-simple">
+            <input type="text" [(ngModel)]="busquedaExplorar" placeholder="Buscar título (TMDB/MyAnimeList)..."
+              (keyup.enter)="buscarExplorarGrupo()" />
+            <button class="btn-primary" (click)="buscarExplorarGrupo()">Buscar</button>
           </div>
+          @if (resultadosExplorar.length > 0) {
+            <div class="resultados-explorar">
+              @for (r of resultadosExplorar; track r) {
+                <div class="resultado-card" (click)="agregarDesdeExplorar(r)">
+                  @if (r.imagenUrl) {
+                    <img [src]="r.imagenUrl" [alt]="r.titulo" />
+                  }
+                  <div class="resultado-info">
+                    <h4>{{ r.titulo }}</h4>
+                    @if (r.generos.length) {
+                      <span class="resultado-generos">{{ r.generos.join(', ') }}</span>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+          @if (cargandoExplorar) {
+            <div class="hint">Buscando...</div>
+          }
+          @if (!cargandoExplorar && busquedaExplorar && resultadosExplorar.length === 0) {
+            <div class="hint">
+              Sin resultados.
+            </div>
+          }
+          <button class="btn-manual" (click)="mostrarBusquedaManual = true">¿No lo encuentras? Añadir manualmente</button>
+        }
+        @if (mostrarBusquedaManual) {
+          <div class="campos-simple">
+            <input type="text" [(ngModel)]="nuevoTitulo" placeholder="Título *" (keyup.enter)="crearItem()" />
+          </div>
+          <textarea [(ngModel)]="nuevaDescripcion" placeholder="Descripción (opcional)" rows="2"></textarea>
+          <button class="btn-primary" (click)="crearItem()">Añadir a la lista del grupo</button>
+          <button class="btn-manual" (click)="mostrarBusquedaManual = false">◀ Volver al buscador</button>
+        }
+      </div>
+    }
+    <div class="lista-items" (dragover)="onDragOverLista($event)" (drop)="onDropEnLista($event)">
+      @for (item of itemsFiltrados; track item) {
+        <div class="item-grupo"
+          [attr.draggable]="tabItem === 'PELICULA' ? true : null"
+          (dragstart)="onDragStartItem(item, $event)">
+          <div class="item-cabecera" (click)="abrirOpinion(item)">
+            @if (item.imagenUrl) {
+              <img [src]="item.imagenUrl" [alt]="item.titulo" class="item-imagen" />
+            }
+            <h3>{{ item.titulo }}</h3>
+            <button class="btn-danger btn-pequeno" (click)="eliminarItem(item, $event)">✕</button>
+          </div>
+          @if (item.descripcion) {
+            <p class="item-descripcion">{{ item.descripcion }}</p>
+          }
+          <div class="opiniones">
+            @for (o of item.opiniones; track o) {
+              <div class="opinion-chip" [class.mia]="esMiOpinion(o.email)">
+                <b>{{ o.email }}</b>
+                @if (o.nota) {
+                  <span>⭐ {{ o.nota }}/10</span>
+                }
+                @if (o.personajeFavorito) {
+                  <span>💚 {{ o.personajeFavorito }}</span>
+                }
+                @if (o.personajeOdiado) {
+                  <span>💔 {{ o.personajeOdiado }}</span>
+                }
+                @if (o.comentario) {
+                  <span class="opinion-comentario">"{{ o.comentario }}"</span>
+                }
+              </div>
+            }
+            @if (item.opiniones.length === 0) {
+              <div class="hint">Nadie ha opinado todavía.</div>
+            }
+          </div>
+          @if (itemAbierto === item.id) {
+            <div class="form-opinion">
+              <h4>Tu opinión</h4>
+              <div class="campos-opinion">
+                <input type="number" min="0" max="10" [(ngModel)]="formOpinion.nota" placeholder="Nota (0-10)" />
+                <input type="text" [(ngModel)]="formOpinion.personajeFavorito" placeholder="Personaje favorito" />
+                <input type="text" [(ngModel)]="formOpinion.personajeOdiado" placeholder="Personaje odiado" />
+              </div>
+              <textarea [(ngModel)]="formOpinion.comentario" placeholder="Comentario (opcional)" rows="2"></textarea>
+              <button class="btn-primary" (click)="guardarOpinion(item)">Guardar mi opinión</button>
+            </div>
+          }
         </div>
-      </div>
-      <div class="hint" *ngIf="cargandoExplorar">Buscando...</div>
-      <div class="hint" *ngIf="!cargandoExplorar && busquedaExplorar && resultadosExplorar.length === 0">
-        Sin resultados.
-      </div>
-
-      <button class="btn-manual" (click)="mostrarBusquedaManual = true">¿No lo encuentras? Añadir manualmente</button>
-    </ng-container>
-
-    <ng-container *ngIf="mostrarBusquedaManual">
-      <div class="campos-simple">
-        <input type="text" [(ngModel)]="nuevoTitulo" placeholder="Título *" (keyup.enter)="crearItem()" />
-      </div>
-      <textarea [(ngModel)]="nuevaDescripcion" placeholder="Descripción (opcional)" rows="2"></textarea>
-      <button class="btn-primary" (click)="crearItem()">Añadir a la lista del grupo</button>
-      <button class="btn-manual" (click)="mostrarBusquedaManual = false">◀ Volver al buscador</button>
-    </ng-container>
-  </div>
-
-  <div class="lista-items" (dragover)="onDragOverLista($event)" (drop)="onDropEnLista($event)">
-    <div class="item-grupo" *ngFor="let item of itemsFiltrados"
-      [attr.draggable]="tabItem === 'PELICULA' ? true : null"
-      (dragstart)="onDragStartItem(item, $event)">
-      <div class="item-cabecera" (click)="abrirOpinion(item)">
-        <img *ngIf="item.imagenUrl" [src]="item.imagenUrl" [alt]="item.titulo" class="item-imagen" />
-        <h3>{{ item.titulo }}</h3>
-        <button class="btn-danger btn-pequeno" (click)="eliminarItem(item, $event)">✕</button>
-      </div>
-      <p class="item-descripcion" *ngIf="item.descripcion">{{ item.descripcion }}</p>
-
-      <div class="opiniones">
-        <div class="opinion-chip" *ngFor="let o of item.opiniones" [class.mia]="esMiOpinion(o.email)">
-          <b>{{ o.email }}</b>
-          <span *ngIf="o.nota">⭐ {{ o.nota }}/10</span>
-          <span *ngIf="o.personajeFavorito">💚 {{ o.personajeFavorito }}</span>
-          <span *ngIf="o.personajeOdiado">💔 {{ o.personajeOdiado }}</span>
-          <span *ngIf="o.comentario" class="opinion-comentario">"{{ o.comentario }}"</span>
-        </div>
-        <div class="hint" *ngIf="item.opiniones.length === 0">Nadie ha opinado todavía.</div>
-      </div>
-
-      <div class="form-opinion" *ngIf="itemAbierto === item.id">
-        <h4>Tu opinión</h4>
-        <div class="campos-opinion">
-          <input type="number" min="0" max="10" [(ngModel)]="formOpinion.nota" placeholder="Nota (0-10)" />
-          <input type="text" [(ngModel)]="formOpinion.personajeFavorito" placeholder="Personaje favorito" />
-          <input type="text" [(ngModel)]="formOpinion.personajeOdiado" placeholder="Personaje odiado" />
-        </div>
-        <textarea [(ngModel)]="formOpinion.comentario" placeholder="Comentario (opcional)" rows="2"></textarea>
-        <button class="btn-primary" (click)="guardarOpinion(item)">Guardar mi opinión</button>
-      </div>
+      }
+      @if (items.length === 0) {
+        <div class="hint">Todavía no hay títulos en esta lista.</div>
+      }
+      @if (items.length > 0 && itemsFiltrados.length === 0) {
+        <div class="hint">Sin resultados.</div>
+      }
     </div>
-    <div *ngIf="items.length === 0" class="hint">Todavía no hay títulos en esta lista.</div>
-    <div *ngIf="items.length > 0 && itemsFiltrados.length === 0" class="hint">Sin resultados.</div>
   </div>
-</div>
+}
