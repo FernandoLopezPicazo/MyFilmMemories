@@ -34,8 +34,11 @@ public class ImagenStorageServiceProd implements ImagenStorageService {
     private String bucket;
 
     @Override
-    public String subir(MultipartFile archivo, UUID usuarioId) throws IOException {
-        String nombreFichero = usuarioId + "/" + UUID.randomUUID() + "_" + archivo.getOriginalFilename();
+    public String subir(MultipartFile archivo, UUID usuarioId, String extension) throws IOException {
+        // Nombre generado íntegramente en el servidor (UUID + extensión ya
+        // validada por ImagenController) — nunca a partir del nombre que
+        // manda el cliente, para no inyectar segmentos raros en la URL.
+        String nombreFichero = usuarioId + "/" + UUID.randomUUID() + "." + extension;
         String contentType = archivo.getContentType() != null ? archivo.getContentType() : "application/octet-stream";
 
         RestClient.create()

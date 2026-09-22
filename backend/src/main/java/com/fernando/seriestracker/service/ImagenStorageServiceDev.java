@@ -20,14 +20,16 @@ public class ImagenStorageServiceDev implements ImagenStorageService {
     private static final String UPLOAD_DIR = "uploads/";
 
     @Override
-    public String subir(MultipartFile archivo, UUID usuarioId) throws IOException {
+    public String subir(MultipartFile archivo, UUID usuarioId, String extension) throws IOException {
         Path uploadPath = Paths.get(UPLOAD_DIR);
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);
         }
 
-        // Nombre único: evita que dos imágenes se sobreescriban
-        String nombreFichero = UUID.randomUUID() + "_" + archivo.getOriginalFilename();
+        // Nombre generado íntegramente en el servidor (UUID + extensión ya
+        // validada por ImagenController) — nunca a partir del nombre que
+        // manda el cliente, para no permitir path traversal.
+        String nombreFichero = UUID.randomUUID() + "." + extension;
         Path destino = uploadPath.resolve(nombreFichero);
         Files.copy(archivo.getInputStream(), destino, StandardCopyOption.REPLACE_EXISTING);
 
